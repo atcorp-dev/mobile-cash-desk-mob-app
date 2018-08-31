@@ -15,10 +15,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.List;
+
 import ua.com.atcorp.mobilecashdesk.Models.Company;
+import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.Repositories.CompanyRepository;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Company _selectedCompany;
+    private List<Item> _companyItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,13 +35,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -46,8 +48,17 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Intent intent = getIntent();
-        Company company = (Company) intent.getSerializableExtra("Company");
-        Log.d("SELECTED_COMPANY", company.getCode());
+        _selectedCompany = (Company) intent.getSerializableExtra("Company");
+        loadCompanyItems();
+    }
+
+    private void loadCompanyItems() {
+        CompanyRepository repository = new CompanyRepository();
+        repository.getCompanyItems(_selectedCompany.getId(), (items, error) -> {
+            if (error != null)
+                return;
+            _companyItems = items;
+        }, this, false);
     }
 
     @Override
