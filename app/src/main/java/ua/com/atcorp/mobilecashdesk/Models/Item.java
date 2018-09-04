@@ -1,28 +1,63 @@
 package ua.com.atcorp.mobilecashdesk.Models;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+
 import java.io.Serializable;
 
-public class Item implements Serializable {
-    private String id;
+@Table(name="Items")
+public class Item extends Model implements Serializable {
+    @Column(name = "RecordId")
+    private String recordId;
+
+    @Column(name = "Code")
     private String code;
+
+    @Column(name = "BarCode")
+    private String barCode;
+
+    @Column(name = "Name")
     private String name;
+
+    @Column(name = "Description")
     private String description;
+
+    @Column(name = "Price")
     private double price;
 
-    public Item(String id, String code, String name, String description, double price) {
-        this.id = id;
+    @Column(name = "Category")
+    private Category category;
+
+    @Column(name = "Company")
+    public Company company;
+
+    @Column(name = "Image")
+    private String image;
+
+    private Item() {
+        super();
+    }
+
+    public Item(String recordId, String code, String barCode, String name, String description, double price, Category category, Company company, String image) {
+        super();
+        this.recordId = recordId;
         this.code = code;
+        this.barCode = barCode;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.category = category;
+        this.company = company;
+        this.image = image;
     }
 
-    public String getId() {
-        return id;
+    public String getRecordId() {
+        return recordId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setRecordId(String recordId) {
+        this.recordId = recordId;
     }
 
     public String getCode() {
@@ -31,6 +66,14 @@ public class Item implements Serializable {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 
     public String getName() {
@@ -55,5 +98,29 @@ public class Item implements Serializable {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

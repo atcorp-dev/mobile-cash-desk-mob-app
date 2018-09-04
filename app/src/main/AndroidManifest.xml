@@ -10,12 +10,22 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MobileCashDeskApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data android:name="AA_DB_NAME" android:value="mobile-cash-desk.db" />
+        <meta-data android:name="AA_DB_VERSION" android:value="1" />
+        <meta-data
+            android:name="AA_MODELS"
+            android:value="ua.com.atcorp.mobilecashdesk.Models.Category,
+                ua.com.atcorp.mobilecashdesk.Models.Item,
+                ua.com.atcorp.mobilecashdesk.Models.Company" />
+
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name">

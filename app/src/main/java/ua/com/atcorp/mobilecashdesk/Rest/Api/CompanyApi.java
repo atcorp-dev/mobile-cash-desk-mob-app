@@ -5,13 +5,12 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import ua.com.atcorp.mobilecashdesk.Models.Company;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.*;
 
 public interface CompanyApi {
     @GET("companies")
-    Call<List<Company>> getCompanies( );
+    Call<List<CompanyDto>> getCompanies( );
 
-    @GET("companies/:companyId/items")
-    Call<List<Item>> getCompanyItems(@Path("id") String companyId);
+    @GET("companies/{companyId}/items")
+    Call<List<ItemDto>> getCompanyItems(@Path("companyId") String companyId);
 }

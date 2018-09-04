@@ -4,13 +4,19 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.Select;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Response;
 import ua.com.atcorp.mobilecashdesk.Models.Company;
 import ua.com.atcorp.mobilecashdesk.Models.Item;
 import ua.com.atcorp.mobilecashdesk.Rest.Api.CompanyApi;
+import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.CompanyDto;
+import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.ItemDto;
 
 public class CompanyRepository extends BaseRepository {
 
@@ -18,7 +24,7 @@ public class CompanyRepository extends BaseRepository {
             Predicate<List<Company>, Exception> predicate, Context ctx, boolean force
     ) {
         CompanyApi api = createService(CompanyApi.class,ctx, force);
-        Call<List<Company>> call = api.getCompanies();
+        Call<List<CompanyDto>> call = api.getCompanies();
         CompaniesTask task = new CompaniesTask(predicate, call);
         return task;
     }
@@ -27,7 +33,7 @@ public class CompanyRepository extends BaseRepository {
             String companyId, Predicate<List<Item>, Exception> predicate, Context ctx, boolean force
     ) {
         CompanyApi api = createService(CompanyApi.class,ctx, force);
-        Call<List<Item>> call = api.getCompanyItems(companyId);
+        Call<List<ItemDto>> call = api.getCompanyItems(companyId);
         CompanyItemsTask task = new CompanyItemsTask(predicate, call);
         return task;
     }
@@ -35,12 +41,12 @@ public class CompanyRepository extends BaseRepository {
     public class CompaniesTask extends AsyncTask<Void,Void,List<Company>> {
 
         private Predicate<List<Company>, Exception> predicate;
-        private Call<List<Company>> call;
+        private Call<List<CompanyDto>> call;
         private Exception error;
 
         public CompaniesTask(
                 Predicate<List<Company>, Exception> predicate,
-                Call<List<Company>> call
+                Call<List<CompanyDto>> call
         ) {
             this.predicate = predicate;
             this.call = call;
@@ -49,13 +55,19 @@ public class CompanyRepository extends BaseRepository {
         @Override
         protected List<Company> doInBackground(Void... params) {
             try {
+                List<Company> cachedItems = getCachedCompanies();
+                if (cachedItems != null && cachedItems.size() > 0)
+                    return cachedItems;
+
                 Response response = call.execute();
-                Log.d("RESPONSE", response.headers().toString());
-                List<Company> items = (List<Company>)response.body();
-                return items;
+                List<CompanyDto> companies = (List<CompanyDto>)response.body();
+
+                List<Company> companyList = saveToCache(companies);
+
+                return companyList;
             } catch (Exception e) {
                 error = e;
-                Log.d("ERROR", e.getMessage());
+                Log.d("GET COMPANIES ERROR", e.getMessage());
                 return null;
             }
         }
@@ -65,17 +77,51 @@ public class CompanyRepository extends BaseRepository {
             super.onPostExecute(result);
             predicate.response(result, error);
         }
+
+        private List<Company> getCachedCompanies() {
+            return new Select()
+                    .from(Company.class)
+                    .execute();
+        }
+
+        private List<Company> saveToCache(List<CompanyDto> companyDtoList) {
+            if (companyDtoList == null || companyDtoList.size() == 0)
+                return null;
+            List<Company> companies = companyDtoList.stream()
+                    .map(c -> dtoToCompany(c))
+                    .collect(Collectors.toList());
+            ActiveAndroid.beginTransaction();
+            try {
+                for(Company company : companies)
+                    company.save();
+                ActiveAndroid.setTransactionSuccessful();
+            } finally {
+                ActiveAndroid.endTransaction();
+            }
+            return companies;
+        }
+
+        private Company dtoToCompany(CompanyDto dto) {
+            return new Company(
+                    dto.id,
+                    dto.code,
+                    dto.name,
+                    dto.phone,
+                    dto.email,
+                    dto.address
+            );
+        }
     }
 
     public class CompanyItemsTask extends AsyncTask<Void,Void,List<Item>> {
 
         private Predicate<List<Item>, Exception> predicate;
-        private Call<List<Item>> call;
+        private Call<List<ItemDto>> call;
         private Exception error;
 
         public CompanyItemsTask(
                 Predicate<List<Item>, Exception> predicate,
-                Call<List<Item>> call
+                Call<List<ItemDto>> call
         ) {
             this.predicate = predicate;
             this.call = call;
@@ -99,6 +145,43 @@ public class CompanyRepository extends BaseRepository {
         protected void onPostExecute(List<Item> result) {
             super.onPostExecute(result);
             predicate.response(result, error);
+        }
+
+        private List<Item> getCachedItems() {
+            return new Select()
+                    .from(Item.class)
+                    .execute();
+        }
+
+        private List<Item> saveToCache(List<ItemDto> itemDtoList) {
+            if (itemDtoList == null || itemDtoList.size() == 0)
+                return null;
+            List<Item> items = itemDtoList.stream()
+                    .map(i -> dtoToItem(i))
+                    .collect(Collectors.toList());
+            ActiveAndroid.beginTransaction();
+            try {
+                for(Item item : items)
+                    item.save();
+                ActiveAndroid.setTransactionSuccessful();
+            } finally {
+                ActiveAndroid.endTransaction();
+            }
+            return items;
+        }
+
+        private Item dtoToItem(ItemDto dto) {
+            return new Item(
+                    dto.id,
+                    dto.code,
+                    dto.barCode,
+                    dto.name,
+                    dto.description,
+                    dto.price,
+                    null, //dto.categoryId,
+                    null, //dto.companyId,
+                    dto.image
+            );
         }
     }
 }

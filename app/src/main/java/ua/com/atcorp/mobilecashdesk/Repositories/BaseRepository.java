@@ -22,8 +22,8 @@ public abstract class BaseRepository<T> {
         void response(T response, E error);
     }
 
-    //final static String API_URL = "https://crud-server.firebaseapp.com/";
-    final static String API_URL = "http://10.0.2.2:3000/api/";
+    final static String API_URL = "https://mobile-cash-desk.herokuapp.com/api/";
+    // final static String API_URL = "http://10.0.2.2:3000/api/";
 
     private static String cacheToken = UUID.randomUUID().toString();
     protected static final Interceptor getRewriteCacheControlInterceptor(Context context, boolean force) {

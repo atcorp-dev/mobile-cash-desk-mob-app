@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity
 
     private void loadCompanyItems() {
         CompanyRepository repository = new CompanyRepository();
-        repository.getCompanyItems(_selectedCompany.getId(), (items, error) -> {
+        repository.getCompanyItems(_selectedCompany.getRecordId(), (items, error) -> {
             if (error != null)
                 return;
             _companyItems = items;
