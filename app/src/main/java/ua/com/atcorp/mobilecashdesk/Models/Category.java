@@ -7,13 +7,13 @@ import com.activeandroid.annotation.Table;
 @Table(name="Categories")
 public class Category extends Model {
 
-    @Column(name = "RecordId")
+    @Column(name = "RecordId", index = true, unique = true)
     private String recordId;
 
     @Column(name = "Name")
     private String name;
 
-    @Column(name = "Code")
+    @Column(name = "Code", index = true, unique = true)
     private String code;
 
     public Category() {

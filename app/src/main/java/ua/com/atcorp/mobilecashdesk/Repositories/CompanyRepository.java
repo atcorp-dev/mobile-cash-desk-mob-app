@@ -1,6 +1,5 @@
 package ua.com.atcorp.mobilecashdesk.Repositories;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Response;
+import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
 import ua.com.atcorp.mobilecashdesk.Models.Company;
 import ua.com.atcorp.mobilecashdesk.Models.Item;
 import ua.com.atcorp.mobilecashdesk.Rest.Api.CompanyApi;
@@ -20,23 +20,21 @@ import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.ItemDto;
 
 public class CompanyRepository extends BaseRepository {
 
-    public CompaniesTask getCompanies(
-            Predicate<List<Company>, Exception> predicate, Context ctx, boolean force
-    ) {
-        CompanyApi api = createService(CompanyApi.class,ctx, force);
+    public CompaniesTask getCompanies(Predicate<List<Company>, Exception> predicate) {
+        CompanyApi api = createService(CompanyApi.class);
         Call<List<CompanyDto>> call = api.getCompanies();
         CompaniesTask task = new CompaniesTask(predicate, call);
         return task;
     }
 
-    public CompanyItemsTask getCompanyItems(
-            String companyId, Predicate<List<Item>, Exception> predicate, Context ctx, boolean force
-    ) {
-        CompanyApi api = createService(CompanyApi.class,ctx, force);
+    /*
+    public CompanyItemsTask getCompanyItems(String companyId, Predicate<List<Item>, Exception> predicate) {
+        CompanyApi api = createService(CompanyApi.class);
         Call<List<ItemDto>> call = api.getCompanyItems(companyId);
         CompanyItemsTask task = new CompanyItemsTask(predicate, call);
         return task;
     }
+    */
 
     public class CompaniesTask extends AsyncTask<Void,Void,List<Company>> {
 
@@ -130,13 +128,18 @@ public class CompanyRepository extends BaseRepository {
         @Override
         protected List<Item> doInBackground(Void... params) {
             try {
+                String companyId = MainActivity.getCompany().getRecordId();
+                List<Item> cachedItems = getCachedItems(companyId);
+                if (cachedItems != null && cachedItems.size() > 0)
+                    return cachedItems;
                 Response response = call.execute();
                 Log.d("RESPONSE", response.headers().toString());
-                List<Item> items = (List<Item>)response.body();
-                return items;
+                List<ItemDto> items = (List<ItemDto>)response.body();
+                List<Item> itemList = saveToCache(items);
+                return itemList;
             } catch (Exception e) {
                 error = e;
-                Log.d("ERROR", e.getMessage());
+                Log.d("GET COMPANY ITEMS ERROR", e.getMessage());
                 return null;
             }
         }
@@ -147,9 +150,10 @@ public class CompanyRepository extends BaseRepository {
             predicate.response(result, error);
         }
 
-        private List<Item> getCachedItems() {
+        private List<Item> getCachedItems(String companyId) {
             return new Select()
                     .from(Item.class)
+                    .where("company=?", companyId)
                     .execute();
         }
 
@@ -159,14 +163,14 @@ public class CompanyRepository extends BaseRepository {
             List<Item> items = itemDtoList.stream()
                     .map(i -> dtoToItem(i))
                     .collect(Collectors.toList());
-            ActiveAndroid.beginTransaction();
+            /*ActiveAndroid.beginTransaction();
             try {
                 for(Item item : items)
                     item.save();
                 ActiveAndroid.setTransactionSuccessful();
             } finally {
                 ActiveAndroid.endTransaction();
-            }
+            }*/
             return items;
         }
 

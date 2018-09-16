@@ -11,6 +11,8 @@ public interface CompanyApi {
     @GET("companies")
     Call<List<CompanyDto>> getCompanies( );
 
+    /*
     @GET("companies/{companyId}/items")
     Call<List<ItemDto>> getCompanyItems(@Path("companyId") String companyId);
+    */
 }

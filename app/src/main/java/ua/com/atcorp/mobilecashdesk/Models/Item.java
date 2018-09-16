@@ -8,13 +8,13 @@ import java.io.Serializable;
 
 @Table(name="Items")
 public class Item extends Model implements Serializable {
-    @Column(name = "RecordId")
+    @Column(name = "RecordId", index = true, unique = true)
     private String recordId;
 
-    @Column(name = "Code")
+    @Column(name = "Code", index = true)
     private String code;
 
-    @Column(name = "BarCode")
+    @Column(name = "BarCode", index = true)
     private String barCode;
 
     @Column(name = "Name")
@@ -35,7 +35,7 @@ public class Item extends Model implements Serializable {
     @Column(name = "Image")
     private String image;
 
-    private Item() {
+    public Item() {
         super();
     }
 
@@ -50,6 +50,11 @@ public class Item extends Model implements Serializable {
         this.category = category;
         this.company = company;
         this.image = image;
+    }
+
+    @Override
+    public String toString() {
+        return name + " / " + code + " / " + barCode + " (" + price + ")";
     }
 
     public String getRecordId() {
