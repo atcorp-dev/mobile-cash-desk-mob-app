@@ -74,7 +74,7 @@
 
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="48dp"
                     android:src="@drawable/ic_action_inc"
                     android:id="@+id/cart_btn_inc"
                     android:layout_weight = "0">
@@ -98,7 +98,7 @@
 
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="48dp"
                     android:layout_weight = "0"
                     android:src="@drawable/ic_action_dec"
                     android:id="@+id/cart_btn_dec">
