@@ -53,7 +53,7 @@
                     <TextView
                         android:id="@+id/item_code"
                         android:layout_width="match_parent"
-                        android:layout_height="28dp"
+                        android:layout_height="32dp"
                         android:layout_weight = "0"
                         android:textSize="18sp"
                         android:paddingTop="6dp"
@@ -62,7 +62,7 @@
                     <TextView
                         android:id="@+id/item_price"
                         android:layout_width="match_parent"
-                        android:layout_height="28dp"
+                        android:layout_height="32dp"
                         android:layout_weight = "0"
                         android:textSize="20sp"
                         android:textStyle="italic"

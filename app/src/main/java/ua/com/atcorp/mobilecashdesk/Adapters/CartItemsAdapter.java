@@ -104,14 +104,15 @@ public class CartItemsAdapter extends ArrayAdapter {
             super.add(item);
         else {
             CartItem cartItem = new CartItem(mCartId, item);
-            mItems.add(cartItem);
+            // mItems.add(cartItem);
             super.add(cartItem);
         }
     }
 
     @Override
     public void remove(@Nullable Object object) {
-        mItems.remove(object);
+        // mItems.remove(object);
+        mItems.get(mItems.indexOf(object)).delete();
         super.remove(object);
     }
 
