@@ -3,17 +3,18 @@ package ua.com.atcorp.mobilecashdesk.Repositories;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.activeandroid.ActiveAndroid;
-import com.activeandroid.query.Select;
+import com.reactiveandroid.ReActiveAndroid;
+import com.reactiveandroid.query.Select;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Response;
+import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
 import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
-import ua.com.atcorp.mobilecashdesk.Models.Company;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.models.Company;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.Rest.Api.CompanyApi;
 import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.CompanyDto;
 import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.ItemDto;
@@ -77,9 +78,9 @@ public class CompanyRepository extends BaseRepository {
         }
 
         private List<Company> getCachedCompanies() {
-            return new Select()
+            return Select
                     .from(Company.class)
-                    .execute();
+                    .fetch();
         }
 
         private List<Company> saveToCache(List<CompanyDto> companyDtoList) {
@@ -88,14 +89,10 @@ public class CompanyRepository extends BaseRepository {
             List<Company> companies = companyDtoList.stream()
                     .map(c -> dtoToCompany(c))
                     .collect(Collectors.toList());
-            ActiveAndroid.beginTransaction();
-            try {
-                for(Company company : companies)
-                    company.save();
-                ActiveAndroid.setTransactionSuccessful();
-            } finally {
-                ActiveAndroid.endTransaction();
-            }
+            ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
+            for(Company company : companies)
+                company.save();
+            ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
             return companies;
         }
 
@@ -151,10 +148,10 @@ public class CompanyRepository extends BaseRepository {
         }
 
         private List<Item> getCachedItems(String companyId) {
-            return new Select()
+            return Select
                     .from(Item.class)
                     .where("company=?", companyId)
-                    .execute();
+                    .fetch();
         }
 
         private List<Item> saveToCache(List<ItemDto> itemDtoList) {

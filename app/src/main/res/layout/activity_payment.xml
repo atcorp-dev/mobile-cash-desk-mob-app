@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/payment_amount_wrap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:orientation="horizontal">
+        <TextView
+            android:text="@string/payment_amount_lbl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="12dp"
+            android:textSize="22sp" />
+        <TextView
+            android:id="@+id/payment_amount"
+            android:text=""
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/payment_target_wrap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_amount_wrap"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginBottom="24dp"
+        android:orientation="horizontal">
+        <TextView
+            android:text="@string/payment_target_lbl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="12dp"
+            android:textSize="22sp" />
+        <TextView
+            android:id="@+id/payment_target"
+            android:text=""
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/payment_status_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_target_wrap"/>
+
+    <Button
+        android:id="@+id/btn_pay"
+        android:onClick="onPayment"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_centerInParent="false"
+        android:text="@string/payment_activity_btn_pay"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@color/colorActivated"
+        android:layout_below="@id/payment_status_message"
+        android:layout_marginTop="10dp"/>
+
+</RelativeLayout>
+

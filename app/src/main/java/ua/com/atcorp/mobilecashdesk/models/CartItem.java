@@ -1,28 +1,46 @@
-package ua.com.atcorp.mobilecashdesk.Models;
+package ua.com.atcorp.mobilecashdesk.models;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
+import com.reactiveandroid.Model;
+import com.reactiveandroid.annotation.Column;
+import com.reactiveandroid.annotation.Index;
+import com.reactiveandroid.annotation.IndexGroup;
+import com.reactiveandroid.annotation.PrimaryKey;
+import com.reactiveandroid.annotation.Table;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-@Table(name="CartItems")
+import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
+
+@Table(name = "CartItems", database = AppDatabase.class,
+        indexGroups = {
+                @IndexGroup(groupNumber = 1, name = "index_cartId"),
+                @IndexGroup(groupNumber = 2, name = "index_ItemRecordId"),
+                @IndexGroup(groupNumber = 3, name = "index_ItemCode"),
+                @IndexGroup(groupNumber = 4, name = "index_ItemBarCode")
+})
 public class CartItem extends Model implements Serializable {
 
-    @Column(name = "cartId", index = true)
+    @PrimaryKey(name = "_id")
+    private Long id;
+
+    @Index(indexGroups = 1)
+    @Column(name = "cartId")
     private String cartId;
 
     @Column(name = "qty")
     private int qty;
 
-    @Column(name = "ItemRecordId", index = true)
+    @Index(indexGroups = 2)
+    @Column(name = "ItemRecordId")
     private String itemRecordId;
 
-    @Column(name = "ItemCode", index = true)
+    @Index(indexGroups = 3)
+    @Column(name = "ItemCode")
     private String itemCode;
 
-    @Column(name = "ItemBarCode", index = true)
+    @Index(indexGroups = 4)
+    @Column(name = "ItemBarCode")
     private String itemBarCode;
 
     @Column(name = "ItemName")
@@ -56,6 +74,10 @@ public class CartItem extends Model implements Serializable {
         this.itemCompany = item.getCompany();
         this.itemImage = item.getImage();
 
+    }
+
+    public String getCartId() {
+        return cartId;
     }
 
     public int getQty() {

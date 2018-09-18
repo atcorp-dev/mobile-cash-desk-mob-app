@@ -1,4 +1,4 @@
-package ua.com.atcorp.mobilecashdesk.Adapters;
+package ua.com.atcorp.mobilecashdesk.adapters;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -6,18 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
-import com.activeandroid.ActiveAndroid;
+import com.reactiveandroid.ReActiveAndroid;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import ua.com.atcorp.mobilecashdesk.Models.CartItem;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
+import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
 
 public class CartItemsAdapter extends ArrayAdapter {
@@ -117,14 +116,10 @@ public class CartItemsAdapter extends ArrayAdapter {
 
     @Override
     public void clear() {
-        ActiveAndroid.beginTransaction();
-        try {
-            for(CartItem item : mItems)
-                item.delete();
-            ActiveAndroid.setTransactionSuccessful();
-        } finally {
-            ActiveAndroid.endTransaction();
-        }
+        ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
+        for(CartItem item : mItems)
+            item.delete();
+        ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
         super.clear();
     }
 
@@ -142,16 +137,14 @@ public class CartItemsAdapter extends ArrayAdapter {
 
     public Exception saveState() {
         Exception error = null;
-        ActiveAndroid.beginTransaction();
+        ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
         try {
             for (CartItem item : mItems) {
                 item.save();
             }
-            ActiveAndroid.setTransactionSuccessful();
+            ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
         } catch (Exception e) {
             error = e;
-        } finally {
-            ActiveAndroid.endTransaction();
         }
         return error;
     }

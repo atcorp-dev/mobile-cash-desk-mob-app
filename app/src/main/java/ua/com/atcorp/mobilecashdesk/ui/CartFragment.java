@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.text.GetChars;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -20,20 +18,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.activeandroid.query.Select;
+import com.reactiveandroid.query.Select;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collector;
 
-import ua.com.atcorp.mobilecashdesk.Adapters.CartItemsAdapter;
-import ua.com.atcorp.mobilecashdesk.Models.CartItem;
-import ua.com.atcorp.mobilecashdesk.Models.Company;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.adapters.CartItemsAdapter;
+import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.models.Company;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
-import ua.com.atcorp.mobilecashdesk.Repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.Repositories.ItemRepository;
 
 public class CartFragment extends Fragment {
@@ -160,10 +156,10 @@ public class CartFragment extends Fragment {
         if (mCartId == null) {
             mCartId = getActiveCartId(getContext());
         }
-        List<CartItem> cartItems = new Select()
+        List<CartItem> cartItems = Select
                 .from(CartItem.class)
                 .where("cartId = ?", mCartId.toString())
-                .execute();
+                .fetch();
         if (cartItems != null & cartItems.size() > 0)
             mItems = new ArrayList<>(cartItems);
         else

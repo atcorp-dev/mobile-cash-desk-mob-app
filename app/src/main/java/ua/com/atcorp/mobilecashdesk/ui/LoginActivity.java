@@ -33,12 +33,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.activeandroid.query.Delete;
+import com.reactiveandroid.query.Delete;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.com.atcorp.mobilecashdesk.Models.Company;
+import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.Repositories.CompanyRepository;
 
@@ -181,7 +181,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     public void onResetCompanyBtnClick(View v) {
-        new Delete().from(Company.class).execute();
+        Delete.from(Company.class).execute();
         loadCompanies();
     }
     /**

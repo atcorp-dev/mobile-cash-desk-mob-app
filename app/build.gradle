@@ -38,5 +38,20 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    implementation 'com.reactiveandroid:reactiveandroid:1.4.3'
+
+    //required libs for SDK minipos !!!
+    implementation 'com.android.support:support-annotations:27.1.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
+    implementation 'de.greenrobot:eventbus:2.2.1'
+    implementation 'net.danlew:android.joda:2.9.5.1'
+
+    //terminal SDK
+    implementation files('libs/dio-minipos-1.0.aar')
+
+
+    implementation 'com.jakewharton:butterknife:8.2.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.2.1'
 }

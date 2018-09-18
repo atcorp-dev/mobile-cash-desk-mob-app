@@ -23,15 +23,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data android:name="AA_DB_NAME" android:value="mobile_cash_desk.db" />
-        <meta-data android:name="AA_DB_VERSION" android:value="1" />
-        <meta-data
-            android:name="AA_MODELS"
-            android:value="ua.com.atcorp.mobilecashdesk.Models.Category,
-                ua.com.atcorp.mobilecashdesk.Models.Item,
-                ua.com.atcorp.mobilecashdesk.Models.CartItem,
-                ua.com.atcorp.mobilecashdesk.Models.Company" />
-
         <activity
             android:name=".ui.LoginActivity"
             android:label="@string/app_name">

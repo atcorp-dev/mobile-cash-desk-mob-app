@@ -13,8 +13,9 @@ import android.view.MenuItem;
 
 import java.util.List;
 
-import ua.com.atcorp.mobilecashdesk.Models.Company;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.models.Company;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
 
 public class MainActivity extends AppCompatActivity
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity
     private List<Item> mCompanyItems;
     private NavigationView mNavigationView;
     CartFragment mCartFragment;
+    private int PAYMENT_REQ_CODE = 100;
 
     public static Company getCompany() {
         return mSelectedCompany;
@@ -158,5 +160,20 @@ public class MainActivity extends AppCompatActivity
 
     public CartFragment getCartFragment() {
         return mCartFragment;
+    }
+
+    public void makePayment(CartItem item) {
+        Intent intent = new Intent(this, PaymentActivity.class);
+        intent.putExtra("cartId", item.getCartId());
+        intent.putExtra("amount", item.getPrice());
+        startActivityForResult(intent, PAYMENT_REQ_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {return;}
+        if (requestCode == PAYMENT_REQ_CODE) {
+            // onPaymentActivity(resultCode, data);
+        }
     }
 }

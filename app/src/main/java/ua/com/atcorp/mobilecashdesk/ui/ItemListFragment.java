@@ -15,14 +15,14 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.activeandroid.query.Delete;
+import com.reactiveandroid.query.Delete;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.com.atcorp.mobilecashdesk.Adapters.ItemAdapter;
-import ua.com.atcorp.mobilecashdesk.Models.Company;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.adapters.ItemAdapter;
+import ua.com.atcorp.mobilecashdesk.models.Company;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.Repositories.ItemRepository;
 
@@ -53,7 +53,7 @@ public class ItemListFragment extends Fragment implements TextWatcher {
     }
 
     public static void ResetCache() {
-        new Delete().from(Item.class).execute();
+        Delete.from(Item.class).execute();
     }
 
     private void getItemsByName() {

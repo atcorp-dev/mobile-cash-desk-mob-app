@@ -3,19 +3,14 @@ package ua.com.atcorp.mobilecashdesk.Repositories;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.activeandroid.ActiveAndroid;
-import com.activeandroid.query.Select;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Response;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
-import ua.com.atcorp.mobilecashdesk.Rest.Api.CompanyApi;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.ItemDto;
 import ua.com.atcorp.mobilecashdesk.Rest.Api.ItemApi;
-import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
 
 public class ItemRepository extends BaseRepository {
 

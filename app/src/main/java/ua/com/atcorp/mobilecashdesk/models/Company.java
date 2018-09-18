@@ -1,17 +1,32 @@
-package ua.com.atcorp.mobilecashdesk.Models;
+package ua.com.atcorp.mobilecashdesk.models;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
+import com.reactiveandroid.Model;
+import com.reactiveandroid.annotation.Column;
+import com.reactiveandroid.annotation.Index;
+import com.reactiveandroid.annotation.IndexGroup;
+import com.reactiveandroid.annotation.PrimaryKey;
+import com.reactiveandroid.annotation.Table;
 
 import java.io.Serializable;
 import java.util.List;
 
-@Table(name="Companies")
+import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
+
+@Table(name = "Companies", database = AppDatabase.class,
+        indexGroups = {
+                @IndexGroup(groupNumber = 1, name = "index_RecordId"),
+                @IndexGroup(groupNumber = 2, name = "index_Code")
+        })
 public class Company extends Model implements Serializable {
+
+    @PrimaryKey(name = "_id")
+    private Long id;
+
+    @Index(indexGroups = 1)
     @Column(name = "RecordId")
     public String recordId;
 
+    @Index(indexGroups = 2)
     @Column(name = "Code")
     private String code;
 
@@ -30,13 +45,13 @@ public class Company extends Model implements Serializable {
     @Column(name = "Parent")
     public Company parent;
 
-    public List<Company> children() {
+    /*public List<Company> children() {
         return getMany(Company.class, "Parent");
     }
 
     public List<Item> itemList() {
         return getMany(Item.class, "Company");
-    }
+    }*/
 
     public Company() {
         super();

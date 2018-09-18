@@ -1,4 +1,4 @@
-package ua.com.atcorp.mobilecashdesk.Adapters;
+package ua.com.atcorp.mobilecashdesk.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,17 +11,16 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.activeandroid.query.Select;
+import com.reactiveandroid.query.Select;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import ua.com.atcorp.mobilecashdesk.Models.CartItem;
-import ua.com.atcorp.mobilecashdesk.Models.Item;
+import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.CartFragment;
-import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
 
 public class ItemAdapter extends ArrayAdapter {
 
@@ -79,11 +78,10 @@ public class ItemAdapter extends ArrayAdapter {
     private void toCart(View view, Item item) {
         try {
             UUID cartId = CartFragment.getActiveCartId(getContext());
-            CartItem cartItem = new Select()
+            CartItem cartItem = Select
                     .from(CartItem.class)
-                    .where("cartId = ?", cartId)
-                    .and("itemRecordId = ?", item.getRecordId())
-                    .executeSingle();
+                    .where("cartId = ? and itemRecordId = ?", cartId, item.getRecordId())
+                    .fetchSingle();
             if (cartItem == null) {
                 cartItem = new CartItem(cartId, item);
             } else {

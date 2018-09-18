@@ -1,20 +1,40 @@
-package ua.com.atcorp.mobilecashdesk.Models;
+package ua.com.atcorp.mobilecashdesk.models;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
+
+import com.reactiveandroid.Model;
+import com.reactiveandroid.annotation.Column;
+import com.reactiveandroid.annotation.Index;
+import com.reactiveandroid.annotation.IndexGroup;
+import com.reactiveandroid.annotation.PrimaryKey;
+import com.reactiveandroid.annotation.Table;
+import com.reactiveandroid.annotation.Unique;
 
 import java.io.Serializable;
 
-@Table(name="Items")
+import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
+
+@Table(name = "Items", database = AppDatabase.class,
+        indexGroups = {
+                @IndexGroup(groupNumber = 1, name = "index_RecordId"),
+                @IndexGroup(groupNumber = 2, name = "index_Code"),
+                @IndexGroup(groupNumber = 3, name = "index_BarCode")
+        })
 public class Item extends Model implements Serializable {
-    @Column(name = "RecordId", index = true, unique = true)
+
+    @PrimaryKey(name = "_id")
+    private Long id;
+
+    @Unique(unique = true)
+    @Index(indexGroups = 1)
+    @Column(name = "RecordId")
     private String recordId;
 
-    @Column(name = "Code", index = true)
+    @Index(indexGroups = 2)
+    @Column(name = "Code")
     private String code;
 
-    @Column(name = "BarCode", index = true)
+    @Index(indexGroups = 3)
+    @Column(name = "BarCode")
     private String barCode;
 
     @Column(name = "Name")
