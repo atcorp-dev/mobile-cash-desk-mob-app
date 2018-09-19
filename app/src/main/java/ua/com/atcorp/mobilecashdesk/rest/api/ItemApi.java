@@ -1,11 +1,11 @@
-package ua.com.atcorp.mobilecashdesk.Rest.Api;
+package ua.com.atcorp.mobilecashdesk.rest.api;
 
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.ItemDto;
+import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 
 public interface ItemApi {
 

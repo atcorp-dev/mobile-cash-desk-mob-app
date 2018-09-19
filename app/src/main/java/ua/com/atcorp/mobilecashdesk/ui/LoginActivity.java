@@ -40,7 +40,7 @@ import java.util.List;
 
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.R;
-import ua.com.atcorp.mobilecashdesk.Repositories.CompanyRepository;
+import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 
 import static android.Manifest.permission.READ_CONTACTS;
 

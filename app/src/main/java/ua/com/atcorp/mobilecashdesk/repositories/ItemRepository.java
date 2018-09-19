@@ -1,4 +1,4 @@
-package ua.com.atcorp.mobilecashdesk.Repositories;
+package ua.com.atcorp.mobilecashdesk.repositories;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import retrofit2.Call;
 import retrofit2.Response;
 import ua.com.atcorp.mobilecashdesk.models.Item;
-import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.ItemDto;
-import ua.com.atcorp.mobilecashdesk.Rest.Api.ItemApi;
+import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
+import ua.com.atcorp.mobilecashdesk.rest.api.ItemApi;
 
 public class ItemRepository extends BaseRepository {
 
@@ -53,7 +53,6 @@ public class ItemRepository extends BaseRepository {
         protected Item doInBackground(Void... params) {
             try {
                 Response response = call.execute();
-                Log.d("ITEM SERVICE RESPONSE", response.body().toString());
                 ItemDto itemDto = (ItemDto)response.body();
                 Item item = dtoToItem(itemDto);
                 return item;
@@ -71,6 +70,8 @@ public class ItemRepository extends BaseRepository {
         }
 
         private Item dtoToItem(ItemDto dto) {
+            if (dto == null)
+                return null;
             return new Item(
                     dto.id,
                     dto.code,
@@ -103,7 +104,6 @@ public class ItemRepository extends BaseRepository {
         protected List<Item> doInBackground(Void... params) {
             try {
                 Response response = call.execute();
-                Log.d("ITEM SERVICE RESPONSE", response.body().toString());
                 List<ItemDto> itemDtoList = (List<ItemDto>)response.body();
                 List<Item> item = itemDtoList
                         .stream()

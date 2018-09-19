@@ -1,4 +1,4 @@
-package ua.com.atcorp.mobilecashdesk.Rest.Api.Dto;
+package ua.com.atcorp.mobilecashdesk.rest.dto;
 
 public class CompanyDto {
 

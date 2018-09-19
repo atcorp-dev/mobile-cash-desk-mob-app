@@ -1,4 +1,4 @@
-package ua.com.atcorp.mobilecashdesk.Repositories;
+package ua.com.atcorp.mobilecashdesk.repositories;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -15,9 +15,9 @@ import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
 import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
-import ua.com.atcorp.mobilecashdesk.Rest.Api.CompanyApi;
-import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.CompanyDto;
-import ua.com.atcorp.mobilecashdesk.Rest.Api.Dto.ItemDto;
+import ua.com.atcorp.mobilecashdesk.rest.api.CompanyApi;
+import ua.com.atcorp.mobilecashdesk.rest.dto.CompanyDto;
+import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 
 public class CompanyRepository extends BaseRepository {
 
@@ -130,7 +130,6 @@ public class CompanyRepository extends BaseRepository {
                 if (cachedItems != null && cachedItems.size() > 0)
                     return cachedItems;
                 Response response = call.execute();
-                Log.d("RESPONSE", response.headers().toString());
                 List<ItemDto> items = (List<ItemDto>)response.body();
                 List<Item> itemList = saveToCache(items);
                 return itemList;
@@ -172,6 +171,8 @@ public class CompanyRepository extends BaseRepository {
         }
 
         private Item dtoToItem(ItemDto dto) {
+            if (dto == null)
+                return null;
             return new Item(
                     dto.id,
                     dto.code,

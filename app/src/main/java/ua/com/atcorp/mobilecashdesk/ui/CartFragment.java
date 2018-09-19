@@ -30,7 +30,7 @@ import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
-import ua.com.atcorp.mobilecashdesk.Repositories.ItemRepository;
+import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 
 public class CartFragment extends Fragment {
 
