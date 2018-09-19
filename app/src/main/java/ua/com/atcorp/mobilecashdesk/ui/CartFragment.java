@@ -117,7 +117,10 @@ public class CartFragment extends Fragment {
 
     }
 
-    public void onButtonScanClick(View view) {}
+    public void onButtonScanClick(View view) {
+        MainActivity ma = (MainActivity) getContext();
+        ma.scanBarCode();
+    }
 
     public void onButtonPayClick(View view) {
         MainActivity ma = (MainActivity) getContext();

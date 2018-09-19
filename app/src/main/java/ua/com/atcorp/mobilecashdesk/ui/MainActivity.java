@@ -10,6 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.android.gms.vision.barcode.Barcode;
 
 import java.util.List;
 
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView mNavigationView;
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
+    private int SCAN_REQ_CODE = 101;
 
     public static Company getCompany() {
         return mSelectedCompany;
@@ -169,11 +173,32 @@ public class MainActivity extends AppCompatActivity
         startActivityForResult(intent, PAYMENT_REQ_CODE);
     }
 
+    public void scanBarCode() {
+        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+        startActivityForResult(intent, SCAN_REQ_CODE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null) {return;}
         if (requestCode == PAYMENT_REQ_CODE) {
             // onPaymentActivity(resultCode, data);
+        } else if (requestCode == SCAN_REQ_CODE) {
+            onBarCodeDetected();
         }
+    }
+
+    private void onBarCodeDetected() {
+        String message = "DETECTED BAR_CODE: ";
+        try {
+            Intent intent = getIntent();
+            String barCode = intent.getStringExtra("barCode");
+            Barcode barcode = (Barcode) intent.getSerializableExtra("BarCode");
+            message+= barcode.displayValue;
+
+        } catch (Exception err) {
+            message = "ERROR IN DETECTING BAR CODE: " + err.getMessage();
+        }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 }

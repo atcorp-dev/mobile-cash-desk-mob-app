@@ -54,4 +54,7 @@ dependencies {
 
     implementation 'com.jakewharton:butterknife:8.2.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.2.1'
+
+    // Important - the CameraSource implementation in this project requires version 8.1 or higher.
+    implementation 'com.google.android.gms:play-services-vision:9.4.0+'
 }
