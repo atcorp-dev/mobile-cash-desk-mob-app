@@ -2,6 +2,7 @@ package ua.com.atcorp.mobilecashdesk.ui;
 
 import android.Manifest;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +22,9 @@ import ua.pbank.dio.minipos.interfaces.MiniPosTransactionListener;
 import ua.pbank.dio.minipos.models.Transaction;
 
 import android.util.*;
+
+import java.text.DecimalFormat;
+
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.BaseDialogFragment;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePinpadDialog;
@@ -34,6 +38,7 @@ public class PaymentActivity extends AppCompatActivity
     private static final int REQUEST_ENABLE_BT = 2;
     private BaseDialogFragment mDialog;
     private Double mAmount;
+    private String mStrAmount;
     private String mPurpose;
     private String mReceipt;
 
@@ -50,13 +55,16 @@ public class PaymentActivity extends AppCompatActivity
         int intValue = (int)amount;
         int rest = (int) ((amount - intValue) * 100);
         String amountStr = String.format("%s.%s", intValue, rest);
-        setEditTextValue(R.id.payment_amount, amountStr);
+        String price = formatPrice(amount);
+        mAmount = amount;
+        mStrAmount = amountStr;
+        setEditTextValue(R.id.payment_amount, price);
     }
 
     public  void onPayment(View view) {
         // view.setEnabled(false);
-        String amount = getEditTextValue(R.id.payment_amount);
-        makePayment("0.01" /*amount*/);
+        // makePayment(mStrAmount);
+        makePaymentPrivate(mAmount, "test");
     }
 
     public void showProgress(final boolean show) {
@@ -67,7 +75,7 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     void makePayment(String amount) {
-		/*Intent i = new Intent("com.sccp.gpb.emv.MAKE_PAYMENT");
+		Intent i = new Intent("com.sccp.gpb.emv.MAKE_PAYMENT");
 		i.putExtra("amount", amount);
 		i.putExtra("source", getApplication().getPackageName());
         try {
@@ -77,8 +85,7 @@ public class PaymentActivity extends AppCompatActivity
 			showProgress(false);
 			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
-        findViewById(R.id.btn_pay).setEnabled(true);*/
-        makePaymentPrivate(Double.parseDouble(amount), "test");
+        findViewById(R.id.btn_pay).setEnabled(true);
     }
 
     String getEditTextValue(int id) {
@@ -254,7 +261,12 @@ public class PaymentActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        MiniPosManager.getInstance().pinpadSubscribe();
+        try {
+            MiniPosManager.getInstance().pinpadSubscribe();
+        } catch (Exception error) {
+            Log.e("PAYMENT ACTIVITY EXCEPTION", error.getMessage());
+            Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG);
+        }
     }
 
     @Override
@@ -267,6 +279,10 @@ public class PaymentActivity extends AppCompatActivity
         mAmount = amount;
         mPurpose = purpose;
         mReceipt = "";
+        if (BluetoothAdapter.getDefaultAdapter() == null) {
+            Toast.makeText(this, R.string.msg_bluetooth_is_not_supported, Toast.LENGTH_SHORT).show();
+            return;
+        }
         MiniPosManager.getInstance().initPinpad(pinpadConnectionListener);
     }
 
@@ -344,4 +360,10 @@ public class PaymentActivity extends AppCompatActivity
             showProgress(false);
         }
     };
+
+    private String formatPrice(double price) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        String strPrice = df.format(price) + " грн.";
+        return strPrice;
+    }
 }

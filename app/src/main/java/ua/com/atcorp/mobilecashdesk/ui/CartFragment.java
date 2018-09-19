@@ -81,6 +81,8 @@ public class CartFragment extends Fragment {
         searchButton.setOnClickListener(v -> onButtonSearchClick(v));
         Button scanButton = view.findViewById(R.id.item_btn_scan);
         scanButton.setOnClickListener(v -> onButtonScanClick(v));
+        Button payButton = view.findViewById(R.id.btn_pay);
+        payButton.setOnClickListener(v -> onButtonPayClick(v));
         Button clearButton = view.findViewById(R.id.btn_clear);
         clearButton.setOnClickListener(v -> onButtonClearClick(v));
         mRepository = new ItemRepository();
@@ -117,7 +119,12 @@ public class CartFragment extends Fragment {
 
     public void onButtonScanClick(View view) {}
 
-    private void clearCart() {
+    public void onButtonPayClick(View view) {
+        MainActivity ma = (MainActivity) getContext();
+        ma.makePayment(mCartId.toString(), mAdapter.getTotalPrice());
+    }
+
+    public void clearCart() {
         mAdapter.clear();
         SharedPreferences sharedPref = getSharedPreferences(getContext());
         sharedPref.edit().remove("cartId").commit();

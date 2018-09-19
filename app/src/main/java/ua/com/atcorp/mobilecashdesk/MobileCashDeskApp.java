@@ -13,6 +13,7 @@ import ua.com.atcorp.mobilecashdesk.models.Category;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.models.PairedDevice;
+import ua.pbank.dio.minipos.MiniPosManager;
 
 public class MobileCashDeskApp extends Application {
 
@@ -22,6 +23,13 @@ public class MobileCashDeskApp extends Application {
     public void onCreate() {
         super.onCreate();
 
+        initDataBase();
+        initMiniPosManager();
+
+        instance = this;
+    }
+
+    private void initDataBase() {
         DatabaseConfig appDatabaseConfig = new DatabaseConfig.Builder(AppDatabase.class)
                 .addModelClasses(
                         CartItem.class,
@@ -35,6 +43,12 @@ public class MobileCashDeskApp extends Application {
         ReActiveAndroid.init(new ReActiveConfig.Builder(this)
                 .addDatabaseConfigs(appDatabaseConfig)
                 .build());
-        instance = this;
+    }
+
+    private void initMiniPosManager() {
+        String token = ""; //указать токен (выдается дополнительно)
+        MiniPosManager.builder(this,token)
+                .setEnableLogging(true)
+                .build();
     }
 }

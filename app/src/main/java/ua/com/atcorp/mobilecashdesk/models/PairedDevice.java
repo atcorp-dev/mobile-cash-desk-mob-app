@@ -12,7 +12,7 @@ import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
 public class PairedDevice extends Model {
 
     @PrimaryKey(name = "_id")
-    private Long id;
+    private Long _id;
 
     @Column(name = "name")
     private String name;

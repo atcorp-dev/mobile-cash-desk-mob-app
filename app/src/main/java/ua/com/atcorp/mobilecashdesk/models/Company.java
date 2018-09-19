@@ -20,7 +20,7 @@ import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
 public class Company extends Model implements Serializable {
 
     @PrimaryKey(name = "_id")
-    private Long id;
+    private Long _id;
 
     @Index(indexGroups = 1)
     @Column(name = "RecordId")

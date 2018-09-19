@@ -87,20 +87,25 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
             }
         });
         //
+        List<BluetoothDevice> devices = getPairedDevice();
+        if (devices != null && devices.size() > 0) {
+            mDeviceList.addAll(devices); //добавляем все подключенные
+            //удаляем сохраненное устройство
+            if (mSavedDevice != null)
+                mDeviceList.remove(mSavedDevice);
 
-        mDeviceList.addAll(getPairedDevice()); //добавляем все подключенные
-        //удаляем сохраненное устройство
-        if (mSavedDevice != null)
-            mDeviceList.remove(mSavedDevice);
-
-        mAdapter = new DeviceListAdapter(getActivity());
-        mAdapter.setData(mDeviceList);
-
-        //mAdapter.getFilter().filter("68:AA:D2:02:F8:CB");//добавил для проверки
+            mAdapter = new DeviceListAdapter(getActivity());
+            mAdapter.setData(mDeviceList);
+        }
     }
 
     private List<BluetoothDevice> getPairedDevice() {
         ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
+
+        if (mBluetoothAdapter == null) {
+            showToast(getString(R.string.msg_bluetooth_is_not_supported));
+            return null;
+        }
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         //получаем mac сохраненного устройства

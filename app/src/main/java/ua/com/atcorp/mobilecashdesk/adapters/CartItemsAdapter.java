@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.reactiveandroid.ReActiveAndroid;
+import com.reactiveandroid.annotation.Database;
+import com.reactiveandroid.internal.database.DatabaseInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -138,12 +140,13 @@ public class CartItemsAdapter extends ArrayAdapter {
 
     public Exception saveState() {
         Exception error = null;
-        ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
+        DatabaseInfo db = ReActiveAndroid.getDatabase(AppDatabase.class);
+        // db.beginTransaction();
         try {
             for (CartItem item : mItems) {
                 item.save();
             }
-            ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
+            // db.endTransaction();
         } catch (Exception e) {
             error = e;
         }

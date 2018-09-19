@@ -22,7 +22,7 @@ import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
 public class CartItem extends Model implements Serializable {
 
     @PrimaryKey(name = "_id")
-    private Long id;
+    private Long _id;
 
     @Index(indexGroups = 1)
     @Column(name = "cartId")
@@ -63,6 +63,7 @@ public class CartItem extends Model implements Serializable {
     }
 
     public CartItem(UUID cartId, Item item) {
+        super();
         this.cartId = cartId.toString();
         this.qty = 1;
         this.itemRecordId = item.getRecordId();
@@ -73,7 +74,6 @@ public class CartItem extends Model implements Serializable {
         this.itemCategory = item.getCategory();
         this.itemCompany = item.getCompany();
         this.itemImage = item.getImage();
-
     }
 
     public String getCartId() {

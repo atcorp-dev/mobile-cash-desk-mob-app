@@ -162,10 +162,10 @@ public class MainActivity extends AppCompatActivity
         return mCartFragment;
     }
 
-    public void makePayment(CartItem item) {
+    public void makePayment(String cartId, double price) {
         Intent intent = new Intent(this, PaymentActivity.class);
-        intent.putExtra("cartId", item.getCartId());
-        intent.putExtra("amount", item.getPrice());
+        intent.putExtra("cartId", cartId);
+        intent.putExtra("amount", price);
         startActivityForResult(intent, PAYMENT_REQ_CODE);
     }
 

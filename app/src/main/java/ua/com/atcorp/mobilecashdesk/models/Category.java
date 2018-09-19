@@ -19,7 +19,7 @@ import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
 public class Category extends Model {
 
     @PrimaryKey(name = "_id")
-    private Long id;
+    private Long _id;
 
     @Unique(unique = true)
     @Index(indexGroups = 1)
