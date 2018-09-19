@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
 import java.util.List;
@@ -184,21 +185,21 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == PAYMENT_REQ_CODE) {
             // onPaymentActivity(resultCode, data);
         } else if (requestCode == SCAN_REQ_CODE) {
-            onBarCodeDetected();
+            onBarCodeDetected(resultCode, data);
         }
     }
 
-    private void onBarCodeDetected() {
-        String message = "DETECTED BAR_CODE: ";
+    private void onBarCodeDetected(int resultCode, Intent data) {
+        if (resultCode != CommonStatusCodes.SUCCESS)
+            return;
         try {
-            Intent intent = getIntent();
-            String barCode = intent.getStringExtra("barCode");
-            Barcode barcode = (Barcode) intent.getSerializableExtra("BarCode");
-            message+= barcode.displayValue;
-
+            String barCode = data.getStringExtra("barCode");
+            if (barCode != null && mCartFragment != null) {
+                mCartFragment.addItemByBarCode(barCode);
+            }
         } catch (Exception err) {
-            message = "ERROR IN DETECTING BAR CODE: " + err.getMessage();
+            String message = "ERROR IN DETECTING BAR CODE: " + err.getMessage();
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 }

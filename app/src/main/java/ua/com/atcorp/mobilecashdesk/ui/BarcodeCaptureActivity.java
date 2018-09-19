@@ -317,6 +317,10 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
      * @return true if the activity is ending.
      */
     private boolean onTap(float rawX, float rawY) {
+        return false;
+    }
+
+    private boolean onTapOld(float rawX, float rawY) {
         // Find tap point in preview frame coordinates.
         int[] location = new int[2];
         mGraphicOverlay.getLocationOnScreen(location);
@@ -415,13 +419,13 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
 
     @Override
     public void onBarcodeDetected(Barcode barcode) {
-        Snackbar.make(mGraphicOverlay, barcode.displayValue, Snackbar.LENGTH_LONG).show();
-        // String message = "Detected BarCode: " + barcode;
-        // Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        /*Intent intent = new Intent();
-        intent.putExtra("barCode",  barcode.displayValue);
+        // Snackbar.make(mGraphicOverlay, barcode.displayValue, Snackbar.LENGTH_LONG).show();
+        if (barcode.displayValue == null)
+            return;
+        Intent intent = new Intent();
+        intent.putExtra("barCode",  barcode.displayValue.toString());
         intent.putExtra("barCodeSrc",  barcode.rawValue);
         setResult(CommonStatusCodes.SUCCESS, intent);
-        finish();*/
+        finish();
     }
 }

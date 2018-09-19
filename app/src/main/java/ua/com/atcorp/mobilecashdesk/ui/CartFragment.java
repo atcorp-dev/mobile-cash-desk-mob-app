@@ -137,6 +137,21 @@ public class CartFragment extends Fragment {
         mAdapter.add(item);
     }
 
+    public void addItemByBarCode(String barCode) {
+        showProgress();
+        Company company = MainActivity.getCompany();
+        mRepository.getItemByBarCode(company.getRecordId(), barCode, (item, error) -> {
+            hideProgress();
+            if (error != null) {
+                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+            } else if (item != null)
+                addItem(item);
+            else
+                Toast.makeText(getContext(), "Товар не знайдено", Toast.LENGTH_SHORT).show();
+            mItemCodeView.setText("");
+        }).execute();
+    }
+
     private void setTotalPrice(View view, double price) {
         DecimalFormat df = new DecimalFormat("0.00");
         String strPrice = df.format(price) + " грн.";
