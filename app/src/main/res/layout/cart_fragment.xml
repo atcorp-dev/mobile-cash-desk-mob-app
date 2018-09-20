@@ -6,21 +6,10 @@
     android:orientation="vertical"
     android:layout_marginTop="?attr/actionBarSize">
 
-    <Button
-        android:id="@+id/item_btn_scan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Сканувати штрих-код"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:textColor="@color/colorPrimary">
-
-    </Button>
-
     <RelativeLayout
-        android:id="@+id/search_wrap"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <ProgressBar
             android:id="@+id/progress"
@@ -32,35 +21,83 @@
             android:layout_centerHorizontal="true"
             android:visibility="gone"/>
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/etNumberWrap"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true">
-
-            <EditText
-                android:id="@+id/et_item_code"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="Артикул"
-                android:inputType="numberSigned" />
-        </android.support.design.widget.TextInputLayout>
         <Button
-            android:id="@+id/item_btn_search"
+            android:id="@+id/item_btn_scan"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="36dp"
-            android:drawableEnd="@drawable/ic_action_search"
-            android:drawableRight="@drawable/ic_action_search"
-            android:layout_alignParentRight="true"
-            android:textSize="10sp"
-            android:background="#0000"
-            android:layout_marginRight="12dp"/>
+            android:text="Сканувати штрих-код"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:textColor="@color/colorPrimary" />
+
+        <LinearLayout
+            android:id="@+id/search_wrap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_below="@id/item_btn_scan"
+            android:visibility="gone">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/etCodeWrap"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_weight="1"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true">
+
+                <EditText
+                    android:id="@+id/et_item_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    android:ems="10"
+                    android:hint="Артикул"
+                    android:inputType="numberSigned" />
+            </android.support.design.widget.TextInputLayout>
+
+            <Button
+                android:id="@+id/item_btn_search"
+                android:layout_height="wrap_content"
+                android:layout_width="36dp"
+                android:layout_weight="0"
+                android:drawableEnd="@drawable/ic_action_search"
+                android:drawableRight="@drawable/ic_action_search"
+                android:layout_alignParentRight="true"
+                android:textSize="10sp"
+                android:background="#0000"
+                android:layout_marginRight="12dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/search_wrap"
+            android:layout_marginTop="-12dp"
+            android:background="@android:color/transparent">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/btn_expand_top_layout"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:src="@drawable/ic_action_expandable_down" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/btn_collapse_top_layout"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_action_expandable_up"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:visibility="gone"/>
+        </LinearLayout>
+
     </RelativeLayout>
 
     <ListView
@@ -81,6 +118,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="-8dp">
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/btn_expand_bottom_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_action_expandable_up"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"/>
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/btn_collapse_bottom_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_action_expandable_down"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -90,6 +152,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:textSize="20sp"
+                    android:paddingStart="6dp"
+                    android:paddingLeft="6dp"
                     android:text="Всього до сплати"/>
                 <TextView
                     android:id="@+id/tvTotalPrice"
@@ -98,6 +162,8 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:textSize="20sp"
+                    android:paddingEnd="6dp"
+                    android:paddingRight="6dp"
                     android:text="000.00 uah"/>
             </LinearLayout>
 
@@ -108,13 +174,19 @@
                 android:text="Сплатити"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:theme="@style/GreenButton"/>
-            <Button
-                android:id="@+id/btn_clear"
+            <LinearLayout
+                android:id="@+id/bottom_expandable_wrap"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="Очистити"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:textColor="@color/colorPrimary"/>
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+                <Button
+                    android:id="@+id/btn_clear"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Очистити"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:textColor="@color/colorPrimary"/>
+            </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 

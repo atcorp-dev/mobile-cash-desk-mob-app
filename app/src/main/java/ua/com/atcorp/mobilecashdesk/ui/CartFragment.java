@@ -85,6 +85,14 @@ public class CartFragment extends Fragment {
         payButton.setOnClickListener(v -> onButtonPayClick(v));
         Button clearButton = view.findViewById(R.id.btn_clear);
         clearButton.setOnClickListener(v -> onButtonClearClick(v));
+        view.findViewById(R.id.btn_expand_top_layout)
+                .setOnClickListener(v -> onButtonExpandTopLayoutClick(v));
+        view.findViewById(R.id.btn_collapse_top_layout)
+                .setOnClickListener(v -> onButtonCollapseTopLayoutClick(v));
+        view.findViewById(R.id.btn_expand_bottom_layout)
+                .setOnClickListener(v -> onButtonExpandBottomLayoutClick(v));
+        view.findViewById(R.id.btn_collapse_bottom_layout)
+                .setOnClickListener(v -> onButtonCollapseBottomLayoutClick(v));
         mRepository = new ItemRepository();
         mProgressBar = view.findViewById(R.id.progress);
         return view;
@@ -125,6 +133,30 @@ public class CartFragment extends Fragment {
     public void onButtonPayClick(View view) {
         MainActivity ma = (MainActivity) getContext();
         ma.makePayment(mCartId.toString(), mAdapter.getTotalPrice());
+    }
+
+    public void onButtonExpandTopLayoutClick(View view) {
+        getView().findViewById(R.id.search_wrap).setVisibility(View.VISIBLE);
+        getView().findViewById(R.id.btn_collapse_top_layout).setVisibility(View.VISIBLE);
+        view.setVisibility(View.GONE);
+    }
+
+    public void onButtonCollapseTopLayoutClick(View view) {
+        getView().findViewById(R.id.search_wrap).setVisibility(View.GONE);
+        getView().findViewById(R.id.btn_expand_top_layout).setVisibility(View.VISIBLE);
+        view.setVisibility(View.GONE);
+    }
+
+    public void onButtonExpandBottomLayoutClick(View view) {
+        getView().findViewById(R.id.bottom_expandable_wrap).setVisibility(View.VISIBLE);
+        getView().findViewById(R.id.btn_collapse_bottom_layout).setVisibility(View.VISIBLE);
+        view.setVisibility(View.GONE);
+    }
+
+    public void onButtonCollapseBottomLayoutClick(View view) {
+        getView().findViewById(R.id.bottom_expandable_wrap).setVisibility(View.GONE);
+        getView().findViewById(R.id.btn_expand_bottom_layout).setVisibility(View.VISIBLE);
+        view.setVisibility(View.GONE);
     }
 
     public void clearCart() {
