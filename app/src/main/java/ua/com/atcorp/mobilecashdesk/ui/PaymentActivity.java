@@ -62,9 +62,9 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     public  void onPayment(View view) {
-        // view.setEnabled(false);
-        // makePayment(mStrAmount);
-        makePaymentPrivate(mAmount, "test");
+        view.setEnabled(false);
+        makePayment(mStrAmount);
+        //makePaymentPrivate(mAmount, "test");
     }
 
     public void showProgress(final boolean show) {
