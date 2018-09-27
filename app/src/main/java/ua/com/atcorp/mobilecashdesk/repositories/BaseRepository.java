@@ -17,8 +17,8 @@ public abstract class BaseRepository<T> {
         void response(T response, E error);
     }
 
-    // final static String API_URL = "https://mobile-cash-desk.herokuapp.com/api/";
-    final static String API_URL = "http://10.0.2.2:3000/api/";
+    final static String API_URL = "https://mobile-cash-desk.herokuapp.com/api/";
+    // final static String API_URL = "http://10.0.2.2:3000/api/";
 
     protected static final Interceptor getRewriteCacheControlInterceptor() {
         return chain -> {
