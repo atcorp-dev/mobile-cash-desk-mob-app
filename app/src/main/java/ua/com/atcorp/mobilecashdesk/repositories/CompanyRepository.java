@@ -59,6 +59,8 @@ public class CompanyRepository extends BaseRepository {
                     return cachedItems;
 
                 Response response = call.execute();
+                if (response.code() == 401)
+                    throw new Exception(response.message());
                 List<CompanyDto> companies = (List<CompanyDto>)response.body();
 
                 List<Company> companyList = saveToCache(companies);

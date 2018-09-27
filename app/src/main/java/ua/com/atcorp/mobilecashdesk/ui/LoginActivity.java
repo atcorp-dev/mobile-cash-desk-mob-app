@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.reactiveandroid.query.Delete;
 
@@ -158,8 +159,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         CompanyRepository repository = new CompanyRepository();
         repository.getCompanies((companies, err) -> {
 
-            if (err != null || companies == null)
+            if (err != null || companies == null) {
+                Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
                 return;
+            }
             ArrayAdapter adapter = new ArrayAdapter(
                     this,
                     android.R.layout.simple_dropdown_item_1line,
