@@ -26,36 +26,28 @@ public class MainActivity extends AppCompatActivity
         implements MainFragment.MainFragmentEventListener,
         NavigationView.OnNavigationItemSelectedListener {
 
-    private static Company mSelectedCompany;
     private int mSelectedMenuId;
-    private List<Item> mCompanyItems;
     private NavigationView mNavigationView;
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
     private int SCAN_REQ_CODE = 101;
 
-    public static Company getCompany() {
-        return mSelectedCompany;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView = findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        Intent intent = getIntent();
-        mSelectedCompany = (Company) intent.getSerializableExtra("Company");
         openMainFragment();
     }
 

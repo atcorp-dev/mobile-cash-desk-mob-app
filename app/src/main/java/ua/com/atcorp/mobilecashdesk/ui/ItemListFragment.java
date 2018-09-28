@@ -24,11 +24,12 @@ import ua.com.atcorp.mobilecashdesk.adapters.ItemAdapter;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 
 public class ItemListFragment extends Fragment implements TextWatcher {
 
-    Company mCompany = MainActivity.getCompany();
+    Company mCompany = CompanyRepository.getCurrentCompany();
     ArrayAdapter mItemAdapter;
     EditText mEtName;
     View mBtnSearch;

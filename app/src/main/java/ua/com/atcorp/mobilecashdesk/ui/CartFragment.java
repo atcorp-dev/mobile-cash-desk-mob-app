@@ -30,6 +30,7 @@ import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 
 public class CartFragment extends Fragment {
@@ -101,7 +102,7 @@ public class CartFragment extends Fragment {
     public void onButtonSearchClick(View v) {
         showProgress();
         String code = mItemCodeView.getText().toString();
-        Company company = MainActivity.getCompany();
+        Company company = CompanyRepository.getCurrentCompany();
         mRepository.getItemByCode(company.getRecordId(), code, (item, error) -> {
             hideProgress();
             if (error != null) {
@@ -171,7 +172,7 @@ public class CartFragment extends Fragment {
 
     public void addItemByBarCode(String barCode) {
         showProgress();
-        Company company = MainActivity.getCompany();
+        Company company = CompanyRepository.getCurrentCompany();
         mRepository.getItemByBarCode(company.getRecordId(), barCode, (item, error) -> {
             hideProgress();
             if (error != null) {

@@ -21,21 +21,22 @@ import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 
 public class CompanyRepository extends BaseRepository {
 
+    private static Company currentCompany;
+
+    public static Company getCurrentCompany() {
+        return currentCompany;
+    }
+
+    public static void setCurrentCompany(Company currentCompany) {
+        CompanyRepository.currentCompany = currentCompany;
+    }
+
     public CompaniesTask getCompanies(Predicate<List<Company>, Exception> predicate) {
         CompanyApi api = createService(CompanyApi.class);
         Call<List<CompanyDto>> call = api.getCompanies();
         CompaniesTask task = new CompaniesTask(predicate, call);
         return task;
     }
-
-    /*
-    public CompanyItemsTask getCompanyItems(String companyId, Predicate<List<Item>, Exception> predicate) {
-        CompanyApi api = createService(CompanyApi.class);
-        Call<List<ItemDto>> call = api.getCompanyItems(companyId);
-        CompanyItemsTask task = new CompanyItemsTask(predicate, call);
-        return task;
-    }
-    */
 
     public class CompaniesTask extends AsyncTask<Void,Void,List<Company>> {
 
@@ -106,85 +107,6 @@ public class CompanyRepository extends BaseRepository {
                     dto.phone,
                     dto.email,
                     dto.address
-            );
-        }
-    }
-
-    public class CompanyItemsTask extends AsyncTask<Void,Void,List<Item>> {
-
-        private Predicate<List<Item>, Exception> predicate;
-        private Call<List<ItemDto>> call;
-        private Exception error;
-
-        public CompanyItemsTask(
-                Predicate<List<Item>, Exception> predicate,
-                Call<List<ItemDto>> call
-        ) {
-            this.predicate = predicate;
-            this.call = call;
-        }
-
-        @Override
-        protected List<Item> doInBackground(Void... params) {
-            try {
-                String companyId = MainActivity.getCompany().getRecordId();
-                List<Item> cachedItems = getCachedItems(companyId);
-                if (cachedItems != null && cachedItems.size() > 0)
-                    return cachedItems;
-                Response response = call.execute();
-                List<ItemDto> items = (List<ItemDto>)response.body();
-                List<Item> itemList = saveToCache(items);
-                return itemList;
-            } catch (Exception e) {
-                error = e;
-                Log.d("GET COMPANY ITEMS ERROR", e.getMessage());
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<Item> result) {
-            super.onPostExecute(result);
-            predicate.response(result, error);
-        }
-
-        private List<Item> getCachedItems(String companyId) {
-            return Select
-                    .from(Item.class)
-                    .where("company=?", companyId)
-                    .fetch();
-        }
-
-        private List<Item> saveToCache(List<ItemDto> itemDtoList) {
-            if (itemDtoList == null || itemDtoList.size() == 0)
-                return null;
-            List<Item> items = itemDtoList.stream()
-                    .map(i -> dtoToItem(i))
-                    .collect(Collectors.toList());
-            /*ActiveAndroid.beginTransaction();
-            try {
-                for(Item item : items)
-                    item.save();
-                ActiveAndroid.setTransactionSuccessful();
-            } finally {
-                ActiveAndroid.endTransaction();
-            }*/
-            return items;
-        }
-
-        private Item dtoToItem(ItemDto dto) {
-            if (dto == null)
-                return null;
-            return new Item(
-                    dto.id,
-                    dto.code,
-                    dto.barCode,
-                    dto.name,
-                    dto.description,
-                    dto.price,
-                    null, //dto.categoryId,
-                    null, //dto.companyId,
-                    dto.image
             );
         }
     }

@@ -20,11 +20,11 @@ public abstract class BaseRepository<T> {
     final static String API_URL = "https://mobile-cash-desk.herokuapp.com/api/";
     // final static String API_URL = "http://10.0.2.2:3000/api/";
 
-    protected static final Interceptor getRewriteCacheControlInterceptor() {
-        return chain -> {
-            String username = "admin";
-            String password = "admin1234";
-            String user = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", username, password);
+    protected static String mUsername, mPassword;
+
+    protected static final Interceptor getAuthTokenInterceptor() {
+        return chain -> { ;
+            String user = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", mUsername, mPassword);
             String str = Base64.encodeToString(user.getBytes(), Base64.NO_WRAP);;
             String token = "Bearer " + str;
             Request original = chain.request();
@@ -56,7 +56,7 @@ public abstract class BaseRepository<T> {
     protected static <T> T createService(Class<T> serviceClass) {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         OkHttpClient client = httpClientBuilder
-                .addInterceptor(getRewriteCacheControlInterceptor())
+                .addInterceptor(getAuthTokenInterceptor())
                 .build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_URL)
