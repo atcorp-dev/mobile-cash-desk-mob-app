@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
@@ -40,12 +41,57 @@ public class LoginActivity extends AppCompatActivity {
     private Spinner mCompanyView;
     private Button mEntranceButton;
 
+    public static final String PreferencesFileName = "__auth__";
+
+    private SharedPreferences getSharedPreferences() {
+        SharedPreferences sharedPref = getSharedPreferences(PreferencesFileName, Context.MODE_PRIVATE);
+        return  sharedPref;
+    }
+
+    private String getPrefLogin() {
+        SharedPreferences sharedPref = getSharedPreferences();
+        return sharedPref.getString("login", null);
+    }
+
+    private void setPrefLogin(String login) {
+        SharedPreferences sharedPref = getSharedPreferences();
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("login" , login);
+        editor.commit();
+    }
+
+    private String getPrefPassword() {
+        SharedPreferences sharedPref = getSharedPreferences();
+        return sharedPref.getString("password", null);
+    }
+
+    private void setPrefPassword(String password) {
+        SharedPreferences sharedPref = getSharedPreferences();
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("password" , password);
+        editor.commit();
+    }
+
+    private String getPrefCompanyId() {
+        SharedPreferences sharedPref = getSharedPreferences();
+        return sharedPref.getString("companyId", null);
+    }
+
+    private void setPrefCompanyId(String password) {
+        SharedPreferences sharedPref = getSharedPreferences();
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("companyId" , password);
+        editor.commit();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mLoginView = findViewById(R.id.login);
+        String login = getPrefLogin();
+        mLoginView.setText(login);
         mEntranceFormView = findViewById(R.id.entrance_form);
         mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener((textView, id, keyEvent) -> {
@@ -55,6 +101,8 @@ public class LoginActivity extends AppCompatActivity {
             }
             return false;
         });
+        String password = getPrefPassword();
+        mPasswordView.setText(password);
 
         findViewById(R.id.sign_in_button).setOnClickListener(v -> attemptLogin());
 
@@ -63,6 +111,9 @@ public class LoginActivity extends AppCompatActivity {
         mEntranceButton.setOnClickListener(v -> onEntranceButtonClick(v));
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        if (login != null && password != null)
+            attemptLogin();
     }
 
     private void loadCompanies(UserDto user) {
@@ -82,8 +133,10 @@ public class LoginActivity extends AppCompatActivity {
             mCompanyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    CompanyRepository.setCurrentCompany(companies.get(i));
+                    Company company = companies.get(i);
+                    CompanyRepository.setCurrentCompany(company);
                     mEntranceButton.setEnabled(true);
+                    setPrefCompanyId(company.getRecordId());
                 }
 
                 @Override
@@ -91,7 +144,17 @@ public class LoginActivity extends AppCompatActivity {
                     mEntranceButton.setEnabled(false);
                 }
             });
-            if (user != null && user.companyId != null ) {
+            String companyId = getPrefCompanyId();
+            if (companyId != null) {
+                for (Company company : companies) {
+                    if (companyId.equals(company.getRecordId())) {
+                        mCompanyView.setSelection(companies.indexOf(company));
+                        CompanyRepository.setCurrentCompany(company);
+                        mEntranceButton.setEnabled(true);
+                        break;
+                    }
+                }
+            } if (user != null && user.companyId != null ) {
                 for (Company company : companies) {
                     if (user.companyId.equals(company.getRecordId())) {
                         mCompanyView.setSelection(companies.indexOf(company));
@@ -119,7 +182,9 @@ public class LoginActivity extends AppCompatActivity {
 
         // Store values at the time of the login attempt.
         String login = mLoginView.getText().toString();
+        setPrefLogin(login);
         String password = mPasswordView.getText().toString();
+        setPrefPassword(password);
 
         boolean cancel = false;
         View focusView = null;
@@ -202,12 +267,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onLoginExecute(UserDto user, Exception err) {
-        if (err != null) {
-            Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
-            return;
-        }
         loginInProgress = false;
         showProgress(false);
+        if (err != null) {
+            Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
+            mLoginFormView.setVisibility(View.VISIBLE);
+            return;
+        }
 
         if (user != null) {
             loadCompanies(user);

@@ -7,10 +7,14 @@ import android.net.NetworkInfo;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ua.com.atcorp.mobilecashdesk.rest.converters.NullOnEmptyConverterFactory;
 import android.util.Base64;
+
+import java.io.IOException;
+import java.util.HashSet;
 
 public abstract class BaseRepository<T> {
     public interface Predicate<T, E> {
@@ -21,9 +25,10 @@ public abstract class BaseRepository<T> {
     // final static String API_URL = "http://10.0.2.2:3000/api/";
 
     protected static String mUsername, mPassword;
+    protected static HashSet<String> mCookies;
 
     protected static final Interceptor getAuthTokenInterceptor() {
-        return chain -> { ;
+        return chain -> {
             String user = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", mUsername, mPassword);
             String str = Base64.encodeToString(user.getBytes(), Base64.NO_WRAP);;
             String token = "Bearer " + str;
@@ -32,6 +37,33 @@ public abstract class BaseRepository<T> {
                     .header("Authorization", token)
                     .build();
             return chain.proceed(request);
+        };
+    }
+
+    public static final Interceptor getReceivedCookiesInterceptor() {
+        return chain -> {
+            Response originalResponse = chain.proceed(chain.request());
+            if (!originalResponse.headers("Set-Cookie").isEmpty()) {
+                HashSet<String> cookies = new HashSet<>();
+                for (String header : originalResponse.headers("Set-Cookie")) {
+                    cookies.add(header);
+                }
+                mCookies = cookies;
+            }
+            return originalResponse;
+        };
+    }
+
+    public static final Interceptor getAddCookiesInterceptor() {
+         return chain -> {
+            Request.Builder builder = chain.request().newBuilder();
+            HashSet<String> preferences = mCookies;
+            if (preferences != null) {
+                for (String cookie : preferences) {
+                    builder.addHeader("Cookie", cookie);
+                }
+            }
+            return chain.proceed(builder.build());
         };
     }
 
@@ -57,6 +89,8 @@ public abstract class BaseRepository<T> {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         OkHttpClient client = httpClientBuilder
                 .addInterceptor(getAuthTokenInterceptor())
+                .addInterceptor(getAddCookiesInterceptor())
+                .addInterceptor(getReceivedCookiesInterceptor())
                 .build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_URL)

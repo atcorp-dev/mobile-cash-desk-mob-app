@@ -119,7 +119,7 @@ public class CartFragment extends Fragment {
     public void onButtonClearClick(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder
-                .setTitle("Ви дійсно бажаєте очистити кошик")
+                .setTitle("Ви дійсно бажаєте очистити кошик?")
                 .setPositiveButton(R.string.ok, (DialogInterface dialog, int id) -> clearCart())
                 .setNegativeButton(R.string.no, null);
         builder.create().show();

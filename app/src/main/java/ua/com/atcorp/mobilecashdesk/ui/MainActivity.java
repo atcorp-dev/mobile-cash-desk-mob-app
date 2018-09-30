@@ -1,26 +1,26 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.vision.barcode.Barcode;
 
-import java.util.List;
-
-import ua.com.atcorp.mobilecashdesk.models.CartItem;
-import ua.com.atcorp.mobilecashdesk.models.Company;
-import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.services.AuthService;
 
 public class MainActivity extends AppCompatActivity
         implements MainFragment.MainFragmentEventListener,
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_logout) {
-
+            logOut();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -191,5 +191,25 @@ public class MainActivity extends AppCompatActivity
             String message = "ERROR IN DETECTING BAR CODE: " + err.getMessage();
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void logOut() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder
+                .setTitle("Ви дійсно бажаєте вийти?")
+                .setPositiveButton(R.string.ok, (DialogInterface dialog, int id) -> {
+                    new AuthService().logout((Void, err) -> {
+                        if (err != null) {
+                            Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
+                            String msg = err.getMessage() + "\n" + err.getStackTrace().toString();
+                            Log.e("LOG_OUT_ERROR", msg);
+                        } else {
+                            AuthService.setCurrentUser(null);
+                            finish();
+                        }
+                    }).execute();
+                })
+                .setNegativeButton(R.string.no, null);
+        builder.create().show();
     }
 }
