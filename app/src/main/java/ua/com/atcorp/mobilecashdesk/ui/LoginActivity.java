@@ -112,8 +112,8 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        if (login != null && password != null)
-            attemptLogin();
+        /*if (login != null && password != null)
+            attemptLogin();*/
     }
 
     private void loadCompanies(UserDto user) {
