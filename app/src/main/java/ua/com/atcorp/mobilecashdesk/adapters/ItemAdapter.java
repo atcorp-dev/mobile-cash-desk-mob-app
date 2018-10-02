@@ -21,6 +21,7 @@ import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.CartFragment;
+import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
 
 public class ItemAdapter extends ArrayAdapter {
 
@@ -65,6 +66,8 @@ public class ItemAdapter extends ArrayAdapter {
                 notifyDataSetChanged();
             });
         }
+        view.findViewById(R.id.btnDetail)
+                .setOnClickListener(v -> openCartItemDetailView(item));
         return view;
     }
 
@@ -106,5 +109,10 @@ public class ItemAdapter extends ArrayAdapter {
         DecimalFormat df = new DecimalFormat("0.00");
         String strPrice = df.format(price) + " грн.";
         return strPrice;
+    }
+
+    private void openCartItemDetailView(Item item) {
+        MainActivity ma = (MainActivity) getContext();
+        ma.openCatalogueItemFragment(item);
     }
 }

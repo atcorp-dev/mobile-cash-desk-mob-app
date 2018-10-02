@@ -87,6 +87,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"/>
                 <Button
+                    android:id="@+id/btnDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Детально"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:theme="@style/BlueButton"
+                    android:layout_weight = "0"/>
+                <Button
                     android:id="@+id/btnToCart"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

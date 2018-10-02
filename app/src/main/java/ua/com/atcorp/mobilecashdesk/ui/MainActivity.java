@@ -1,9 +1,7 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,6 +18,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.CommonStatusCodes;
 
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 
 public class MainActivity extends AppCompatActivity
@@ -140,6 +139,17 @@ public class MainActivity extends AppCompatActivity
                 .commit();
         mNavigationView.setCheckedItem(R.id.nav_cart);
         setTitle("Кошик");
+    }
+
+    public void openCatalogueItemFragment(Item item) {
+        mSelectedMenuId = R.id.nav_cart;
+        ItemDetailFragment catalogueItemFragment = new ItemDetailFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, catalogueItemFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_catalogue);
+        setTitle("Характеристики");
     }
 
     private void openCatalogueFragment() {

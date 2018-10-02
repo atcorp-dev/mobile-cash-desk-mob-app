@@ -20,6 +20,7 @@ import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
 
 public class CartItemsAdapter extends ArrayAdapter {
 
