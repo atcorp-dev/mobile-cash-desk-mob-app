@@ -41,6 +41,8 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ui.BarcodeCaptureActivity"></activity>
+        <activity
+            android:name=".ui.ItemDetailActivity"></activity>
     </application>
 
 </manifest>

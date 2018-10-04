@@ -1,6 +1,13 @@
 package ua.com.atcorp.mobilecashdesk.rest.dto;
 
+import java.util.ArrayList;
+
 public class ItemDto {
+
+    public class AdditionalField {
+        public String key;
+        public String value;
+    };
 
     public String id;
     public String name;
@@ -13,5 +20,6 @@ public class ItemDto {
     public String categoryId;
     public CategoryDto category;
     public String image;
+    public ArrayList<AdditionalField> additionalFields;
 
 }

@@ -55,9 +55,9 @@ public class CompanyRepository extends BaseRepository {
         @Override
         protected List<Company> doInBackground(Void... params) {
             try {
-                List<Company> cachedItems = getCachedCompanies();
+                /*List<Company> cachedItems = getCachedCompanies();
                 if (cachedItems != null && cachedItems.size() > 0)
-                    return cachedItems;
+                    return cachedItems;*/
 
                 Response response = call.execute();
                 if (response.code() == 401)

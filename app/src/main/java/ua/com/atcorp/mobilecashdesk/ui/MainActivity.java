@@ -141,15 +141,11 @@ public class MainActivity extends AppCompatActivity
         setTitle("Кошик");
     }
 
-    public void openCatalogueItemFragment(Item item) {
-        mSelectedMenuId = R.id.nav_cart;
-        ItemDetailFragment catalogueItemFragment = new ItemDetailFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, catalogueItemFragment)
-                .commit();
-        mNavigationView.setCheckedItem(R.id.nav_catalogue);
-        setTitle("Характеристики");
+    public void openCatalogueItemActivity(Item item) {
+        Intent intent = new Intent(this, ItemDetailActivity.class);
+        intent.putExtra("item", item);
+        startActivity(intent);
+
     }
 
     private void openCatalogueFragment() {

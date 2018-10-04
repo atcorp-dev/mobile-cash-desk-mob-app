@@ -14,6 +14,13 @@ import ua.com.atcorp.mobilecashdesk.rest.api.ItemApi;
 
 public class ItemRepository extends BaseRepository {
 
+    public ItemTask getItemById(String id, Predicate<Item, Exception> predicate) {
+        ItemApi api = createService(ItemApi.class);
+        Call<ItemDto> call = api.getItemById(id);
+        ItemTask task = new ItemTask(predicate, call);
+        return task;
+    }
+
     public ItemTask getItemByCode(String companyId, String code, Predicate<Item, Exception> predicate) {
         ItemApi api = createService(ItemApi.class);
         Call<ItemDto> call = api.getItemByCode(companyId, code);
@@ -72,7 +79,7 @@ public class ItemRepository extends BaseRepository {
         private Item dtoToItem(ItemDto dto) {
             if (dto == null)
                 return null;
-            return new Item(
+            Item item =  new Item(
                     dto.id,
                     dto.code,
                     dto.barCode,
@@ -83,6 +90,8 @@ public class ItemRepository extends BaseRepository {
                     null, //dto.companyId,
                     dto.image
             );
+            item.setAdditionalFields(dto.additionalFields);
+            return item;
         }
     }
 

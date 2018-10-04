@@ -10,8 +10,10 @@ import com.reactiveandroid.annotation.Table;
 import com.reactiveandroid.annotation.Unique;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
+import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 
 @Table(name = "Items", database = AppDatabase.class,
         indexGroups = {
@@ -54,6 +56,8 @@ public class Item extends Model implements Serializable {
 
     @Column(name = "Image")
     private String image;
+
+    private ArrayList<ItemDto.AdditionalField> additionalFields;
 
     public Item() {
         super();
@@ -147,5 +151,13 @@ public class Item extends Model implements Serializable {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public ArrayList<ItemDto.AdditionalField> getAdditionalFields() {
+        return additionalFields;
+    }
+
+    public void setAdditionalFields(ArrayList<ItemDto.AdditionalField> additionalFields) {
+        this.additionalFields = additionalFields;
     }
 }
