@@ -20,6 +20,13 @@ public class AuthService extends BaseRepository {
         return task;
     }
 
+    public LoginTask ping(Predicate<UserDto, Exception> predicate) {
+        AuthApi api = createService(AuthApi.class);
+        Call<UserDto> call = api.login();
+        LoginTask task = new LoginTask(predicate, call);
+        return task;
+    }
+
     public LogoutTask logout(Predicate<Void, Exception> predicate) {
         mUsername = null;
         mPassword = null;

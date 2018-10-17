@@ -1,7 +1,9 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -30,6 +32,12 @@ public class MainActivity extends AppCompatActivity
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
     private int SCAN_REQ_CODE = 101;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        pingSession();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -211,11 +219,63 @@ public class MainActivity extends AppCompatActivity
                             Log.e("LOG_OUT_ERROR", msg);
                         } else {
                             AuthService.setCurrentUser(null);
+                            setPrefLogin(null);
+                            setPrefPassword(null);
                             finish();
                         }
                     }).execute();
                 })
                 .setNegativeButton(R.string.no, null);
         builder.create().show();
+    }
+
+    private void pingSession() {
+        String login = getPrefLogin();
+        String password = getPrefPassword();
+        if (login == null) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            return;
+        }
+        AuthService auth = new AuthService();
+        auth.login(login, password, (user, err) -> {
+            if (err != null) {
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                return;
+            }
+        }).execute();
+    }
+
+    private String getPrefLogin() {
+        SharedPreferences sharedPref = getSharedPreferences(
+                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
+        );
+        return sharedPref.getString("login", null);
+    }
+
+    private void setPrefLogin(String login) {
+        SharedPreferences sharedPref = getSharedPreferences(
+                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
+        );
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("login" , login);
+        editor.commit();
+    }
+
+    private String getPrefPassword() {
+        SharedPreferences sharedPref = getSharedPreferences(
+                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
+        );
+        return sharedPref.getString("password", null);
+    }
+
+    private void setPrefPassword(String password) {
+        SharedPreferences sharedPref = getSharedPreferences(
+                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
+        );
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("password" , password);
+        editor.commit();
     }
 }
