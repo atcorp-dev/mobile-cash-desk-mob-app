@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.adapters.ItemFeatureListRecyclerViewAdapter;
+import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 import ua.com.atcorp.mobilecashdesk.ui.dummy.DummyContent.DummyItem;
@@ -23,10 +24,10 @@ public class ItemFeatureListFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    private static final String ARG_ITEM_ID = "item-id";
+    private static final String ARG_ITEM = "item";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private String mItemId;
+    private static Item mItem;
 
     private ArrayList<DummyItem> mItems = new ArrayList<>();
 
@@ -39,11 +40,12 @@ public class ItemFeatureListFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static ItemFeatureListFragment newInstance(int columnCount, String itemId) {
+    public static ItemFeatureListFragment newInstance(int columnCount, Item item) {
         ItemFeatureListFragment fragment = new ItemFeatureListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
-        args.putString(ARG_ITEM_ID, itemId);
+        // args.putSerializable(ARG_ITEM, item);
+        mItem = item;
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,7 +56,7 @@ public class ItemFeatureListFragment extends Fragment {
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-            mItemId = getArguments().getString(ARG_ITEM_ID);
+            // mItem = getArguments().getSerializable(ARG_ITEM);
         }
     }
 
@@ -72,16 +74,11 @@ public class ItemFeatureListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            ItemRepository repository = new ItemRepository();
-            repository.getItemById(mItemId, (item, err) -> {
-                //TODO: Error handling
-                int n = 0;
-                for(ItemDto.AdditionalField field : item.getAdditionalFields()) {
-                    mItems.add(new DummyItem(++n + "", field.key, field.value));
-                }
-                //mItems.add(new DummyItem("1", "Колір", "Жовтий"));
-                recyclerView.setAdapter(new ItemFeatureListRecyclerViewAdapter(mItems));
-            }).execute();
+            int n = 0;
+            for(ItemDto.AdditionalField field : mItem.getAdditionalFields()) {
+                mItems.add(new DummyItem(++n + "", field.key, field.value));
+            }
+            recyclerView.setAdapter(new ItemFeatureListRecyclerViewAdapter(mItems));
         }
         return view;
     }

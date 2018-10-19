@@ -66,6 +66,7 @@ public class CartItemsAdapter extends ArrayAdapter {
             decreaseQty(cartItem);
             notifyDataSetChanged();
         });
+        view.findViewById(R.id.cart_item_wrap).setOnClickListener(v -> onItemClick(cartItem));
         return view;
     }
 
@@ -90,6 +91,11 @@ public class CartItemsAdapter extends ArrayAdapter {
         item.setQty(qty - 1);
     }
 
+    private void onItemClick(CartItem cartItem) {
+        MainActivity ma = (MainActivity)getContext();
+        ma.openCatalogueItemActivity(cartItem.getItemRecordId(), true);
+    }
+
     @Override
     public void add(@Nullable Object object) {
         Item item = (Item) object;
@@ -106,8 +112,8 @@ public class CartItemsAdapter extends ArrayAdapter {
             super.add(item);
         else {
             CartItem cartItem = new CartItem(mCartId, item);
-            // mItems.add(cartItem);
-            super.add(cartItem);
+            super.insert(cartItem, 0);
+            // super.add(cartItem);
         }
     }
 

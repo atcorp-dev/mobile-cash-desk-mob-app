@@ -54,6 +54,9 @@ public class Item extends Model implements Serializable {
     @Column(name = "Company")
     public Company company;
 
+    @Column(name = "Available")
+    boolean available;
+
     @Column(name = "Image")
     private String image;
 
@@ -63,7 +66,7 @@ public class Item extends Model implements Serializable {
         super();
     }
 
-    public Item(String recordId, String code, String barCode, String name, String description, double price, Category category, Company company, String image) {
+    public Item(String recordId, String code, String barCode, String name, String description, double price, Category category, Company company, boolean available) {
         super();
         this.recordId = recordId;
         this.code = code;
@@ -73,7 +76,7 @@ public class Item extends Model implements Serializable {
         this.price = price;
         this.category = category;
         this.company = company;
-        this.image = image;
+        this.available = available;
     }
 
     @Override
@@ -143,6 +146,13 @@ public class Item extends Model implements Serializable {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+    public boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     public String getImage() {

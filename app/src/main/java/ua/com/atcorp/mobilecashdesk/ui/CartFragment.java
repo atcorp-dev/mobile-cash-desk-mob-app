@@ -218,6 +218,7 @@ public class CartFragment extends Fragment {
                 .from(CartItem.class)
                 .where("cartId = ?", mCartId.toString())
                 .fetch();
+        cartItems.sort((c1, c2) -> c2.getDatetime().compareTo(c1.getDatetime()));
         if (cartItems != null & cartItems.size() > 0)
             mItems = new ArrayList<>(cartItems);
         else

@@ -113,6 +113,6 @@ public class ItemAdapter extends ArrayAdapter {
 
     private void openCartItemDetailView(Item item) {
         MainActivity ma = (MainActivity) getContext();
-        ma.openCatalogueItemActivity(item);
+        ma.openCatalogueItemActivity(item, item.getAvailable());
     }
 }

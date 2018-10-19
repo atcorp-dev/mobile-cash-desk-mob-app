@@ -8,6 +8,7 @@ import com.reactiveandroid.annotation.PrimaryKey;
 import com.reactiveandroid.annotation.Table;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
@@ -30,6 +31,9 @@ public class CartItem extends Model implements Serializable {
 
     @Column(name = "qty")
     private int qty;
+
+    @Column(name = "datetime")
+    private Date datetime;
 
     @Index(indexGroups = 2)
     @Column(name = "ItemRecordId")
@@ -74,6 +78,7 @@ public class CartItem extends Model implements Serializable {
         this.itemCategory = item.getCategory();
         this.itemCompany = item.getCompany();
         this.itemImage = item.getImage();
+        this.datetime = new Date();
     }
 
     public String getCartId() {
@@ -122,5 +127,13 @@ public class CartItem extends Model implements Serializable {
 
     public String getItemImage() {
         return itemImage;
+    }
+
+    public Date getDatetime() {
+        return datetime;
+    }
+
+    public void setDatetime(Date datetime) {
+        this.datetime = datetime;
     }
 }

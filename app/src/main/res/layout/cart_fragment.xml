@@ -5,100 +5,118 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_marginTop="?attr/actionBarSize">
-
-    <RelativeLayout
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight = "0"
-            android:layout_marginBottom="8dp"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone"/>
-
-        <Button
-            android:id="@+id/item_btn_scan"
+        android:layout_marginLeft="6dp"
+        android:layout_marginRight="6dp"
+        android:animateLayoutChanges="true">
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Сканувати штрих-код"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:textColor="@color/colorPrimary" />
+            android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/search_wrap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@id/item_btn_scan"
-            android:visibility="gone">
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/etCodeWrap"
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true">
-
-                <EditText
-                    android:id="@+id/et_item_code"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0"
-                    android:ems="10"
-                    android:hint="Артикул"
-                    android:inputType="numberSigned" />
-            </android.support.design.widget.TextInputLayout>
-
-            <Button
-                android:id="@+id/item_btn_search"
+            <ProgressBar
+                android:id="@+id/progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_width="36dp"
-                android:layout_weight="0"
-                android:drawableEnd="@drawable/ic_action_search"
-                android:drawableRight="@drawable/ic_action_search"
-                android:layout_alignParentRight="true"
-                android:textSize="10sp"
-                android:background="#0000"
-                android:layout_marginRight="12dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_below="@id/search_wrap"
-            android:layout_marginTop="-12dp"
-            android:background="@android:color/transparent">
-
-            <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/btn_expand_top_layout"
-                android:layout_width="match_parent"
-                android:layout_height="28dp"
-                android:background="@android:color/transparent"
-                android:clickable="true"
-                android:src="@drawable/ic_action_expandable_down" />
-
-            <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/btn_collapse_top_layout"
-                android:layout_width="match_parent"
-                android:layout_height="28dp"
-                android:src="@drawable/ic_action_expandable_up"
-                android:background="@android:color/transparent"
-                android:clickable="true"
+                android:layout_weight = "0"
+                android:layout_marginBottom="8dp"
+                android:layout_centerHorizontal="true"
                 android:visibility="gone"/>
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/item_btn_scan_wrap">
 
-    </RelativeLayout>
+                <Button
+                    android:id="@+id/item_btn_scan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:text="Сканувати штрих-код"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_weight="1"/>
+
+                <LinearLayout
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    android:layout_marginRight="6dp"
+                    android:orientation="vertical"
+                    android:layout_weight="0"
+                    android:background="@drawable/border">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/btn_expand_top_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:src="@drawable/ic_action_expandable_down" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/btn_collapse_top_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_action_expandable_up"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/search_wrap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@id/item_btn_scan_wrap"
+                android:visibility="gone">
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/etCodeWrap"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_weight="1"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true">
+
+                    <EditText
+                        android:id="@+id/et_item_code"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        android:ems="10"
+                        android:hint="Артикул"
+                        android:inputType="numberSigned" />
+                </android.support.design.widget.TextInputLayout>
+
+                <Button
+                    android:id="@+id/item_btn_search"
+                    android:layout_height="wrap_content"
+                    android:layout_width="36dp"
+                    android:layout_weight="0"
+                    android:drawableEnd="@drawable/ic_action_search"
+                    android:drawableRight="@drawable/ic_action_search"
+                    android:layout_alignParentRight="true"
+                    android:textSize="10sp"
+                    android:background="#0000"
+                    android:layout_marginRight="12dp" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
     <ListView
         android:id="@+id/list_view"
@@ -178,7 +196,15 @@
                 android:id="@+id/bottom_expandable_wrap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:orientation="vertical">
+
+                <CheckBox
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Готівковий розрахунок"
+                    android:textColor="@color/colorPrimary"/>
+
                 <Button
                     android:id="@+id/btn_clear"
                     android:layout_width="match_parent"

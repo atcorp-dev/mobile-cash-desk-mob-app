@@ -20,7 +20,10 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.CommonStatusCodes;
 
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
+import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
+import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 
 public class MainActivity extends AppCompatActivity
@@ -149,11 +152,15 @@ public class MainActivity extends AppCompatActivity
         setTitle("Кошик");
     }
 
-    public void openCatalogueItemActivity(Item item) {
-        Intent intent = new Intent(this, ItemDetailActivity.class);
-        intent.putExtra("item", item);
-        startActivity(intent);
+    public void openCatalogueItemActivity(Item item, boolean available) {
+        openCatalogueItemActivity(item.getRecordId(), available);
+    }
 
+    public void openCatalogueItemActivity(String itemId, boolean available) {
+        Intent intent = new Intent(this, ItemDetailActivity.class);
+        intent.putExtra("itemId", itemId);
+        intent.putExtra("available", available);
+        startActivity(intent);
     }
 
     private void openCatalogueFragment() {
@@ -244,6 +251,9 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
                 return;
             }
+            Company company = new Company();
+            company.setRecordId(user.companyId);
+            CompanyRepository.setCurrentCompany(company);
         }).execute();
     }
 

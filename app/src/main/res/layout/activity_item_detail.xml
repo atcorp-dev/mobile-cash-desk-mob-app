@@ -14,74 +14,92 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar" >
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_action_back"
+            android:clickable="true"
+            android:onClick="onBackButtonClick"/>
+    </android.support.v7.widget.Toolbar>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="96dp"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
 
+
+                    <TextView
+                        android:id="@+id/cart_item_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:text="Name" />
+
+                    <TextView
+                        android:id="@+id/cart_item_code"
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:layout_weight = "0"
+                        android:textSize="18sp"
+                        android:paddingTop="6dp"
+                        android:text="Code" />
+
+                    <TextView
+                        android:id="@+id/cart_item_price"
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:layout_weight = "0"
+                        android:textSize="20sp"
+                        android:textStyle="italic"
+                        android:paddingTop="6dp"
+                        android:text="Price" />
                 <TextView
-                    android:id="@+id/cart_item_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="32dp"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:text="Name" />
+                        android:id="@+id/cart_item_available"
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:layout_weight = "0"
+                        android:textSize="20sp"
+                        android:textStyle="italic"
+                        android:paddingTop="6dp"
+                        android:text="Available" />
 
-                <TextView
-                    android:id="@+id/cart_item_code"
-                    android:layout_width="match_parent"
-                    android:layout_height="32dp"
-                    android:layout_weight = "0"
-                    android:textSize="18sp"
-                    android:paddingTop="6dp"
-                    android:text="Code" />
+            </LinearLayout>
 
-                <TextView
-                    android:id="@+id/cart_item_price"
-                    android:layout_width="match_parent"
-                    android:layout_height="32dp"
-                    android:layout_weight = "0"
-                    android:textSize="20sp"
-                    android:textStyle="italic"
-                    android:paddingTop="6dp"
-                    android:text="Price" />
+            </android.support.v7.widget.CardView>
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?actionBarSize"
+                android:layout_marginTop="6dp"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/white"
+                app:tabTextColor="@color/white"
+                app:tabIndicatorHeight="4dp"
+                app:tabBackground="@color/colorPrimary"
+                android:background="@color/colorPrimary"
+                app:tabMode="fixed">
+            </android.support.design.widget.TabLayout>
+            <android.support.v4.view.ViewPager
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </android.support.v4.view.ViewPager>
 
         </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?actionBarSize"
-            android:layout_marginTop="6dp"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/white"
-            app:tabTextColor="@color/white"
-            app:tabIndicatorHeight="4dp"
-            app:tabBackground="@color/colorPrimary"
-            app:tabMode="fixed">
-        </android.support.design.widget.TabLayout>
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </android.support.v4.view.ViewPager>
-
-    </LinearLayout>
 
 </LinearLayout>

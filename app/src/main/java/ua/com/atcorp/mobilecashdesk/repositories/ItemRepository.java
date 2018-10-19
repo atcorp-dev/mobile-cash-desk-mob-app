@@ -88,8 +88,9 @@ public class ItemRepository extends BaseRepository {
                     dto.price,
                     null, //dto.categoryId,
                     null, //dto.companyId,
-                    dto.image
+                    dto.available
             );
+            item.setImage(dto.image);
             item.setAdditionalFields(dto.additionalFields);
             return item;
         }
@@ -133,7 +134,9 @@ public class ItemRepository extends BaseRepository {
         }
 
         private Item dtoToItem(ItemDto dto) {
-            return new Item(
+            if (dto == null)
+                return null;
+            Item item = new Item(
                     dto.id,
                     dto.code,
                     dto.barCode,
@@ -142,8 +145,11 @@ public class ItemRepository extends BaseRepository {
                     dto.price,
                     null, //dto.categoryId,
                     null, //dto.companyId,
-                    dto.image
+                    dto.available
             );
+            item.setImage(dto.image);
+            item.setAdditionalFields(dto.additionalFields);
+            return item;
         }
     }
 }

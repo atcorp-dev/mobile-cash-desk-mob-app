@@ -3,6 +3,9 @@ package ua.com.atcorp.mobilecashdesk.services;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.Response;
 import ua.com.atcorp.mobilecashdesk.repositories.BaseRepository;
@@ -15,14 +18,17 @@ public class AuthService extends BaseRepository {
         mUsername = username;
         mPassword = password;
         AuthApi api = createService(AuthApi.class);
-        Call<UserDto> call = api.login();
+        Map<String,String> params = new HashMap<>();
+        params.put("username", mUsername);
+        params.put("password", mPassword);
+        Call<UserDto> call = api.login(params);
         LoginTask task = new LoginTask(predicate, call);
         return task;
     }
 
     public LoginTask ping(Predicate<UserDto, Exception> predicate) {
         AuthApi api = createService(AuthApi.class);
-        Call<UserDto> call = api.login();
+        Call<UserDto> call = api.ping();
         LoginTask task = new LoginTask(predicate, call);
         return task;
     }

@@ -20,7 +20,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:id="@+id/cart_item_wrap">
             <TextView
                 android:id="@+id/cart_item_num"
                 android:layout_width="48dp"

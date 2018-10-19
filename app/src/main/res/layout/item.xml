@@ -91,8 +91,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Детально"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:theme="@style/BlueButton"
+                    android:background="@android:color/transparent"
+                    android:textColor="@color/colorPrimary"
                     android:layout_weight = "0"/>
                 <Button
                     android:id="@+id/btnToCart"

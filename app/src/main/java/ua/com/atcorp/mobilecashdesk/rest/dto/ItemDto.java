@@ -20,6 +20,7 @@ public class ItemDto {
     public String categoryId;
     public CategoryDto category;
     public String image;
+    public boolean available;
     public ArrayList<AdditionalField> additionalFields;
 
 }
