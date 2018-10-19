@@ -116,6 +116,12 @@ public class LoginActivity extends AppCompatActivity {
             attemptLogin();*/
     }
 
+    @Override
+    public void onBackPressed() {
+        finishAffinity();
+        System.exit(0);
+    }
+
     private void loadCompanies(UserDto user) {
         CompanyRepository repository = new CompanyRepository();
         repository.getCompanies((companies, err) -> {

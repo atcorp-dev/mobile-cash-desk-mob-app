@@ -15,6 +15,7 @@ import android.util.Base64;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 public abstract class BaseRepository<T> {
     public interface Predicate<T, E> {
@@ -88,6 +89,8 @@ public abstract class BaseRepository<T> {
     protected static <T> T createService(Class<T> serviceClass) {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         OkHttpClient client = httpClientBuilder
+                .readTimeout(120, TimeUnit.SECONDS)
+                .connectTimeout(120, TimeUnit.SECONDS)
                 .addInterceptor(getAuthTokenInterceptor())
                 .addInterceptor(getAddCookiesInterceptor())
                 .addInterceptor(getReceivedCookiesInterceptor())

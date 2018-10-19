@@ -18,8 +18,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.reactiveandroid.query.Delete;
 
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
@@ -228,7 +230,10 @@ public class MainActivity extends AppCompatActivity
                             AuthService.setCurrentUser(null);
                             setPrefLogin(null);
                             setPrefPassword(null);
-                            finish();
+                            Delete.from(CartItem.class).execute();
+                            // finish();
+                            Intent intent = new Intent(this, LoginActivity.class);
+                            startActivity(intent);
                         }
                     }).execute();
                 })
