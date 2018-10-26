@@ -22,6 +22,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
@@ -130,10 +133,15 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
                 return;
             }
+            List<String> list = new ArrayList<>();
+            for (Company c : companies) {
+                String name = c.getName();
+                list.add(name);
+            }
             ArrayAdapter adapter = new ArrayAdapter(
                     this,
                     android.R.layout.simple_dropdown_item_1line,
-                    companies.stream().map(c -> c.getName()).toArray()
+                    list.toArray()
             );
             mCompanyView.setAdapter(adapter);
             mCompanyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

@@ -109,10 +109,6 @@ public class MainActivity extends AppCompatActivity
             openCartFragment();
         } else if (id == R.id.nav_catalogue) {
             openCatalogueFragment();
-        } else if (id == R.id.nav_settings) {
-
-        } else if (id == R.id.nav_share) {
-
         } else if (id == R.id.nav_logout) {
             logOut();
         }

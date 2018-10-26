@@ -9,7 +9,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "ua.com.atcorp.mobilecashdesk"
-        minSdkVersion 24
+        minSdkVersion 23
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -58,4 +58,5 @@ dependencies {
 
     // Important - the CameraSource implementation in this project requires version 8.1 or higher.
     implementation 'com.google.android.gms:play-services-vision:9.4.0+'
+
 }

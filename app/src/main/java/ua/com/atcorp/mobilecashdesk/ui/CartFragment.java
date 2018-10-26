@@ -22,6 +22,8 @@ import com.reactiveandroid.query.Select;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -218,7 +220,7 @@ public class CartFragment extends Fragment {
                 .from(CartItem.class)
                 .where("cartId = ?", mCartId.toString())
                 .fetch();
-        cartItems.sort((c1, c2) -> c2.getDatetime().compareTo(c1.getDatetime()));
+        Collections.sort(cartItems, (c1, c2) -> c2.getDatetime().compareTo(c1.getDatetime()));
         if (cartItems != null & cartItems.size() > 0)
             mItems = new ArrayList<>(cartItems);
         else

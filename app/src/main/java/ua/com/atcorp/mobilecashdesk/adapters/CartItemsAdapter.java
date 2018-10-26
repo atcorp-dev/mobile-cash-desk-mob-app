@@ -136,9 +136,12 @@ public class CartItemsAdapter extends ArrayAdapter {
     public double getTotalPrice() {
         if (mItems == null || mItems.size() == 0)
             return 0;
-        return mItems.stream()
-                .mapToDouble(i -> i.getPrice())
-                .sum();
+        double sum = 0.0;
+        for (CartItem i : mItems) {
+            double price = i.getPrice();
+            sum += price;
+        }
+        return sum;
     }
 
     public ArrayList<CartItem> getItems() {

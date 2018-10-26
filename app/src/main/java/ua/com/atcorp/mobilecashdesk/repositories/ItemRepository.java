@@ -3,6 +3,7 @@ package ua.com.atcorp.mobilecashdesk.repositories;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,10 +116,11 @@ public class ItemRepository extends BaseRepository {
             try {
                 Response response = call.execute();
                 List<ItemDto> itemDtoList = (List<ItemDto>)response.body();
-                List<Item> item = itemDtoList
-                        .stream()
-                        .map(itemDto -> dtoToItem(itemDto))
-                        .collect(Collectors.toList());
+                List<Item> item = new ArrayList<>();
+                for (ItemDto itemDto : itemDtoList) {
+                    Item dtoToItem = dtoToItem(itemDto);
+                    item.add(dtoToItem);
+                }
                 return item;
             } catch (Exception e) {
                 error = e;
