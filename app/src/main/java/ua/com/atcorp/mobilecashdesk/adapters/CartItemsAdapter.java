@@ -93,7 +93,7 @@ public class CartItemsAdapter extends ArrayAdapter {
 
     private void onItemClick(CartItem cartItem) {
         MainActivity ma = (MainActivity)getContext();
-        ma.openCatalogueItemActivity(cartItem.getItemRecordId(), true);
+        ma.openCatalogueItemActivity(cartItem.getItemRecordId());
     }
 
     @Override

@@ -26,7 +26,6 @@ public class ItemDetailActivity extends AppCompatActivity {
     private ItemDetailTabAdapter mAdapter;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
-    boolean mShowItemAvailabilityListFragment;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +33,6 @@ public class ItemDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         // mItem = (Item) intent.getSerializableExtra("item");
         String itemId = intent.getStringExtra("itemId");
-        mShowItemAvailabilityListFragment = !intent.getBooleanExtra("available", false);
 
         new ItemRepository().getItemById(itemId, (item, err) -> {
             if (err != null)
@@ -58,8 +56,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                 .newInstance(1, item);
 
         mAdapter.addFragment(itemFeatureListFragment, "Характеристики");
-        if (mShowItemAvailabilityListFragment)
-            mAdapter.addFragment(new ItemAvailabilityListFragment(), "Наявність");
+        mAdapter.addFragment(new ItemAvailabilityListFragment(), "Наявність");
         mViewPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 

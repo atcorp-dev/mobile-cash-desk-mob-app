@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class ItemDto {
 
     public class AdditionalField {
-        public String key;
+        public String name;
         public String value;
     };
 

@@ -76,7 +76,7 @@ public class ItemFeatureListFragment extends Fragment {
             }
             int n = 0;
             for(ItemDto.AdditionalField field : mItem.getAdditionalFields()) {
-                mItems.add(new DummyItem(++n + "", field.key, field.value));
+                mItems.add(new DummyItem(++n + "", field.name, field.value));
             }
             recyclerView.setAdapter(new ItemFeatureListRecyclerViewAdapter(mItems));
         }

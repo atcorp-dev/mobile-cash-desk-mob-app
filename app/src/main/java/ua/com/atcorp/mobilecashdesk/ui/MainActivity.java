@@ -150,14 +150,13 @@ public class MainActivity extends AppCompatActivity
         setTitle("Кошик");
     }
 
-    public void openCatalogueItemActivity(Item item, boolean available) {
-        openCatalogueItemActivity(item.getRecordId(), available);
+    public void openCatalogueItemActivity(Item item) {
+        openCatalogueItemActivity(item.getRecordId());
     }
 
-    public void openCatalogueItemActivity(String itemId, boolean available) {
+    public void openCatalogueItemActivity(String itemId) {
         Intent intent = new Intent(this, ItemDetailActivity.class);
         intent.putExtra("itemId", itemId);
-        intent.putExtra("available", available);
         startActivity(intent);
     }
 
