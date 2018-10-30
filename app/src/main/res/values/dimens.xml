@@ -6,4 +6,9 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <!-- Cards on mobile default to 8dp margins. {@code layout_margin} needs to be set directly on a
+      {@link View} in its layout and won't work when included as part of a style. -->
+    <dimen name="mtrl_card_spacing">8dp</dimen>
+    <!-- Default elevation for {@link MaterialCardView}. -->
+    <dimen name="mtrl_card_elevation">1dp</dimen>
 </resources>

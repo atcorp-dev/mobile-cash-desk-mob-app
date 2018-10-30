@@ -1,9 +1,11 @@
 package ua.com.atcorp.mobilecashdesk.repositories;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.reactiveandroid.ReActiveAndroid;
+import com.reactiveandroid.query.Delete;
 import com.reactiveandroid.query.Select;
 
 import java.util.ArrayList;
@@ -19,14 +21,8 @@ import ua.com.atcorp.mobilecashdesk.rest.dto.CompanyDto;
 
 public class CompanyRepository extends BaseRepository {
 
-    private static Company currentCompany;
-
-    public static Company getCurrentCompany() {
-        return currentCompany;
-    }
-
-    public static void setCurrentCompany(Company currentCompany) {
-        CompanyRepository.currentCompany = currentCompany;
+    public CompanyRepository(Context context) {
+        super(context);
     }
 
     public CompaniesTask getCompanies(Predicate<List<Company>, Exception> predicate) {
@@ -92,10 +88,11 @@ public class CompanyRepository extends BaseRepository {
                 Company dtoToCompany = dtoToCompany(c);
                 companies.add(dtoToCompany);
             }
-            ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
+            // ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
+            Delete.from(Company.class).execute();
             for(Company company : companies)
                 company.save();
-            ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
+            // ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
             return companies;
         }
 

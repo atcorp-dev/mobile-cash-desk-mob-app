@@ -72,7 +72,7 @@ public class DeviceListAdapter extends BaseAdapter implements Filterable {
                 (device.getName() != null
                         ? device.getName()
                         : MobileCashDeskApp
-                        .instance
+                        .getInstance()
                         .getApplicationContext().getString(R.string.noname_device))
         );
         holder.address.setText(device.getAddress());

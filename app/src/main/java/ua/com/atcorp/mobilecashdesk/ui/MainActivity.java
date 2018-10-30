@@ -39,12 +39,6 @@ public class MainActivity extends AppCompatActivity
     private int SCAN_REQ_CODE = 101;
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        pingSession();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -61,11 +55,13 @@ public class MainActivity extends AppCompatActivity
         mNavigationView.setNavigationItemSelectedListener(this);
 
         openMainFragment();
+
+        pingSession();
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (mSelectedMenuId > 0 && mSelectedMenuId != R.id.nav_main) {
@@ -113,7 +109,7 @@ public class MainActivity extends AppCompatActivity
             logOut();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -216,76 +212,32 @@ public class MainActivity extends AppCompatActivity
         builder
                 .setTitle("Ви дійсно бажаєте вийти?")
                 .setPositiveButton(R.string.ok, (DialogInterface dialog, int id) -> {
-                    new AuthService().logout((Void, err) -> {
+                    AuthService authService = new AuthService(this);
+                    authService.logout((Void, err) -> {
                         if (err != null) {
                             Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
                             String msg = err.getMessage() + "\n" + err.getStackTrace().toString();
                             Log.e("LOG_OUT_ERROR", msg);
-                        } else {
-                            AuthService.setCurrentUser(null);
-                            setPrefLogin(null);
-                            setPrefPassword(null);
-                            Delete.from(CartItem.class).execute();
-                            // finish();
-                            Intent intent = new Intent(this, LoginActivity.class);
-                            startActivity(intent);
                         }
                     }).execute();
+                    authService.setCurrentUser(null);
+                    //TODO: Move to CartService
+                    Delete.from(CartItem.class).execute();
+                    finish();
+                    openLoginActivity();
                 })
                 .setNegativeButton(R.string.no, null);
         builder.create().show();
     }
 
     private void pingSession() {
-        String login = getPrefLogin();
-        String password = getPrefPassword();
-        if (login == null) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            return;
-        }
-        AuthService auth = new AuthService();
-        auth.login(login, password, (user, err) -> {
-            if (err != null) {
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivity(intent);
-                return;
-            }
-            Company company = new Company();
-            company.setRecordId(user.companyId);
-            CompanyRepository.setCurrentCompany(company);
-        }).execute();
+        AuthService auth = new AuthService(this);
+        if (auth.getCurrentUser() == null)
+            openLoginActivity();
     }
 
-    private String getPrefLogin() {
-        SharedPreferences sharedPref = getSharedPreferences(
-                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
-        );
-        return sharedPref.getString("login", null);
-    }
-
-    private void setPrefLogin(String login) {
-        SharedPreferences sharedPref = getSharedPreferences(
-                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
-        );
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("login" , login);
-        editor.commit();
-    }
-
-    private String getPrefPassword() {
-        SharedPreferences sharedPref = getSharedPreferences(
-                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
-        );
-        return sharedPref.getString("password", null);
-    }
-
-    private void setPrefPassword(String password) {
-        SharedPreferences sharedPref = getSharedPreferences(
-                LoginActivity.PreferencesFileName, Context.MODE_PRIVATE
-        );
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("password" , password);
-        editor.commit();
+    private void openLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 }

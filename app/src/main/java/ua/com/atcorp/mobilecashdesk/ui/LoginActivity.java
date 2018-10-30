@@ -27,6 +27,7 @@ import java.util.List;
 
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.models.User;
 import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.UserDto;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
@@ -34,7 +35,7 @@ import ua.com.atcorp.mobilecashdesk.services.AuthService;
 public class LoginActivity extends AppCompatActivity {
  
     private boolean loginInProgress = false;
-
+    private AuthService mAuthService;
     // UI references.
     private EditText mLoginView;
     private EditText mPasswordView;
@@ -44,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     private Spinner mCompanyView;
     private Button mEntranceButton;
 
-    public static final String PreferencesFileName = "__auth__";
+    public static final String PreferencesFileName = "__login__";
 
     private SharedPreferences getSharedPreferences() {
         SharedPreferences sharedPref = getSharedPreferences(PreferencesFileName, Context.MODE_PRIVATE);
@@ -86,11 +87,11 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("companyId" , password);
         editor.commit();
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        mAuthService = new AuthService(this);
         // Set up the login form.
         mLoginView = findViewById(R.id.login);
         String login = getPrefLogin();
@@ -114,9 +115,6 @@ public class LoginActivity extends AppCompatActivity {
         mEntranceButton.setOnClickListener(v -> onEntranceButtonClick(v));
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-        /*if (login != null && password != null)
-            attemptLogin();*/
     }
 
     @Override
@@ -125,8 +123,8 @@ public class LoginActivity extends AppCompatActivity {
         System.exit(0);
     }
 
-    private void loadCompanies(UserDto user) {
-        CompanyRepository repository = new CompanyRepository();
+    private void loadCompanies(User user) {
+        CompanyRepository repository = new CompanyRepository(this);
         repository.getCompanies((companies, err) -> {
 
             if (err != null || companies == null) {
@@ -148,9 +146,10 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     Company company = companies.get(i);
-                    CompanyRepository.setCurrentCompany(company);
+                    mAuthService.setCurrentCompany(company);
                     mEntranceButton.setEnabled(true);
                     setPrefCompanyId(company.getRecordId());
+                    mAuthService.setCurrentCompany(company);
                 }
 
                 @Override
@@ -159,20 +158,19 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
             String companyId = getPrefCompanyId();
+            if (companyId == null) {
+                Company currentCompany = mAuthService.getCurrentCompany();
+                if (currentCompany != null)
+                    companyId = currentCompany.getRecordId();
+                else if (user != null)
+                    companyId = user.getCompanyId();
+            }
             if (companyId != null) {
                 for (Company company : companies) {
                     if (companyId.equals(company.getRecordId())) {
                         mCompanyView.setSelection(companies.indexOf(company));
-                        CompanyRepository.setCurrentCompany(company);
+                        mAuthService.setCurrentCompany(company);
                         mEntranceButton.setEnabled(true);
-                        break;
-                    }
-                }
-            } if (user != null && user.companyId != null ) {
-                for (Company company : companies) {
-                    if (user.companyId.equals(company.getRecordId())) {
-                        mCompanyView.setSelection(companies.indexOf(company));
-                        CompanyRepository.setCurrentCompany(company);
                         break;
                     }
                 }
@@ -230,8 +228,7 @@ public class LoginActivity extends AppCompatActivity {
             // perform the user login attempt.
             showProgress(true);
             mLoginFormView.setVisibility(View.GONE);
-            AuthService authService = new AuthService();
-            authService.login(login, password, (user, err) -> onLoginExecute(user, err)).execute();
+            mAuthService.login(login, password, (user, err) -> onLoginExecute(user, err)).execute();
         }
     }
 
@@ -280,7 +277,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void onLoginExecute(UserDto user, Exception err) {
+    private void onLoginExecute(User user, Exception err) {
         loginInProgress = false;
         showProgress(false);
         if (err != null) {

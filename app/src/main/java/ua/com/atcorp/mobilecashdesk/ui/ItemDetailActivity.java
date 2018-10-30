@@ -33,8 +33,8 @@ public class ItemDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         // mItem = (Item) intent.getSerializableExtra("item");
         String itemId = intent.getStringExtra("itemId");
-
-        new ItemRepository().getItemById(itemId, (item, err) -> {
+        ItemRepository itemRepository = new ItemRepository(this);
+        itemRepository.getItemById(itemId, (item, err) -> {
             if (err != null)
                 Toast.makeText(this, "Помилка при отримані датальгної інфомації", Toast.LENGTH_SHORT).show();
             else if (item != null)

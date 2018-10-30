@@ -32,7 +32,7 @@ public class CartItem extends Model implements Serializable {
     @Column(name = "qty")
     private int qty;
 
-    @Column(name = "datetime")
+    @Column(name = "Datetime")
     private Date datetime;
 
     @Index(indexGroups = 2)

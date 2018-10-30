@@ -6,18 +6,25 @@ import android.app.Application;
 import com.reactiveandroid.ReActiveAndroid;
 import com.reactiveandroid.ReActiveConfig;
 import com.reactiveandroid.internal.database.DatabaseConfig;
+import com.reactiveandroid.internal.serializer.UUIDSerializer;
 
 import ua.com.atcorp.mobilecashdesk.db.AppDatabase;
+import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Category;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.models.PairedDevice;
+import ua.com.atcorp.mobilecashdesk.models.User;
 import ua.pbank.dio.minipos.MiniPosManager;
 
 public class MobileCashDeskApp extends Application {
 
-    public static MobileCashDeskApp instance;
+    public static MobileCashDeskApp mInstance;
+
+    public static MobileCashDeskApp getInstance() {
+        return mInstance;
+    }
 
     @Override
     public void onCreate() {
@@ -26,17 +33,26 @@ public class MobileCashDeskApp extends Application {
         initDataBase();
         initMiniPosManager();
 
-        instance = this;
+        mInstance = this;
     }
 
     private void initDataBase() {
         DatabaseConfig appDatabaseConfig = new DatabaseConfig.Builder(AppDatabase.class)
+                .addTypeSerializers(
+                        UUIDSerializer.class
+                )
                 .addModelClasses(
                         CartItem.class,
                         Category.class,
                         Company.class,
                         Item.class,
-                        PairedDevice.class
+                        PairedDevice.class,
+                        User.class,
+                        Cart.class
+                )
+                .addMigrations(
+                        AppDatabase.MIGRATION_1_2,
+                        AppDatabase.MIGRATION_2_3
                 )
                 .build();
 

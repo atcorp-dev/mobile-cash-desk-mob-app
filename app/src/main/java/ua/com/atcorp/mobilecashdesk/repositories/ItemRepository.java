@@ -1,5 +1,6 @@
 package ua.com.atcorp.mobilecashdesk.repositories;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -14,6 +15,10 @@ import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 import ua.com.atcorp.mobilecashdesk.rest.api.ItemApi;
 
 public class ItemRepository extends BaseRepository {
+
+    public ItemRepository(Context context) {
+        super(context);
+    }
 
     public ItemTask getItemById(String id, Predicate<Item, Exception> predicate) {
         ItemApi api = createService(ItemApi.class);

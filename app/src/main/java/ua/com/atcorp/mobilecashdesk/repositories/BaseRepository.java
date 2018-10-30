@@ -11,6 +11,8 @@ import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ua.com.atcorp.mobilecashdesk.rest.converters.NullOnEmptyConverterFactory;
+import ua.com.atcorp.mobilecashdesk.services.AuthService;
+
 import android.util.Base64;
 
 import java.io.IOException;
@@ -104,5 +106,19 @@ public abstract class BaseRepository<T> {
                 .build();
         T api = retrofit.create(serviceClass);
         return api;
+    }
+
+    protected Context mContext;
+
+    public BaseRepository(Context context) {
+        mContext = context;
+        if (mUsername == null)
+            initCredentials();
+    }
+
+
+    private void initCredentials() {
+        mUsername = AuthService.getPrefLogin(mContext);
+        mPassword = AuthService.getPrefPassword(mContext);
     }
 }

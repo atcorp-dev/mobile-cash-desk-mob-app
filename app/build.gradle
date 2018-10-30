@@ -9,8 +9,8 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "ua.com.atcorp.mobilecashdesk"
-        minSdkVersion 21
-        targetSdkVersion 26
+        minSdkVersion 16
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -22,8 +22,8 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

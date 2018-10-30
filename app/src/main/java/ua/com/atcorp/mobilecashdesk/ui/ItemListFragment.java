@@ -26,10 +26,11 @@ import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
+import ua.com.atcorp.mobilecashdesk.services.AuthService;
 
 public class ItemListFragment extends Fragment implements TextWatcher {
 
-    Company mCompany = CompanyRepository.getCurrentCompany();
+    Company mCompany;
     ArrayAdapter mItemAdapter;
     EditText mEtName;
     View mBtnSearch;
@@ -38,6 +39,7 @@ public class ItemListFragment extends Fragment implements TextWatcher {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mCompany = new AuthService(getContext()).getCurrentCompany();
         View view = inflater.inflate(R.layout.item_list_fragment, container, false);
         ListView listView = view.findViewById(R.id.list_view);
         mItemAdapter = new ItemAdapter(
@@ -58,7 +60,7 @@ public class ItemListFragment extends Fragment implements TextWatcher {
     }
 
     private void getItemsByName() {
-        ItemRepository repository = new ItemRepository();
+        ItemRepository repository = new ItemRepository(getContext());
         String name = mEtName.getText().toString();
         if (name == null || name.length() < minSearchTextLength) {
             hideProgress();
