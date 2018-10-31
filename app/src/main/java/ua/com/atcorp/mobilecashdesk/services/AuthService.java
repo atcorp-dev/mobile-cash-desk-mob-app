@@ -29,7 +29,7 @@ public class AuthService extends BaseRepository {
         super(context);
     }
 
-    public LoginTask login(String username, String password, Predicate<User, Exception> predicate) {
+    public AsyncTask login(String username, String password, Predicate<User, Exception> predicate) {
         mUsername = username;
         mPassword = password;
         AuthApi api = createService(AuthApi.class);
@@ -38,23 +38,23 @@ public class AuthService extends BaseRepository {
         params.put("password", mPassword);
         Call<UserDto> call = api.login(params);
         LoginTask task = new LoginTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
-    public LoginTask ping(Predicate<User, Exception> predicate) {
+    public AsyncTask ping(Predicate<User, Exception> predicate) {
         AuthApi api = createService(AuthApi.class);
         Call<UserDto> call = api.ping();
         LoginTask task = new LoginTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
-    public LogoutTask logout(Predicate<Void, Exception> predicate) {
+    public AsyncTask logout(Predicate<Void, Exception> predicate) {
         mUsername = null;
         mPassword = null;
         AuthApi api = createService(AuthApi.class);
         Call<Void> call = api.logout();
         LogoutTask task = new LogoutTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
     public Company getCurrentCompany() {

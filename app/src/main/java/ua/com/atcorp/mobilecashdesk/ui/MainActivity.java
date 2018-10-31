@@ -196,9 +196,7 @@ public class MainActivity extends AppCompatActivity
 
     private void onPaymentActivity(int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            new CartService(this)
-                    .restoreState()
-                    .clearCart();
+            new CartService(this).clearCart();
         }
     }
 
@@ -228,10 +226,10 @@ public class MainActivity extends AppCompatActivity
                             String msg = err.getMessage() + "\n" + err.getStackTrace().toString();
                             Log.e("LOG_OUT_ERROR", msg);
                         }
-                    }).execute();
+                    });
                     authService.setCurrentUser(null);
                     //TODO: Move to CartService
-                    Delete.from(CartItem.class).execute();
+                    new CartService(this).clearCart();
                     finish();
                     openLoginActivity();
                 })

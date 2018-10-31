@@ -175,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
             }
-        }).execute();
+        });
     }
     
     /**
@@ -228,7 +228,7 @@ public class LoginActivity extends AppCompatActivity {
             // perform the user login attempt.
             showProgress(true);
             mLoginFormView.setVisibility(View.GONE);
-            mAuthService.login(login, password, (user, err) -> onLoginExecute(user, err)).execute();
+            mAuthService.login(login, password, (user, err) -> onLoginExecute(user, err));
         }
     }
 

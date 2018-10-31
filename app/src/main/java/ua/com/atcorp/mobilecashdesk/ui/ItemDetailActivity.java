@@ -41,7 +41,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                 onItem(item);
             else
                 Toast.makeText(this, "Товар на складі не знайдено", Toast.LENGTH_SHORT).show();
-        }).execute();
+        });
 
         setTitle("Характеристики");
     }

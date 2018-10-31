@@ -25,11 +25,11 @@ public class CompanyRepository extends BaseRepository {
         super(context);
     }
 
-    public CompaniesTask getCompanies(Predicate<List<Company>, Exception> predicate) {
+    public AsyncTask getCompanies(Predicate<List<Company>, Exception> predicate) {
         CompanyApi api = createService(CompanyApi.class);
         Call<List<CompanyDto>> call = api.getCompanies();
         CompaniesTask task = new CompaniesTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
     public class CompaniesTask extends AsyncTask<Void,Void,List<Company>> {

@@ -29,6 +29,17 @@ public class User extends Model implements Serializable {
     @Column(name = "Login")
     private String login;
 
+    @Column(name = "Name")
+    private String name;
+
+    @Column(name = "CompanyId")
+    private String companyId;
+
+    private Company company;
+
+    @Column(name = "Email")
+    private String email;
+
     public Long get_id() {
         return _id;
     }
@@ -64,6 +75,13 @@ public class User extends Model implements Serializable {
     public void setCompanyId(String companyId) {
         this.companyId = companyId;
     }
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
 
     public String getEmail() {
         return email;
@@ -72,13 +90,4 @@ public class User extends Model implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    @Column(name = "Name")
-    private String name;
-
-    @Column(name = "CompanyId")
-    private String companyId;
-
-    @Column(name = "Email")
-    private String email;
 }

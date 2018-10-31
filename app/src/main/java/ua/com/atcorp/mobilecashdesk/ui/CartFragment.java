@@ -97,7 +97,7 @@ public class CartFragment extends Fragment {
             else
                 Toast.makeText(getContext(), "Товар не знайдено", Toast.LENGTH_SHORT).show();
             mItemCodeView.setText("");
-        }).execute();
+        });
     }
 
     private void onButtonSearchClick(View v) {
@@ -113,7 +113,7 @@ public class CartFragment extends Fragment {
             else
                 Toast.makeText(getContext(), "Товар не знайдено", Toast.LENGTH_SHORT).show();
             mItemCodeView.setText("");
-        }).execute();
+        });
 
     }
 
@@ -170,6 +170,7 @@ public class CartFragment extends Fragment {
     }
 
     private void clearCart() {
+        mCbCashPayment.setChecked(false);
         mCartService.clearCart();
     }
 

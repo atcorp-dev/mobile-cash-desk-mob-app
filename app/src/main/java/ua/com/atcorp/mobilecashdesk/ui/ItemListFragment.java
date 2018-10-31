@@ -69,7 +69,7 @@ public class ItemListFragment extends Fragment implements TextWatcher {
         showProgress();
         repository.getItemsByName(
                 mCompany.getRecordId(), name, (items, err) -> onGetItemsResponse(items, err)
-        ).execute();
+        );
     }
 
     private void onGetItemsResponse(List<Item> items, Exception err) {

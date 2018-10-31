@@ -20,32 +20,32 @@ public class ItemRepository extends BaseRepository {
         super(context);
     }
 
-    public ItemTask getItemById(String id, Predicate<Item, Exception> predicate) {
+    public AsyncTask getItemById(String id, Predicate<Item, Exception> predicate) {
         ItemApi api = createService(ItemApi.class);
         Call<ItemDto> call = api.getItemById(id);
         ItemTask task = new ItemTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
-    public ItemTask getItemByCode(String companyId, String code, Predicate<Item, Exception> predicate) {
+    public AsyncTask getItemByCode(String companyId, String code, Predicate<Item, Exception> predicate) {
         ItemApi api = createService(ItemApi.class);
         Call<ItemDto> call = api.getItemByCode(companyId, code);
         ItemTask task = new ItemTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
-    public ItemTask getItemByBarCode(String companyId, String barCode, Predicate<Item, Exception> predicate) {
+    public AsyncTask getItemByBarCode(String companyId, String barCode, Predicate<Item, Exception> predicate) {
         ItemApi api = createService(ItemApi.class);
         Call<ItemDto> call = api.getItemByBarCode(companyId, barCode);
         ItemTask task = new ItemTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
-    public ItemListTask getItemsByName(String companyId, String name, Predicate<List<Item>, Exception> predicate) {
+    public AsyncTask getItemsByName(String companyId, String name, Predicate<List<Item>, Exception> predicate) {
         ItemApi api = createService(ItemApi.class);
         Call<List<ItemDto>> call = api.getItemsByName(companyId, name);
         ItemListTask task = new ItemListTask(predicate, call);
-        return task;
+        return task.execute();
     }
 
     public class ItemTask extends AsyncTask<Void,Void,Item> {

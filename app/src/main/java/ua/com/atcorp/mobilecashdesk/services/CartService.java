@@ -6,6 +6,7 @@ import android.database.DataSetObserver;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.reactiveandroid.query.Delete;
 import com.reactiveandroid.query.Select;
 
 import java.util.ArrayList;
@@ -54,10 +55,12 @@ public class CartService extends BaseRepository {
     }
 
     public void clearCart() {
-        mAdapter.clear();
+        if(mAdapter != null)
+            mAdapter.clear();
         SharedPreferences sharedPref = getSharedPreferences();
         sharedPref.edit().remove("cartId").commit();
-        mCart.delete();
+        Delete.from(Cart.class).execute();
+        Delete.from((CartItem.class)).execute();
         UUID cartId = getActiveCartId();
         mCart = getCartByRecordId(cartId);
         mCart.save();
