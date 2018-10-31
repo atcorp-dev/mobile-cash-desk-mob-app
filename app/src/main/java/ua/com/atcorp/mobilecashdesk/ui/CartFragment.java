@@ -36,53 +36,28 @@ import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
+import ua.com.atcorp.mobilecashdesk.services.CartService;
 
 public class CartFragment extends Fragment {
 
     ListView mListView;
     EditText mItemCodeView;
     ProgressBar mProgressBar;
-    CartItemsAdapter mAdapter;
-    // ArrayList<CartItem> mItems = new ArrayList<>();
-    ItemRepository mRepository;
-    private static String mPreferencesFileName = "__cart__";
-    // UUID mCartId;
+    CartService mCartService;
     Cart mCart;
-
-    public static UUID getActiveCartId(Context ctx) {
-        SharedPreferences sharedPref = getSharedPreferences(ctx);
-        String cartId = sharedPref.getString("cartId", "");
-        if (cartId.isEmpty()) {
-            UUID cartUId =  UUID.randomUUID();
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("cartId" , cartUId.toString());
-            editor.commit();
-            return cartUId;
-        } else {
-            return UUID.fromString(cartId);
-        }
-    }
+    ItemRepository mRepository;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.cart_fragment, container, false);
-        restoreState();
+        mCartService = new CartService(getContext(), getDataSetObserver(view));
+        mCartService.restoreState();
+        mCart = mCartService.getCurrentCart();
         mListView = view.findViewById(R.id.list_view);
-        mAdapter = new CartItemsAdapter(getContext(), mCart.getRecordId(), mCart.getmItems());
-        mAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                double price = mAdapter.getTotalPrice();
-                setTotalPrice(view, price);
-                mCart.setmItems(mAdapter.getItems());
-                saveState();
-            }
-        });
-        double price = mAdapter.getTotalPrice();
+        double price = mCartService.getTotalPrice();
         setTotalPrice(view, price);
-        mListView.setAdapter(mAdapter);
+        mCartService.bindAdapterToListView(mListView);
         mItemCodeView = view.findViewById(R.id.et_item_code);
         Button searchButton = view.findViewById(R.id.item_btn_search);
         searchButton.setOnClickListener(v -> onButtonSearchClick(v));
@@ -105,7 +80,22 @@ public class CartFragment extends Fragment {
         return view;
     }
 
-    public void onButtonSearchClick(View v) {
+    public void addItemByBarCode(String barCode) {
+        showProgress();
+        Company company = new AuthService(getContext()).getCurrentCompany();
+        mRepository.getItemByBarCode(company.getRecordId(), barCode, (item, error) -> {
+            hideProgress();
+            if (error != null) {
+                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+            } else if (item != null)
+                addItem(item);
+            else
+                Toast.makeText(getContext(), "Товар не знайдено", Toast.LENGTH_SHORT).show();
+            mItemCodeView.setText("");
+        }).execute();
+    }
+
+    private void onButtonSearchClick(View v) {
         showProgress();
         String code = mItemCodeView.getText().toString();
         Company company = new AuthService(getContext()).getCurrentCompany();
@@ -122,7 +112,7 @@ public class CartFragment extends Fragment {
 
     }
 
-    public void onButtonClearClick(View view) {
+    private void onButtonClearClick(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder
                 .setTitle("Ви дійсно бажаєте очистити кошик?")
@@ -132,63 +122,46 @@ public class CartFragment extends Fragment {
 
     }
 
-    public void onButtonScanClick(View view) {
+    private void onButtonScanClick(View view) {
         MainActivity ma = (MainActivity) getContext();
         ma.scanBarCode();
     }
 
-    public void onButtonPayClick(View view) {
+    private void onButtonPayClick(View view) {
         MainActivity ma = (MainActivity) getContext();
-        ma.makePayment(mCart.getRecordId().toString(), mAdapter.getTotalPrice());
+        ma.makePayment(mCart.getRecordId().toString(), mCartService.getTotalPrice());
     }
 
-    public void onButtonExpandTopLayoutClick(View view) {
+    private void onButtonExpandTopLayoutClick(View view) {
         getView().findViewById(R.id.search_wrap).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.btn_collapse_top_layout).setVisibility(View.VISIBLE);
         view.setVisibility(View.GONE);
     }
 
-    public void onButtonCollapseTopLayoutClick(View view) {
+    private void onButtonCollapseTopLayoutClick(View view) {
         getView().findViewById(R.id.search_wrap).setVisibility(View.GONE);
         getView().findViewById(R.id.btn_expand_top_layout).setVisibility(View.VISIBLE);
         view.setVisibility(View.GONE);
     }
 
-    public void onButtonExpandBottomLayoutClick(View view) {
+    private void onButtonExpandBottomLayoutClick(View view) {
         getView().findViewById(R.id.bottom_expandable_wrap).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.btn_collapse_bottom_layout).setVisibility(View.VISIBLE);
         view.setVisibility(View.GONE);
     }
 
-    public void onButtonCollapseBottomLayoutClick(View view) {
+    private void onButtonCollapseBottomLayoutClick(View view) {
         getView().findViewById(R.id.bottom_expandable_wrap).setVisibility(View.GONE);
         getView().findViewById(R.id.btn_expand_bottom_layout).setVisibility(View.VISIBLE);
         view.setVisibility(View.GONE);
     }
 
-    public void clearCart() {
-        mAdapter.clear();
-        SharedPreferences sharedPref = getSharedPreferences(getContext());
-        sharedPref.edit().remove("cartId").commit();
+    private void clearCart() {
+        mCartService.clearCart();
     }
 
-    public void addItem(Item item) {
-        mAdapter.add(item);
-    }
-
-    public void addItemByBarCode(String barCode) {
-        showProgress();
-        Company company = new AuthService(getContext()).getCurrentCompany();
-        mRepository.getItemByBarCode(company.getRecordId(), barCode, (item, error) -> {
-            hideProgress();
-            if (error != null) {
-                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-            } else if (item != null)
-                addItem(item);
-            else
-                Toast.makeText(getContext(), "Товар не знайдено", Toast.LENGTH_SHORT).show();
-            mItemCodeView.setText("");
-        }).execute();
+    private void addItem(Item item) {
+        mCartService.addItem(item);
     }
 
     private void setTotalPrice(View view, double price) {
@@ -198,42 +171,22 @@ public class CartFragment extends Fragment {
                 .setText(strPrice);
     }
 
-    private static SharedPreferences getSharedPreferences(Context ctx) {
-        SharedPreferences sharedPref = ctx.getSharedPreferences(mPreferencesFileName, Context.MODE_PRIVATE);
-        return  sharedPref;
-    }
-
-    private void saveState() {
-        SharedPreferences sharedPref = getSharedPreferences(getContext());
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("cartId" , mCart.getRecordId().toString());
-        Exception error = mAdapter.saveState();
-        if (error == null)
-            editor.commit();
-        else {
-            editor.clear();
-            Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void restoreState() {
-        UUID cartId = mCart == null ? getActiveCartId(getContext()) : mCart.getRecordId();
-        if(mCart == null)
-            mCart = new Cart(cartId);
-        List<CartItem> cartItems = Select
-                .from(CartItem.class)
-                // .where("cartId = ?", cartId.toString())
-                .fetch();
-        Collections.sort(cartItems, (c1, c2) -> c2.getDatetime().compareTo(c1.getDatetime()));
-        if (cartItems != null & cartItems.size() > 0)
-            mCart.setmItems(new ArrayList<>(cartItems));
-    }
-
     private void showProgress() {
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
     private void hideProgress() {
         mProgressBar.setVisibility(View.GONE);
+    }
+
+    private DataSetObserver getDataSetObserver(View view) {
+        return new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                double price = mCartService.getTotalPrice();
+                setTotalPrice(view, price);
+            }
+        };
     }
 }

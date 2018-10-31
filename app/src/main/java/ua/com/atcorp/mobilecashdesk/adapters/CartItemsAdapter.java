@@ -113,7 +113,7 @@ public class CartItemsAdapter extends ArrayAdapter {
         else {
             CartItem cartItem = new CartItem(mCartId, item);
             super.insert(cartItem, 0);
-            // super.add(cartItem);
+            cartItem.save();
         }
     }
 
@@ -126,10 +126,10 @@ public class CartItemsAdapter extends ArrayAdapter {
 
     @Override
     public void clear() {
-        ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
+        // ReActiveAndroid.getDatabase(AppDatabase.class).beginTransaction();
         for(CartItem item : mItems)
             item.delete();
-        ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
+        // ReActiveAndroid.getDatabase(AppDatabase.class).endTransaction();
         super.clear();
     }
 

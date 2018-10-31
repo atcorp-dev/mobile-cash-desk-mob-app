@@ -20,6 +20,9 @@ public class Cart extends Model implements Serializable {
     @Column(name = "RecordId")
     private UUID mRecordId;
 
+    @Column(name = "Type")
+    private int mType;
+
     private ArrayList<CartItem> mItems;
 
     public Cart() {

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.reactiveandroid.annotation.Database;
 import com.reactiveandroid.internal.database.migration.Migration;
 
-@Database(name = "AppDatabase", version = 3)
+@Database(name = "AppDatabase", version = 4)
 public class AppDatabase {
 
     public static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -37,6 +37,20 @@ public class AppDatabase {
             database.execSQL(getArrayAsString(sqlBuilder, "\n"));
             try {
                 database.execSQL("ALTER TABLE CartItems ADD COLUMN Datetime DATETIME");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    public static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SQLiteDatabase database) {
+            try {
+                database.execSQL("DROP TABLE CartItems");
+                database.execSQL("CREATE TABLE `CartItems` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `cartId` TEXT, `Datetime` INTEGER, `ItemBarCode` TEXT, `ItemCategory` INTEGER REFERENCES Categories(`_id`) ON DELETE NO ACTION ON UPDATE NO ACTION, `ItemCode` TEXT, `ItemCompany` INTEGER REFERENCES Companies(`_id`) ON DELETE NO ACTION ON UPDATE NO ACTION, `ItemImage` TEXT, `ItemName` TEXT, `ItemPrice` REAL, `ItemRecordId` TEXT, `qty` INTEGER)");
+                database.execSQL("DROP TABLE Carts");
+                database.execSQL("CREATE TABLE `Carts` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `RecordId` TEXT, `Type` INTEGER)");
             } catch (Exception e) {
                 e.printStackTrace();
             }

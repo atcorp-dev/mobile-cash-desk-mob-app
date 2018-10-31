@@ -121,4 +121,8 @@ public abstract class BaseRepository<T> {
         mUsername = AuthService.getPrefLogin(mContext);
         mPassword = AuthService.getPrefPassword(mContext);
     }
+
+    protected Context getContext() {
+        return mContext;
+    }
 }

@@ -20,6 +20,7 @@ import java.util.UUID;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.ui.CartFragment;
 import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
 
@@ -28,12 +29,15 @@ public class ItemAdapter extends ArrayAdapter {
     ArrayList<Item> mItems;
     LayoutInflater mLayoutInflater;
     ArrayList<String> mItemsInCart;
+    CartService mCartService;
 
     public ItemAdapter(Context context, ArrayList<Item> items) {
         super(context, 0, items);
         mItems = items;
         mItemsInCart = new ArrayList<>();
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mCartService = new CartService(getContext());
+        mCartService.restoreState();
     }
 
     @Override
@@ -80,17 +84,8 @@ public class ItemAdapter extends ArrayAdapter {
 
     private void toCart(View view, Item item) {
         try {
-            UUID cartId = CartFragment.getActiveCartId(getContext());
-            CartItem cartItem = Select
-                    .from(CartItem.class)
-                    .where("cartId = ? and itemRecordId = ?", cartId, item.getRecordId())
-                    .fetchSingle();
-            if (cartItem == null) {
-                cartItem = new CartItem(cartId, item);
-            } else {
-                cartItem.setQty(cartItem.getQty() + 1);
-            }
-            cartItem.save();
+            mCartService.addItem(item);
+            mCartService.saveState();
             Toast.makeText(getContext(), "Відпарвилено до кошику", Toast.LENGTH_SHORT).show();
             mItemsInCart.add(item.getRecordId());
         } catch (Exception err) {
