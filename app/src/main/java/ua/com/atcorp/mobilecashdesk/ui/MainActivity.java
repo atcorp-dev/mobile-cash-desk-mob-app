@@ -106,6 +106,8 @@ public class MainActivity extends AppCompatActivity
             openCartFragment();
         } else if (id == R.id.nav_catalogue) {
             openCatalogueFragment();
+        } else if (id == R.id.nav_profile) {
+            openProfileActivity();
         } else if (id == R.id.nav_logout) {
             logOut();
         }
@@ -154,6 +156,11 @@ public class MainActivity extends AppCompatActivity
     public void openCatalogueItemActivity(String itemId) {
         Intent intent = new Intent(this, ItemDetailActivity.class);
         intent.putExtra("itemId", itemId);
+        startActivity(intent);
+    }
+
+    public void openProfileActivity() {
+        Intent intent = new Intent(this, UserProfilerActivity.class);
         startActivity(intent);
     }
 
