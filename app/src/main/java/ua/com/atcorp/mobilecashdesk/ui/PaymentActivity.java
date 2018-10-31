@@ -15,6 +15,8 @@ import android.view.View;
 import android.support.v7.app.*;
 import android.widget.*;
 import butterknife.BindView;
+import ua.com.atcorp.mobilecashdesk.models.Cart;
+import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.pbank.dio.minipos.MiniPosManager;
 import ua.pbank.dio.minipos.interfaces.MiniPosConnectionListener;
 import ua.pbank.dio.minipos.interfaces.MiniPosServiceErrorListener;
@@ -41,9 +43,12 @@ public class PaymentActivity extends AppCompatActivity
     private String mStrAmount;
     private String mPurpose;
     private String mReceipt;
+    private Cart mCart;
 
     @BindView(R.id.payment_status_message)
     TextView tvMessage;
+    @BindView(R.id.btn_pay)
+    Button btnPay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,11 @@ public class PaymentActivity extends AppCompatActivity
         mAmount = amount;
         mStrAmount = amountStr;
         setEditTextValue(R.id.payment_amount, price);
+
+        mCart = new CartService(this).restoreState().getCurrentCart();
+        btnPay = findViewById(R.id.btn_pay);
+        if (mCart.getmType() == 1)
+            btnPay.setText("Відправити на касу");
     }
 
     public  void onPayment(View view) {
@@ -264,7 +274,7 @@ public class PaymentActivity extends AppCompatActivity
         try {
             MiniPosManager.getInstance().pinpadSubscribe();
         } catch (Exception error) {
-            Log.e("PAYMENT ACTIVITY EXCEPTION", error.getMessage());
+            Log.e("PAYMENT ACTIVITY ERR", error.getMessage());
             Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG);
         }
     }

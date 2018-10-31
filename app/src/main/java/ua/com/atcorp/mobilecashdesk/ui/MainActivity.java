@@ -27,6 +27,7 @@ import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
+import ua.com.atcorp.mobilecashdesk.services.CartService;
 
 public class MainActivity extends AppCompatActivity
         implements MainFragment.MainFragmentEventListener,
@@ -187,9 +188,17 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null) {return;}
         if (requestCode == PAYMENT_REQ_CODE) {
-            // onPaymentActivity(resultCode, data);
+            onPaymentActivity(resultCode, data);
         } else if (requestCode == SCAN_REQ_CODE) {
             onBarCodeDetected(resultCode, data);
+        }
+    }
+
+    private void onPaymentActivity(int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            new CartService(this)
+                    .restoreState()
+                    .clearCart();
         }
     }
 

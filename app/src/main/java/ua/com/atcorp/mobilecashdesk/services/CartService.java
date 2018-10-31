@@ -35,20 +35,6 @@ public class CartService extends BaseRepository {
         mDataSetObserver = dataSetObserver;
     }
 
-    public UUID getActiveCartId() {
-        SharedPreferences sharedPref = getSharedPreferences();
-        String cartId = sharedPref.getString("cartId", "");
-        if (cartId.isEmpty()) {
-            UUID cartUId =  UUID.randomUUID();
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("cartId" , cartUId.toString());
-            editor.commit();
-            return cartUId;
-        } else {
-            return UUID.fromString(cartId);
-        }
-    }
-
     public void bindAdapterToListView(ListView listView) {
         listView.setAdapter(mAdapter);
     }
@@ -71,6 +57,10 @@ public class CartService extends BaseRepository {
         mAdapter.clear();
         SharedPreferences sharedPref = getSharedPreferences();
         sharedPref.edit().remove("cartId").commit();
+        mCart.delete();
+        UUID cartId = getActiveCartId();
+        mCart = getCartByRecordId(cartId);
+        mCart.save();
     }
 
     public void saveState() {
@@ -86,10 +76,11 @@ public class CartService extends BaseRepository {
         }
     }
 
-    public void restoreState() {
+    public CartService restoreState() {
         UUID cartId = mCart == null ? getActiveCartId() : mCart.getRecordId();
-        if(mCart == null)
-            mCart = new Cart(cartId);
+        if(mCart == null) {
+            mCart = getCartByRecordId(cartId);
+        }
         List<CartItem> cartItems = Select
                 .from(CartItem.class)
                 .where("cartId = ?", cartId.toString())
@@ -99,6 +90,44 @@ public class CartService extends BaseRepository {
             mCart.setmItems(new ArrayList<>(cartItems));
         mAdapter = new CartItemsAdapter(getContext(), mCart.getRecordId(), mCart.getmItems());
         mAdapter.registerDataSetObserver(getDataSetObserver());
+        return this;
+    }
+
+    public boolean hasItem(Item item) {
+        if (item == null || mCart == null || mCart.getmItems() == null)
+            return false;
+        for (CartItem cartItem : mCart.getmItems())
+            if (cartItem.getItemRecordId().equals(item.getRecordId()))
+                return  true;
+        return false;
+    }
+
+    private Cart getCartByRecordId(UUID recordId) {
+        return getCartByRecordId(recordId, false);
+    }
+
+    private Cart getCartByRecordId(UUID recordId, boolean notCreate) {
+        Cart cart = Select
+                .from(Cart.class)
+                .where("RecordId = ?", recordId.toString())
+                .fetchSingle();
+        if (cart == null && !notCreate)
+            cart = new Cart(recordId);
+        return  cart;
+    }
+
+    private UUID getActiveCartId() {
+        SharedPreferences sharedPref = getSharedPreferences();
+        String cartId = sharedPref.getString("cartId", "");
+        if (cartId.isEmpty()) {
+            UUID cartUId =  UUID.randomUUID();
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("cartId" , cartUId.toString());
+            editor.commit();
+            return cartUId;
+        } else {
+            return UUID.fromString(cartId);
+        }
     }
 
     private DataSetObserver getDataSetObserver() {

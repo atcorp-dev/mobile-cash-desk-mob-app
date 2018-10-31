@@ -200,6 +200,7 @@
                 android:orientation="vertical">
 
                 <CheckBox
+                    android:id="@+id/chb_cash_payment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Готівковий розрахунок"

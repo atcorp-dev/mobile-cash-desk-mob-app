@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -43,6 +44,7 @@ public class CartFragment extends Fragment {
     ListView mListView;
     EditText mItemCodeView;
     ProgressBar mProgressBar;
+    CheckBox mCbCashPayment;
     CartService mCartService;
     Cart mCart;
     ItemRepository mRepository;
@@ -55,6 +57,9 @@ public class CartFragment extends Fragment {
         mCartService.restoreState();
         mCart = mCartService.getCurrentCart();
         mListView = view.findViewById(R.id.list_view);
+        mCbCashPayment = view.findViewById(R.id.chb_cash_payment);
+        mCbCashPayment.setChecked(mCart.getmType() == 1);
+        mCbCashPayment.setOnCheckedChangeListener((v, checked) -> onCashPaymentChanged(v, checked));
         double price = mCartService.getTotalPrice();
         setTotalPrice(view, price);
         mCartService.bindAdapterToListView(mListView);
@@ -154,6 +159,14 @@ public class CartFragment extends Fragment {
         getView().findViewById(R.id.bottom_expandable_wrap).setVisibility(View.GONE);
         getView().findViewById(R.id.btn_expand_bottom_layout).setVisibility(View.VISIBLE);
         view.setVisibility(View.GONE);
+    }
+
+    private void onCashPaymentChanged(View view, boolean checked) {
+        Cart cart = mCartService.getCurrentCart();
+        if (cart != null) {
+            cart.setmType(checked ? 1 : 0);
+            cart.save();
+        }
     }
 
     private void clearCart() {

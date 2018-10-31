@@ -28,13 +28,11 @@ public class ItemAdapter extends ArrayAdapter {
 
     ArrayList<Item> mItems;
     LayoutInflater mLayoutInflater;
-    ArrayList<String> mItemsInCart;
     CartService mCartService;
 
     public ItemAdapter(Context context, ArrayList<Item> items) {
         super(context, 0, items);
         mItems = items;
-        mItemsInCart = new ArrayList<>();
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mCartService = new CartService(getContext());
         mCartService.restoreState();
@@ -61,7 +59,7 @@ public class ItemAdapter extends ArrayAdapter {
         setTextToView(view, R.id.item_price, formatPrice(item.getPrice()));
 
         View btn = view.findViewById(R.id.btnToCart);
-        if (mItemsInCart.contains(item.getRecordId())) {
+        if (mCartService.hasItem(item)) {
             btn.setEnabled(false);
         } else {
             btn.setEnabled(true);
@@ -75,19 +73,11 @@ public class ItemAdapter extends ArrayAdapter {
         return view;
     }
 
-    @Override
-    public void clear() {
-        mItemsInCart.clear();
-        mItemsInCart = new ArrayList<>();
-        super.clear();
-    }
-
     private void toCart(View view, Item item) {
         try {
             mCartService.addItem(item);
             mCartService.saveState();
             Toast.makeText(getContext(), "Відпарвилено до кошику", Toast.LENGTH_SHORT).show();
-            mItemsInCart.add(item.getRecordId());
         } catch (Exception err) {
             Toast.makeText(getContext(), err.getMessage(), Toast.LENGTH_LONG).show();
             Log.e("EXCEPTION", err.getMessage());
