@@ -71,6 +71,10 @@ public class PaymentActivity extends AppCompatActivity
             btnPay.setText("Відправити на касу");
     }
 
+    public  void onCancelButtonClick(View view) {
+        this.onBackPressed();
+    }
+
     public  void onPayment(View view) {
         view.setEnabled(false);
         makePayment(mStrAmount);

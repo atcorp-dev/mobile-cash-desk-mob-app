@@ -42,8 +42,7 @@
         <activity
             android:name=".ui.PaymentActivity"
             android:screenOrientation="portrait"
-            android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_activity_main" />
         <activity
             android:name=".ui.BarcodeCaptureActivity"
             android:screenOrientation="portrait"></activity>
