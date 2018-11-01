@@ -8,23 +8,6 @@
     android:orientation="vertical"
     android:background="@drawable/main_activity_background">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        style="style/Toolbar"
-        android:elevation="4dp"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar" >
-        <ImageView
-            android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_action_back"
-            android:clickable="true"
-            android:onClick="onBackButtonClick"/>
-    </android.support.v7.widget.Toolbar>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

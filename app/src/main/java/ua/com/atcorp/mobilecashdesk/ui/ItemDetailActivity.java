@@ -42,8 +42,6 @@ public class ItemDetailActivity extends AppCompatActivity {
             else
                 Toast.makeText(this, "Товар на складі не знайдено", Toast.LENGTH_SHORT).show();
         });
-
-        setTitle("Характеристики");
     }
 
     private void onItem(Item item) {
@@ -71,10 +69,6 @@ public class ItemDetailActivity extends AppCompatActivity {
         DecimalFormat df = new DecimalFormat("0.00");
         String strPrice = df.format(price) + " грн.";
         return strPrice;
-    }
-
-    public void onBackButtonClick(View v) {
-        onBackPressed();
     }
 
 }

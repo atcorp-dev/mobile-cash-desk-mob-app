@@ -50,10 +50,18 @@
         <activity
             android:name=".ui.ItemDetailActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".ui.MainActivity"/>
+            android:parentActivityName=".ui.MainActivity"
+            android:label="@string/item_details"
+            android:theme="@style/ActivityTheme.ActionBar"/>
         <activity android:name=".ui.UserProfilerActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".ui.MainActivity"></activity>
+            android:parentActivityName=".ui.MainActivity"
+            android:label="@string/user_profile"
+            android:theme="@style/ActivityTheme.ActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

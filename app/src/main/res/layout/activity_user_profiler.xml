@@ -1,9 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.UserProfilerActivity">
+    tools:context=".ui.UserProfilerActivity"
+    android:background="@drawable/main_activity_background"
+    android:orientation="vertical"
+    android:padding="6dp">
 
-</android.support.constraint.ConstraintLayout>
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="12dp"
+        app:hintTextAppearance="@style/TextLabel"
+        android:minHeight="30dp">
+
+        <EditText
+            android:id="@+id/tvUserLogin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:enabled="false"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:focusable="false"
+            android:textSize="24sp"
+            android:hint="Логін"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="12dp"
+        app:hintTextAppearance="@style/TextLabel"
+        android:minHeight="30dp">
+
+        <EditText
+            android:id="@+id/tvUserEmail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:enabled="false"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:focusable="false"
+            android:textSize="24sp"
+            android:hint="E-Mail"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="12dp"
+        app:hintTextAppearance="@style/TextLabel"
+        android:minHeight="30dp">
+
+    <EditText
+        android:id="@+id/tvCompany"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:focusable="false"
+        android:textSize="24sp"
+        android:hint="Команія/Філіал"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+</LinearLayout>
