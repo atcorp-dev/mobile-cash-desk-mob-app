@@ -41,12 +41,11 @@ public class ChoicePinpadDialog extends BaseChoiceDeviceDialog {
     }
 
     private  PairedDevice getSavedDevice() {
-        /*PairedDevice device = new Select()
+        PairedDevice device = Select
                 .from(PairedDevice.class)
                 .where("type = ?","t")
-                .executeSingle();
-        return  device;*/
-        return null;
+                .fetchSingle();
+        return  device;
     }
 
     @Override
@@ -114,12 +113,7 @@ public class ChoicePinpadDialog extends BaseChoiceDeviceDialog {
     public void scanDevice() {
         if (getActivity() == null) return;
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startScan();
-            }
-        });
+        getActivity().runOnUiThread(() -> startScan());
     }
 
     /**
@@ -127,7 +121,7 @@ public class ChoicePinpadDialog extends BaseChoiceDeviceDialog {
      * @param device
      */
     public void saveDevice(BluetoothDevice device, String serialnumber, boolean verified) {
-        Delete
+       Delete
                 .from(PairedDevice.class)
                 .where("type = ?","t")
                 .execute(); //удаляем сохраненные
@@ -150,7 +144,7 @@ public class ChoicePinpadDialog extends BaseChoiceDeviceDialog {
      * вывод лога для отладки
      */
     private void logLocalPaired() {
-        List<PairedDevice> list = new ArrayList<PairedDevice>();
+        List<PairedDevice> list;
         list  = Select
                 .from(PairedDevice.class)
                 .where("type = ?","t")

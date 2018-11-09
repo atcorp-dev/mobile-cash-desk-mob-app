@@ -1,11 +1,15 @@
 package ua.com.atcorp.mobilecashdesk.ui.dialog;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.widget.Toast;
+
 import ua.com.atcorp.mobilecashdesk.R;
 
 /**
@@ -23,7 +27,6 @@ public abstract class BaseDialogFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         //DialogFragment dismissed on orientation change when setRetainInstance(true) is set (compatibility library)
-        // Issue 17423: http://code.google.com/p/android/issues/detail?id=17423
         if (getDialog() != null && getRetainInstance())
             getDialog().setOnDismissListener(null);
 
@@ -31,15 +34,23 @@ public abstract class BaseDialogFragment extends DialogFragment {
     }
 
     public void show(FragmentActivity fragmentActivity) {
-        FragmentManager fm = fragmentActivity.getSupportFragmentManager();
+        try {
+            FragmentManager fm = fragmentActivity.getSupportFragmentManager();
 
-        FragmentTransaction ft = fm.beginTransaction();
-        Fragment prev = fm.findFragmentByTag(getDialogTag());
-        if (prev != null) {
-            ft.remove(prev);
+            FragmentTransaction ft = fm.beginTransaction();
+            Fragment prev = fm.findFragmentByTag(getDialogTag());
+            if (prev != null) {
+                ft.remove(prev);
+            }
+            // show the dialog.
+            show(ft, getDialogTag());
+        } catch (Exception err) {
+            showToastLong(err.getMessage());
+            String m = "";
+            for(StackTraceElement line : err.getStackTrace())
+                m += line.getClassName() + "." + line.getMethodName() + "." + line.getLineNumber();
+            showToastLong(m);
         }
-        // show the dialog. http://code.google.com/p/android/issues/detail?id=23761
-        show(ft, getDialogTag());
     }
 
     public int show(FragmentTransaction transaction, String tag) {
@@ -62,6 +73,13 @@ public abstract class BaseDialogFragment extends DialogFragment {
                 ft.remove(prev);
             }
             ft.commitAllowingStateLoss();
+        }
+    }
+
+    public void showToastLong(final String message) {
+        final Context context = getActivity();
+        if (context != null) {
+            getActivity().runOnUiThread(() -> Toast.makeText(context, message, Toast.LENGTH_LONG).show());
         }
     }
 }

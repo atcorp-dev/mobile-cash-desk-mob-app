@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +44,8 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
     @BindView(R.id.tvMessage) TextView mMessage;
     @BindView(R.id.imgDevice) ImageView mImageDevice;
     @BindView(R.id.tvCaption) TextView mCaption;
-    @BindView(R.id.progressBar) ProgressWheel mProgressBar;
+    //@BindView(R.id.progressBar) ProgressWheel mProgressBar;
+    @BindView(R.id.progressBar) ProgressBar mProgressBar;
     @BindView(R.id.viewConnectContext) View viewConnectContext;
     @BindView(R.id.viewDeviceContext) View viewDeviceContext;
 
@@ -100,7 +102,7 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
     }
 
     private List<BluetoothDevice> getPairedDevice() {
-        ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
+        ArrayList<BluetoothDevice> list = new ArrayList<>();
 
         if (mBluetoothAdapter == null) {
             showToast(getString(R.string.msg_bluetooth_is_not_supported));
@@ -173,18 +175,15 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parentView, View view, int position, long id) {
-                Log.d(TAG,"BaseChoiceDeviceDialog onItemClick");
-                BluetoothDevice btDevice = (BluetoothDevice) mAdapter.getItem(position);
-                if (btDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    showConnectView();
-                    connectToDevice(btDevice);
-                } else {
-                    showConnectView();
-                    pairDevice(btDevice);
-                }
+        mListView.setOnItemClickListener((parentView, view1, position, id) -> {
+            Log.d(TAG,"BaseChoiceDeviceDialog onItemClick");
+            BluetoothDevice btDevice = (BluetoothDevice) mAdapter.getItem(position);
+            if (btDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
+                showConnectView();
+                connectToDevice(btDevice);
+            } else {
+                showConnectView();
+                pairDevice(btDevice);
             }
         });
 
@@ -262,16 +261,12 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
         return  res;
     }
 
-
     public void showToast(final String message) {
         final Context context = getActivity();
         if (context != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG,message);
-                }
+            getActivity().runOnUiThread(() -> {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                Log.d(TAG,message);
             });
         }
     }
@@ -290,7 +285,7 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
                     //showEnabled();
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) { //старт сканирования
-                mDeviceList = new ArrayList<BluetoothDevice>();
+                mDeviceList = new ArrayList<>();
                 mDeviceList.addAll(getPairedDevice());
                 mAdapter.setData(mDeviceList); //---
                 mProgressBar.setVisibility(View.VISIBLE);
@@ -309,7 +304,7 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
                 //mProgressDlg.dismiss();
 
             } else if (BluetoothDevice.ACTION_FOUND.equals(action)) { //обнаружено устройство
-                BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if ( !isDeviceExists(device) ) {
                     mDeviceList.add(device);
                     mAdapter.notifyDataSetChanged();

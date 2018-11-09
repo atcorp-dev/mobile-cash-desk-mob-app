@@ -18,14 +18,19 @@
         android:paddingBottom="20dp">
 
 
-        <ua.pbank.minipos.demo.ui.widget.ProgressWheel
+        <!--<ua.pbank.minipos.demo.ui.widget.ProgressWheel
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/progressConnect"
             app:matProg_barColor="@color/colorPrimary"
             android:layout_gravity="center_horizontal"
             app:matProg_progressIndeterminate="true"
-            app:matProg_barWidth="3dp"/>
+            app:matProg_barWidth="3dp"/>-->
+        <ProgressBar
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/progressConnect"
+            android:visibility="gone"/>
 
 
         <TextView
@@ -102,7 +107,7 @@
                 android:textAllCaps="true"
                 android:textColor="@color/colorPrimary" />
 
-            <ua.pbank.minipos.demo.ui.widget.ProgressWheel
+            <!--<ua.pbank.minipos.demo.ui.widget.ProgressWheel
                 android:id="@+id/progressBar"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
@@ -110,6 +115,11 @@
                 android:layout_gravity="center_horizontal"
                 app:matProg_progressIndeterminate="true"
                 app:matProg_barWidth="2dp"
+                android:visibility="gone"/>-->
+            <ProgressBar
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:id="@+id/progressBar"
                 android:visibility="gone"/>
 
         </LinearLayout>

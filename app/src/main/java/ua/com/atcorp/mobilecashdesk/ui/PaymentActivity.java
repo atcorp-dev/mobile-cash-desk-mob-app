@@ -76,9 +76,17 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     public  void onPayment(View view) {
-        view.setEnabled(false);
-        makePayment(mStrAmount);
-        //makePaymentPrivate(mAmount, "test");
+        // view.setEnabled(false);
+        try {
+        // makePayment(mStrAmount);
+            makePaymentPrivate(mAmount, "test");
+        } catch (Exception err) {
+            Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
+            String m = "";
+            for(StackTraceElement line : err.getStackTrace())
+                m += line.getClassName() + "." + line.getMethodName() + "." + line.getLineNumber();
+            Toast.makeText(this, m, Toast.LENGTH_LONG).show();
+        }
     }
 
     public void showProgress(final boolean show) {
@@ -236,39 +244,45 @@ public class PaymentActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQUEST_COARSE_LOCATION: {
+        try {
+            switch (requestCode) {
+                case PERMISSION_REQUEST_COARSE_LOCATION: {
 
-                final Boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
-                if (grantResults.length == 0) return;
+                    final Boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
+                    if (grantResults.length == 0) return;
 
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "coarse location permission granted");
-                } else {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(getString(R.string.functionality_limited));
-                    builder.setMessage(showRationale ?
-                            getString(R.string.functionality_message) + "\n" + getString(R.string.grant_permission) :
-                            getString(R.string.functionality_message) + "\n" + getString(R.string.go_settings));
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (showRationale) {
-                                ActivityCompat.requestPermissions((Activity) PaymentActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                        PERMISSION_REQUEST_COARSE_LOCATION);
-                            } else {
-                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                                intent.setData(uri);
-                                startActivityForResult(intent, 0);
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG, "coarse location permission granted");
+                    } else {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle(getString(R.string.functionality_limited));
+                        builder.setMessage(showRationale ?
+                                getString(R.string.functionality_message) + "\n" + getString(R.string.grant_permission) :
+                                getString(R.string.functionality_message) + "\n" + getString(R.string.go_settings));
+                        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            try {
+                                if (showRationale) {
+                                    ActivityCompat.requestPermissions((Activity) PaymentActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                            PERMISSION_REQUEST_COARSE_LOCATION);
+                                } else {
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivityForResult(intent, 0);
+                                }
+                            } catch (Exception err) {
+                                Toast.makeText(getApplicationContext(), "onRequestPermissionsResult" + err.getMessage(), Toast.LENGTH_LONG).show();
                             }
-                        }
-                    });
-                    builder.setNegativeButton(getString(R.string.btnCancelText), null);
-                    builder.show();
+                        });
+                        builder.setNegativeButton(getString(R.string.btnCancelText), null);
+                        builder.show();
+                    }
+                    return;
                 }
-                return;
             }
+        } catch (Exception err) {
+            Toast.makeText(this, "onRequestPermissionsResult.bottom" + err.getMessage(), Toast.LENGTH_LONG).show();
+            findViewById(R.id.btn_pay).setEnabled(true);
         }
     }
 
@@ -293,11 +307,17 @@ public class PaymentActivity extends AppCompatActivity
         mAmount = amount;
         mPurpose = purpose;
         mReceipt = "";
-        if (BluetoothAdapter.getDefaultAdapter() == null) {
-            Toast.makeText(this, R.string.msg_bluetooth_is_not_supported, Toast.LENGTH_SHORT).show();
-            return;
+        try {
+            if (BluetoothAdapter.getDefaultAdapter() == null) {
+                Toast.makeText(this, R.string.msg_bluetooth_is_not_supported, Toast.LENGTH_SHORT).show();
+                findViewById(R.id.btn_pay).setEnabled(true);
+                return;
+            }
+            MiniPosManager.getInstance().initPinpad(pinpadConnectionListener);
+        } catch (Exception err) {
+            Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
+            findViewById(R.id.btn_pay).setEnabled(true);
         }
-        MiniPosManager.getInstance().initPinpad(pinpadConnectionListener);
     }
 
     /**
@@ -313,7 +333,12 @@ public class PaymentActivity extends AppCompatActivity
         @Override
         public void onConnectionFailed() {
             showProgress(false);
-            showPinpadDialog();
+            Toast.makeText(PaymentActivity.this, "MiniPosConnectionListener.onConnectionFailed", Toast.LENGTH_SHORT).show();
+            try {
+                showPinpadDialog();
+            } catch (Exception err) {
+                Toast.makeText(PaymentActivity.this, err.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override

@@ -107,12 +107,7 @@ public class ChoicePrinterDialog extends BaseChoiceDeviceDialog {
     }
 
     public void scanDevice() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startScan();
-            }
-        });
+        getActivity().runOnUiThread(() -> startScan());
     }
 
     public void saveDevice(BluetoothDevice device) {
