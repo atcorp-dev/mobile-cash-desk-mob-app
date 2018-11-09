@@ -237,7 +237,7 @@ public class PaymentActivity extends AppCompatActivity
 
     private void showPinpadDialog() {
         if (checkUserPermission()) {
-            mDialog = new ChoicePinpadDialog().newInstance();
+            mDialog = ChoicePinpadDialog.newInstance();
             mDialog.show(this);
         }
     }
