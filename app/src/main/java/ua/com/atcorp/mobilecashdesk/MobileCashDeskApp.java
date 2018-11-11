@@ -2,6 +2,7 @@ package ua.com.atcorp.mobilecashdesk;
 
 
 import android.app.Application;
+import android.util.Log;
 
 import com.reactiveandroid.ReActiveAndroid;
 import com.reactiveandroid.ReActiveConfig;
@@ -31,6 +32,7 @@ public class MobileCashDeskApp extends Application {
         super.onCreate();
 
         initDataBase();
+        Log.d("MobileCashDeskApp","Initilizing MMiniPOS");
         initMiniPosManager();
 
         mInstance = this;

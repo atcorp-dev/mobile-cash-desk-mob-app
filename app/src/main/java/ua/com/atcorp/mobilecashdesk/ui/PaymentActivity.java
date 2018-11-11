@@ -6,6 +6,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -13,18 +16,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.support.v7.app.*;
+import android.webkit.WebView;
 import android.widget.*;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
+import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePrinterDialog;
 import ua.pbank.dio.minipos.MiniPosManager;
 import ua.pbank.dio.minipos.interfaces.MiniPosConnectionListener;
+import ua.pbank.dio.minipos.interfaces.MiniPosPrinterListener;
 import ua.pbank.dio.minipos.interfaces.MiniPosServiceErrorListener;
 import ua.pbank.dio.minipos.interfaces.MiniPosTransactionListener;
 import ua.pbank.dio.minipos.models.Transaction;
 
 import android.util.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 
 import ua.com.atcorp.mobilecashdesk.R;
@@ -44,16 +56,20 @@ public class PaymentActivity extends AppCompatActivity
     private String mPurpose;
     private String mReceipt;
     private Cart mCart;
+    private Bitmap mReceiptBitmap;
 
     @BindView(R.id.payment_status_message)
     TextView tvMessage;
     @BindView(R.id.btn_pay)
     Button btnPay;
+    @BindView(R.id.btn_print)
+    Button btnPrint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment);
+        ButterKnife.bind(this);
         Intent intent = getIntent();
 
         double amount = intent.getDoubleExtra("amount", 0);
@@ -87,6 +103,31 @@ public class PaymentActivity extends AppCompatActivity
                 m += line.getClassName() + "." + line.getMethodName() + "." + line.getLineNumber();
             Toast.makeText(this, m, Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void onPrint(View view) {
+        String receipt = "<div style='width: 380px' ><p>Test</p></div>";
+        // Bitmap bm = htmlToBitmap(receipt);
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.test);
+        ImageView imgView = findViewById(R.id.printPreview);
+        imgView.setImageBitmap(bm);
+        mReceiptBitmap = bm;
+        //bm.recycle();
+        MiniPosManager.getInstance().initPrinter(printerConnectionListener);
+    }
+
+    private void showPrinterDialog() {
+        mDialog = new ChoicePrinterDialog().newInstance();
+        mDialog.show(this);
+    }
+
+    private Bitmap htmlToBitmap(String html) {
+        WebView webView = new WebView(this);
+        webView.loadData(html, "text/html", "utf-8");
+        Bitmap bm = Bitmap.createBitmap(380, 300, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bm);
+        webView.draw(c);
+        return bm;
     }
 
     public void showProgress(final boolean show) {
@@ -242,6 +283,16 @@ public class PaymentActivity extends AppCompatActivity
         }
     }
 
+    private void warning(final String text) {
+        Log.d(TAG, text);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         try {
@@ -313,7 +364,9 @@ public class PaymentActivity extends AppCompatActivity
                 findViewById(R.id.btn_pay).setEnabled(true);
                 return;
             }
-            MiniPosManager.getInstance().initPinpad(pinpadConnectionListener);
+            MiniPosManager mng = MiniPosManager.getInstance();
+            mng.initPinpad(pinpadConnectionListener);
+            mng.setServiceErrorListener(miniPosServiceErrorListener);
         } catch (Exception err) {
             Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
             findViewById(R.id.btn_pay).setEnabled(true);
@@ -333,7 +386,7 @@ public class PaymentActivity extends AppCompatActivity
         @Override
         public void onConnectionFailed() {
             showProgress(false);
-            Toast.makeText(PaymentActivity.this, "MiniPosConnectionListener.onConnectionFailed", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(PaymentActivity.this, "MiniPosConnectionListener.onConnectionFailed", Toast.LENGTH_SHORT).show();
             try {
                 showPinpadDialog();
             } catch (Exception err) {
@@ -363,13 +416,13 @@ public class PaymentActivity extends AppCompatActivity
 
         @Override
         public void onExeption(String message) {
-            Log.d(TAG, "onExeption messsage:" + message);
+            Log.d(TAG, "onException messsage:" + message);
             showProgress(false);
         }
 
         @Override
         public void onUpdateUserInterface(String message) {
-            tvMessage.setText("onUpdateUserInterface:" + message);
+            tvMessage.setText(message);
         }
 
 
@@ -399,6 +452,62 @@ public class PaymentActivity extends AppCompatActivity
             showProgress(false);
         }
     };
+
+    /**
+     * Printer listener
+     */
+    private MiniPosPrinterListener printerListener = new MiniPosPrinterListener() {
+        @Override
+        public void onPrintStateChanged(String message) {
+            Log.d(TAG, "Ошибка принтера:"+message);
+            showProgress(false);
+            warning(message);
+        }
+
+        @Override
+        public void onPrintStart() {
+            Log.d(TAG, "Печать чека...");
+            showProgress(true);
+        }
+
+        @Override
+        public void onPrintFinish() {
+            Log.d(TAG, "Печать завершена");
+            showProgress(false);
+        }
+    };
+
+    /**
+     * Printer ConnectionListener
+     */
+    private MiniPosConnectionListener printerConnectionListener = new MiniPosConnectionListener() {
+        @Override
+        public void onConnectionSuccess(String sn) {
+            Log.d(TAG, "Принтер подключен");
+            MiniPosManager.getInstance().startPrint(mReceiptBitmap, printerListener);
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            Log.d(TAG, "Ошибка соединения");
+            showPrinterDialog();
+        }
+
+        @Override
+        public void onDeviceRelease() {
+//принтер отключен
+            String msg = getString(R.string.message_printer_disconnected);
+            Log.d(TAG, msg);
+            warning(msg);
+        }
+
+        @Override
+        public void onBluetoothRequest() {
+            //запрос на включение блютуза
+            Toast.makeText(getApplicationContext(), R.string.turn_on_bluetooth, Toast.LENGTH_SHORT).show();
+        }
+    };
+
 
     private String formatPrice(double price) {
         DecimalFormat df = new DecimalFormat("0.00");

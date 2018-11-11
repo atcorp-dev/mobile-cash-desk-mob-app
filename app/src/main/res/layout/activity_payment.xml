@@ -64,6 +64,11 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"/>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/printPreview"/>
+
     <Button
         android:id="@+id/btn_pay"
         android:layout_width="match_parent"
@@ -74,6 +79,17 @@
         android:background="@color/colorActivated"
         android:onClick="onPayment"
         android:text="@string/payment_activity_btn_pay" />
+
+    <Button
+        android:id="@+id/btn_print"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="30dp"
+        android:background="@color/colorPrimary"
+        android:onClick="onPrint"
+        android:text="Тест печати" />
 
     <Button
         android:layout_width="match_parent"

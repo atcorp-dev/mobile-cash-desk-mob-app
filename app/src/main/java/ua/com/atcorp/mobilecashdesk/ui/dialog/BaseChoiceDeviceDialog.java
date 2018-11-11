@@ -88,15 +88,13 @@ public abstract class BaseChoiceDeviceDialog extends BaseDialogFragment {
                 mBluetoothAdapter.cancelDiscovery();
             }
         });
-        //
+        mAdapter = new DeviceListAdapter(getActivity());
         List<BluetoothDevice> devices = getPairedDevice();
         if (devices != null && devices.size() > 0) {
             mDeviceList.addAll(devices); //добавляем все подключенные
             //удаляем сохраненное устройство
             if (mSavedDevice != null)
                 mDeviceList.remove(mSavedDevice);
-
-            mAdapter = new DeviceListAdapter(getActivity());
             mAdapter.setData(mDeviceList);
         }
     }
