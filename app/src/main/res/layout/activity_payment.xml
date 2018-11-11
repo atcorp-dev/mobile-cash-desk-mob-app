@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/main_activity_background">
 
@@ -13,7 +13,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
         android:visibility="gone"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/payment_amount_wrap"
@@ -64,44 +69,69 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"/>
 
-    <ImageView
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="196dp">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/printPreview"/>
+    </ScrollView>
+
+    <include
+        layout="@layout/include_error_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/printPreview"/>
+        android:visibility="gone"/>
 
-    <Button
-        android:id="@+id/btn_pay"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="30dp"
-        android:background="@color/colorActivated"
-        android:onClick="onPayment"
-        android:text="@string/payment_activity_btn_pay" />
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/btn_pay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="30dp"
+            android:background="@color/colorActivated"
+            android:onClick="onPayment"
+            android:text="@string/payment_activity_btn_pay" />
 
-    <Button
-        android:id="@+id/btn_print"
+        <Button
+            android:id="@+id/btn_print"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="30dp"
+            android:background="@color/colorPrimary"
+            android:onClick="onPrint"
+            android:enabled="false"
+            android:text="Друк" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="30dp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:textColor="@color/colorPrimary"
+            android:onClick="onCancelButtonClick"
+            android:text="Відміна"
+            android:layout_marginBottom="6dp"/>
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <WebView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="30dp"
-        android:background="@color/colorPrimary"
-        android:onClick="onPrint"
-        android:text="Тест печати" />
+        android:layout_gravity="bottom"
+        android:id="@+id/webView">
+    </WebView>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="30dp"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:textColor="@color/colorPrimary"
-        android:onClick="onCancelButtonClick"
-        android:text="Відміна"
-        android:layout_marginBottom="6dp"/>
-
-</LinearLayout>
+</RelativeLayout>
 

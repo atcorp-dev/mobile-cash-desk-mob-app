@@ -70,4 +70,11 @@ public class Cart extends Model implements Serializable {
                 return true;
         return false;
     }
+
+    public double getTotalPrice() {
+        double res = 0;
+        for (CartItem item : mItems)
+            res += item.getPrice();
+        return  res;
+    }
 }

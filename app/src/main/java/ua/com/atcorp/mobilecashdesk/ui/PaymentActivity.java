@@ -3,24 +3,33 @@ package ua.com.atcorp.mobilecashdesk.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Picture;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.support.v7.app.*;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
+import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePrinterDialog;
 import ua.pbank.dio.minipos.MiniPosManager;
@@ -32,12 +41,8 @@ import ua.pbank.dio.minipos.models.Transaction;
 
 import android.util.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.BaseDialogFragment;
@@ -64,6 +69,13 @@ public class PaymentActivity extends AppCompatActivity
     Button btnPay;
     @BindView(R.id.btn_print)
     Button btnPrint;
+    // @BindView(R.id.webView)
+    WebView webView;
+    @BindView(R.id.tvError)
+    TextView tvError;
+    @BindView(R.id.viewError)
+    View viewError;
+    private int mErrorCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +97,122 @@ public class PaymentActivity extends AppCompatActivity
         btnPay = findViewById(R.id.btn_pay);
         if (mCart.getmType() == 1)
             btnPay.setText("Відправити на касу");
+        initWebView();
+        onReceipt();
+    }
+
+    private void initWebView() {
+
+        webView = findViewById(R.id.webView);
+        // webView = new WebView(this);
+        webView.getSettings().setJavaScriptEnabled(true);
+
+        Log.d(TAG,"display widtht:"+getResources().getDisplayMetrics().widthPixels+ " with density:"+384 * getResources().getDisplayMetrics().density);
+        //меняем ширину webview для планшетов на 384 (max для принтера !!!)
+        if (isTablet(this)) {
+            webView.setLayoutParams(
+                    new LinearLayout.LayoutParams(
+                            (int) (384 * getResources().getDisplayMetrics().density), LinearLayout.LayoutParams.WRAP_CONTENT ));
+        }
+
+        webView.setVisibility(View.GONE);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                Log.d(TAG,"onPageStarted url:"+url);
+                showProgress(true);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                Log.d(TAG,"onPageFinished url:"+url);
+                if (mErrorCode == 0) {
+                    showProgress(false);
+                    viewError.setVisibility(View.GONE);
+                    webView.setVisibility(View.INVISIBLE);
+                    btnPrint.setEnabled(true);
+
+                } else {
+                    showLoadError(mErrorCode);
+                }
+            }
+
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                super.onReceivedError(view, errorCode, description, failingUrl);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                    Log.d(TAG, "onReceivedError old error:" + errorCode);
+                    mErrorCode = errorCode;
+                }
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                Log.d(TAG,"onReceivedError error:"+error.getErrorCode());
+                mErrorCode = error.getErrorCode();
+            }
+
+        });
+
+    }
+
+    private void showLoadError(int error) {
+        showProgress(false);
+        webView.setVisibility(View.GONE);
+        viewError.setVisibility(View.VISIBLE);
+        tvError.setText(getString(R.string.error_on_client));
+    }
+
+    public static boolean isTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
+    private Bitmap getBitmapFromWebView(final WebView webView){
+        Bitmap bitmap = null;
+        try {
+            Picture picture = webView.capturePicture();
+            bitmap = Bitmap.createBitmap(picture.getWidth(),picture.getHeight(), Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(Color.WHITE);
+            picture.draw(canvas);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+    }
+
+    public Bitmap getProportionalBitmap(Bitmap bitmap, int newDimensionXorY, String XorY) {
+        if (bitmap == null) {
+            return null;
+        }
+
+        float xyRatio = 0;
+        int newWidth = 0;
+        int newHeight = 0;
+
+        if (XorY.toLowerCase().equals("x")) {
+
+            xyRatio = (float) newDimensionXorY / bitmap.getWidth();
+            newHeight = (int) (bitmap.getHeight() * xyRatio);
+            bitmap = Bitmap.createScaledBitmap(bitmap, newDimensionXorY, newHeight, true);
+
+        } else if (XorY.toLowerCase().equals("y")) {
+
+            xyRatio = (float) newDimensionXorY / bitmap.getHeight();
+            newWidth = (int) (bitmap.getWidth() * xyRatio);
+            bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newDimensionXorY, true);
+
+        }
+        return bitmap;
     }
 
     public  void onCancelButtonClick(View view) {
@@ -105,29 +233,46 @@ public class PaymentActivity extends AppCompatActivity
         }
     }
 
+    public void onReceipt() {
+        // mReceipt = "<html><body style='background-color: blue'><div style='height: 500px; border: 1px black solid; display: flex; justify-content: center; align-items: center' ><h1>Test</h1></div></body></html>";
+        ArrayList<String> htmlBuilder = new ArrayList<>();
+        htmlBuilder.add("<html>");
+        htmlBuilder.add("<body>");
+        htmlBuilder.add("<div style='display: flex; justify-content: center'>");
+        htmlBuilder.add("<h1>Фіскальний чек</h1>");
+        htmlBuilder.add("</div>");
+        htmlBuilder.add("<table width=100%>");
+        for(CartItem item : mCart.getmItems())
+            htmlBuilder.add(String.format(
+                    "<tr><td>%s</td><td>x%s</td><td><div style='margin-left: 6px'>%s грн.</div></td></tr>",
+                    item.getItemName(), item.getQty(),item.getPrice()));
+        htmlBuilder.add(
+                String.format(
+                        "<tr><td><div style='margin-top: 48px'>Всього</div></td><td></td><td><div style='margin-top: 48px'>%s грн.</div></td><tr>",
+                        mCart.getTotalPrice())
+        );
+        htmlBuilder.add("</table>");
+        htmlBuilder.add("</div>");
+        htmlBuilder.add("</body>");
+        htmlBuilder.add("</html>");
+        mReceipt = "";
+        for( String line : htmlBuilder)
+            mReceipt += line + "\n";
+        webView.loadData(mReceipt,"text/html; charset=utf-8","UTF-8");
+    }
+
     public void onPrint(View view) {
-        String receipt = "<div style='width: 380px' ><p>Test</p></div>";
-        // Bitmap bm = htmlToBitmap(receipt);
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.test);
         ImageView imgView = findViewById(R.id.printPreview);
-        imgView.setImageBitmap(bm);
-        mReceiptBitmap = bm;
-        //bm.recycle();
+        final Bitmap bitmap = getBitmapFromWebView(webView);
+        mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
+        // bitmap.recycle();
+        imgView.setImageBitmap(mReceiptBitmap);
         MiniPosManager.getInstance().initPrinter(printerConnectionListener);
     }
 
     private void showPrinterDialog() {
         mDialog = new ChoicePrinterDialog().newInstance();
         mDialog.show(this);
-    }
-
-    private Bitmap htmlToBitmap(String html) {
-        WebView webView = new WebView(this);
-        webView.loadData(html, "text/html", "utf-8");
-        Bitmap bm = Bitmap.createBitmap(380, 300, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bm);
-        webView.draw(c);
-        return bm;
     }
 
     public void showProgress(final boolean show) {
@@ -507,7 +652,6 @@ public class PaymentActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), R.string.turn_on_bluetooth, Toast.LENGTH_SHORT).show();
         }
     };
-
 
     private String formatPrice(double price) {
         DecimalFormat df = new DecimalFormat("0.00");
