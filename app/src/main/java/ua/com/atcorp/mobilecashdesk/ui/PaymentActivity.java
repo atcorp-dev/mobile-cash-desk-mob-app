@@ -65,6 +65,8 @@ public class PaymentActivity extends AppCompatActivity
 
     @BindView(R.id.payment_status_message)
     TextView tvMessage;
+    @BindView(R.id.purpose)
+    TextView tvPurpose;
     @BindView(R.id.btn_pay)
     Button btnPay;
     @BindView(R.id.btn_print)
@@ -98,7 +100,9 @@ public class PaymentActivity extends AppCompatActivity
         if (mCart.getmType() == 1)
             btnPay.setText("Відправити на касу");
         initWebView();
-        onReceipt();
+        mPurpose = "Покупка в магазині";
+        tvPurpose.setText(mPurpose);
+        //onReceipt();
     }
 
     private void initWebView() {
@@ -222,8 +226,10 @@ public class PaymentActivity extends AppCompatActivity
     public  void onPayment(View view) {
         // view.setEnabled(false);
         try {
+            if (mCart.getmType() == 1)
+                return;
         // makePayment(mStrAmount);
-            makePaymentPrivate(mAmount, "test");
+            makePaymentPrivate(mAmount);
         } catch (Exception err) {
             Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
             String m = "";
@@ -234,7 +240,6 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     public void onReceipt() {
-        // mReceipt = "<html><body style='background-color: blue'><div style='height: 500px; border: 1px black solid; display: flex; justify-content: center; align-items: center' ><h1>Test</h1></div></body></html>";
         ArrayList<String> htmlBuilder = new ArrayList<>();
         htmlBuilder.add("<html>");
         htmlBuilder.add("<body>");
@@ -255,9 +260,14 @@ public class PaymentActivity extends AppCompatActivity
         htmlBuilder.add("</div>");
         htmlBuilder.add("</body>");
         htmlBuilder.add("</html>");
-        mReceipt = "";
+        String receipt = "";
         for( String line : htmlBuilder)
-            mReceipt += line + "\n";
+            receipt += line + "\n";
+        loadReceipt(receipt);
+    }
+
+    void loadReceipt(String receipt) {
+        mReceipt = receipt;
         webView.loadData(mReceipt,"text/html; charset=utf-8","UTF-8");
     }
 
@@ -265,8 +275,9 @@ public class PaymentActivity extends AppCompatActivity
         ImageView imgView = findViewById(R.id.printPreview);
         final Bitmap bitmap = getBitmapFromWebView(webView);
         mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
-        // bitmap.recycle();
-        imgView.setImageBitmap(mReceiptBitmap);
+        Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
+        bitmap.recycle();
+        imgView.setImageBitmap(previewBitmap);
         MiniPosManager.getInstance().initPrinter(printerConnectionListener);
     }
 
@@ -499,9 +510,8 @@ public class PaymentActivity extends AppCompatActivity
         MiniPosManager.getInstance().pinpadUnsubscribe();
     }
 
-    private void makePaymentPrivate(Double amount, String purpose) {
+    private void makePaymentPrivate(Double amount) {
         mAmount = amount;
-        mPurpose = purpose;
         mReceipt = "";
         try {
             if (BluetoothAdapter.getDefaultAdapter() == null) {
@@ -575,7 +585,8 @@ public class PaymentActivity extends AppCompatActivity
         public void onTransactionFinish(Transaction transaction) {
             Log.d(TAG, "onTransactionFinish");
             showProgress(false);
-            mReceipt = transaction.getTransactionData().getReceipt(); //получаем чек
+            String receipt = transaction.getTransactionData().getReceipt(); //получаем чек
+            loadReceipt(receipt);
         }
     };
 

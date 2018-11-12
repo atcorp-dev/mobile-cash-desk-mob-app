@@ -168,9 +168,16 @@ public class LoginActivity extends AppCompatActivity {
             if (companyId != null) {
                 for (Company company : companies) {
                     if (companyId.equals(company.getRecordId())) {
-                        mCompanyView.setSelection(companies.indexOf(company));
+
                         mAuthService.setCurrentCompany(company);
-                        mEntranceButton.setEnabled(true);
+                        if (companies.size() == 1) {
+                            onEntranceButtonClick(mEntranceButton);
+                            mCompanyView.setVisibility(View.GONE);
+                            mEntranceButton.setVisibility(View.GONE);
+                        } else {
+                            mCompanyView.setSelection(companies.indexOf(company));
+                            mEntranceButton.setEnabled(true);
+                        }
                         break;
                     }
                 }
