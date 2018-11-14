@@ -9,7 +9,7 @@ import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 
 public interface ItemApi {
 
-    @GET("items/byId/{id}")
+    @GET("items/{id}")
     Call<ItemDto> getItemById(@Path("id") String id);
 
     @GET("items/byCode/{companyId}/{code}")
