@@ -38,6 +38,7 @@ public class TransactionDto {
     public String ownerId;
     public ArrayList<TransactionItemDto> itemList;
     public double totalPrice;
+    public String orderNum;
 
     public TransactionDto() {}
 
@@ -54,5 +55,20 @@ public class TransactionDto {
             itemList.add(dto);
         }
         totalPrice = cart.getTotalPrice();
+    }
+
+    public String getOrderNumPrint() {
+      return "<html>"
+      + "<body>"
+              + "<div style='width: 380px; height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center'>"
+              + "<div style='width: 100%; display: flex; justify-content: center; align-items: center'>"
+              + "<h2>Номер замовлення</h2>"
+              + "</div>"
+              + "<div div style='width: 100%; display: flex; justify-content: center; align-items: center'>"
+              + "<h1>" + this.orderNum + "</h1>"
+              + "</div>"
+              + "</div>"
+              + "</body>"
+              + "</html>";
     }
 }

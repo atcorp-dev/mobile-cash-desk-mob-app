@@ -31,6 +31,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.repositories.BaseRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
@@ -103,7 +104,7 @@ public class PaymentActivity extends AppCompatActivity
         mCart = new CartService(this).restoreState().getCurrentCart();
         btnPay = findViewById(R.id.btn_pay);
         if (mCart.getType() == 1)
-            btnPay.setText("Відправити на касу");
+            btnPay.setText("Сплатити на касі");
         initWebView();
         mPurpose = "Покупка в магазині";
         tvPurpose.setText(mPurpose);
@@ -122,6 +123,9 @@ public class PaymentActivity extends AppCompatActivity
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
             }
             mTransaction = transaction;
+            if (transaction.type == 1) {
+                loadReceipt(transaction.getOrderNumPrint());
+            }
             hideProgress();
         });
     }
@@ -271,8 +275,10 @@ public class PaymentActivity extends AppCompatActivity
     public  void onPayment(View view) {
         // view.setEnabled(false);
         try {
-            if (mCart.getType() == 1)
+            if (mCart.getType() == 1) {
+                sentToCashDesk();
                 return;
+            }
         // makePayment(mStrAmount);
             makePaymentPrivate(mAmount);
         } catch (Exception err) {
@@ -282,6 +288,10 @@ public class PaymentActivity extends AppCompatActivity
                 m += line.getClassName() + "." + line.getMethodName() + "." + line.getLineNumber();
             Toast.makeText(this, m, Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void sentToCashDesk() {
+        markTransactionAsPayed();
     }
 
     public void onReceipt() {
@@ -323,7 +333,8 @@ public class PaymentActivity extends AppCompatActivity
         Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
         bitmap.recycle();
         imgView.setImageBitmap(previewBitmap);
-        MiniPosManager.getInstance().initPrinter(printerConnectionListener);
+        if (mCart.getType() == 0)
+            MiniPosManager.getInstance().initPrinter(printerConnectionListener);
     }
 
     private void showPrinterDialog() {
