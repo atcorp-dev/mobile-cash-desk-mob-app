@@ -1,8 +1,6 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,22 +17,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.reactiveandroid.query.Select;
-
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
 
-import ua.com.atcorp.mobilecashdesk.adapters.CartItemsAdapter;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
-import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
-import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
@@ -58,7 +46,7 @@ public class CartFragment extends Fragment {
         mCart = mCartService.getCurrentCart();
         mListView = view.findViewById(R.id.list_view);
         mCbCashPayment = view.findViewById(R.id.chb_cash_payment);
-        mCbCashPayment.setChecked(mCart.getmType() == 1);
+        mCbCashPayment.setChecked(mCart.getType() == 1);
         mCbCashPayment.setOnCheckedChangeListener((v, checked) -> onCashPaymentChanged(v, checked));
         double price = mCartService.getTotalPrice();
         setTotalPrice(view, price);

@@ -20,7 +20,7 @@ public class Cart extends Model implements Serializable {
     @Column(name = "RecordId")
     private UUID mRecordId;
 
-    public int getmType() {
+    public int getType() {
         return mType;
     }
 

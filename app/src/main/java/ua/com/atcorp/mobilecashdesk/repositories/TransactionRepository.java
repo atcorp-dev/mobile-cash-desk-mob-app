@@ -10,12 +10,54 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
 import ua.com.atcorp.mobilecashdesk.models.Item;
+import ua.com.atcorp.mobilecashdesk.rest.api.TransactionApi;
 import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
+import ua.com.atcorp.mobilecashdesk.services.AuthService;
 
 public class TransactionRepository extends BaseRepository {
+
+    AuthService mAuthService;
+
     public TransactionRepository(Context context) {
         super(context);
+        mAuthService = new AuthService(context);
+    }
+
+    public AsyncTask getAll(Predicate<List<TransactionDto>, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class);
+        Call<List<TransactionDto>> call = api.getAll();
+        TransactionListTask task = new TransactionListTask(predicate, call);
+        return task.execute();
+    }
+
+    public AsyncTask getById(String id, Predicate<TransactionDto, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class);
+        Call<TransactionDto> call = api.getById(id);
+        TransactionTask task = new TransactionTask(predicate, call);
+        return task.execute();
+    }
+
+    public AsyncTask create(TransactionDto transaction, Predicate<TransactionDto, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class);
+        String companyId = mAuthService.getCurrentCompany().recordId;
+        Call<TransactionDto> call = api.create(companyId, transaction);
+        TransactionTask task = new TransactionTask(predicate, call);
+        return task.execute();
+    }
+
+    public AsyncTask markAsPayed(String id, Predicate<TransactionDto, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class);
+        Call<TransactionDto> call = api.markAsPayed(id);
+        TransactionTask task = new TransactionTask(predicate, call);
+        return task.execute();
+    }
+
+    public AsyncTask markAsRejected(String id, Predicate<TransactionDto, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class);
+        Call<TransactionDto> call = api.markAsRejected(id);
+        TransactionTask task = new TransactionTask(predicate, call);
+        return task.execute();
     }
 
     public class TransactionTask extends AsyncTask<Void,Void,TransactionDto> {
@@ -40,7 +82,7 @@ public class TransactionRepository extends BaseRepository {
                 return transactionDto;
             } catch (Exception e) {
                 error = e;
-                Log.d("GET COMPANY ITEMS ERROR", e.getMessage());
+                Log.d("TRANSACTION ERROR", e.getMessage());
                 return null;
             }
         }
@@ -74,7 +116,7 @@ public class TransactionRepository extends BaseRepository {
                 return transactionDtoList;
             } catch (Exception e) {
                 error = e;
-                Log.d("GET COMPANY ITEMS ERROR", e.getMessage());
+                Log.d("TRANSACTIONS ERROR", e.getMessage());
                 return null;
             }
         }

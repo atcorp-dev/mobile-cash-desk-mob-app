@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,6 +31,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
+import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePrinterDialog;
 import ua.pbank.dio.minipos.MiniPosManager;
@@ -62,6 +65,8 @@ public class PaymentActivity extends AppCompatActivity
     private String mReceipt;
     private Cart mCart;
     private Bitmap mReceiptBitmap;
+    private TransactionRepository mTransactionRepository;
+    private TransactionDto mTransaction;
 
     @BindView(R.id.payment_status_message)
     TextView tvMessage;
@@ -97,12 +102,52 @@ public class PaymentActivity extends AppCompatActivity
 
         mCart = new CartService(this).restoreState().getCurrentCart();
         btnPay = findViewById(R.id.btn_pay);
-        if (mCart.getmType() == 1)
+        if (mCart.getType() == 1)
             btnPay.setText("Відправити на касу");
         initWebView();
         mPurpose = "Покупка в магазині";
         tvPurpose.setText(mPurpose);
         //onReceipt();
+        mTransactionRepository = new TransactionRepository(this);
+        initTransaction();
+    }
+
+    private void initTransaction() {
+        TransactionDto transactionDto = new TransactionDto(mCart);
+        showProgress();
+        View view = findViewById(R.id.payment_layout);
+        mTransactionRepository.create(transactionDto, (transaction, err) -> {
+            if (err != null) {
+                err.printStackTrace();
+                Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+            mTransaction = transaction;
+            hideProgress();
+        });
+    }
+
+    private void markTransactionAsPayed() {
+        if (mTransaction == null)
+            return;
+        mTransactionRepository.markAsPayed(mTransaction.id, (transaction, err) -> {
+            if (err != null) {
+                err.printStackTrace();
+                tvError.setText(err.getMessage());
+            }
+            mTransaction = transaction;
+        });
+    }
+
+    private void markTransactionAsReject() {
+        if (mTransaction == null)
+            return;
+        mTransactionRepository.markAsRejected(mTransaction.id, (transaction, err) -> {
+            if (err != null) {
+                err.printStackTrace();
+                tvError.setText(err.getMessage());
+            }
+            mTransaction = transaction;
+        });
     }
 
     private void initWebView() {
@@ -126,7 +171,7 @@ public class PaymentActivity extends AppCompatActivity
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 Log.d(TAG,"onPageStarted url:"+url);
-                showProgress(true);
+                showProgress();
             }
 
             @Override
@@ -134,7 +179,7 @@ public class PaymentActivity extends AppCompatActivity
                 super.onPageFinished(view, url);
                 Log.d(TAG,"onPageFinished url:"+url);
                 if (mErrorCode == 0) {
-                    showProgress(false);
+                    hideProgress();
                     viewError.setVisibility(View.GONE);
                     webView.setVisibility(View.INVISIBLE);
                     btnPrint.setEnabled(true);
@@ -168,7 +213,7 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     private void showLoadError(int error) {
-        showProgress(false);
+        hideProgress();
         webView.setVisibility(View.GONE);
         viewError.setVisibility(View.VISIBLE);
         tvError.setText(getString(R.string.error_on_client));
@@ -226,7 +271,7 @@ public class PaymentActivity extends AppCompatActivity
     public  void onPayment(View view) {
         // view.setEnabled(false);
         try {
-            if (mCart.getmType() == 1)
+            if (mCart.getType() == 1)
                 return;
         // makePayment(mStrAmount);
             makePaymentPrivate(mAmount);
@@ -286,10 +331,17 @@ public class PaymentActivity extends AppCompatActivity
         mDialog.show(this);
     }
 
-    public void showProgress(final boolean show) {
-        ProgressBar progressView = (ProgressBar) findViewById(R.id.progress);
+    public void showProgress() {
+        ProgressBar progressView = findViewById(R.id.progress);
         if (progressView != null) {
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideProgress() {
+        ProgressBar progressView = findViewById(R.id.progress);
+        if (progressView != null) {
+            progressView.setVisibility(View.GONE);
         }
     }
 
@@ -298,10 +350,10 @@ public class PaymentActivity extends AppCompatActivity
 		i.putExtra("amount", amount);
 		i.putExtra("source", getApplication().getPackageName());
         try {
-			showProgress(true);
+			showProgress();
 			startActivityForResult(i, MAKE_PAYMENT_CODE);
 		} catch (android.content.ActivityNotFoundException e) {
-			showProgress(false);
+            hideProgress();
 			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
         findViewById(R.id.btn_pay).setEnabled(true);
@@ -331,7 +383,7 @@ public class PaymentActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        showProgress(false);
+        hideProgress();
         if (data == null) {return;}
         if (requestCode == MAKE_PAYMENT_CODE) {
             String transaction_response_code = data.getStringExtra("transaction_response_code");
@@ -534,13 +586,13 @@ public class PaymentActivity extends AppCompatActivity
     private MiniPosConnectionListener pinpadConnectionListener = new MiniPosConnectionListener() {
         @Override
         public void onConnectionSuccess(String sn) {
-            showProgress(true);
+            showProgress();
             MiniPosManager.getInstance().startTransaction(mAmount, mPurpose, transactionListener);
         }
 
         @Override
         public void onConnectionFailed() {
-            showProgress(false);
+            hideProgress();
             //Toast.makeText(PaymentActivity.this, "MiniPosConnectionListener.onConnectionFailed", Toast.LENGTH_SHORT).show();
             try {
                 showPinpadDialog();
@@ -551,7 +603,7 @@ public class PaymentActivity extends AppCompatActivity
 
         @Override
         public void onDeviceRelease() {
-            showProgress(false);
+            hideProgress();
             String msg = getString(R.string.pinpad_released);
             Log.d(TAG, msg);
             tvMessage.setText(msg);
@@ -572,7 +624,7 @@ public class PaymentActivity extends AppCompatActivity
         @Override
         public void onExeption(String message) {
             Log.d(TAG, "onException messsage:" + message);
-            showProgress(false);
+            hideProgress();
         }
 
         @Override
@@ -584,8 +636,9 @@ public class PaymentActivity extends AppCompatActivity
         @Override
         public void onTransactionFinish(Transaction transaction) {
             Log.d(TAG, "onTransactionFinish");
-            showProgress(false);
+            hideProgress();
             String receipt = transaction.getTransactionData().getReceipt(); //получаем чек
+            markTransactionAsPayed();
             loadReceipt(receipt);
         }
     };
@@ -598,14 +651,14 @@ public class PaymentActivity extends AppCompatActivity
         public void onError(String message) {
             Log.d(TAG, "ERROR:" + message);
             tvMessage.setText(message);
-            showProgress(false);
+            hideProgress();
         }
 
         @Override
         public void onUnauthorized() {
             Log.d(TAG, "ERROR: необходима авторизация");
             tvMessage.setText("Необходима авторизация");
-            showProgress(false);
+            hideProgress();
         }
     };
 
@@ -616,20 +669,20 @@ public class PaymentActivity extends AppCompatActivity
         @Override
         public void onPrintStateChanged(String message) {
             Log.d(TAG, "Ошибка принтера:"+message);
-            showProgress(false);
+            hideProgress();
             warning(message);
         }
 
         @Override
         public void onPrintStart() {
             Log.d(TAG, "Печать чека...");
-            showProgress(true);
+            showProgress();
         }
 
         @Override
         public void onPrintFinish() {
             Log.d(TAG, "Печать завершена");
-            showProgress(false);
+            hideProgress();
         }
     };
 
