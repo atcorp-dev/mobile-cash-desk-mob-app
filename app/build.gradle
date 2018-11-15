@@ -65,4 +65,9 @@ dependencies {
     // Important - the CameraSource implementation in this project requires version 8.1 or higher.
     implementation 'com.google.android.gms:play-services-vision:9.4.0+'
 
+    //Firebase
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+
 }
+apply plugin: 'com.google.gms.google-services'

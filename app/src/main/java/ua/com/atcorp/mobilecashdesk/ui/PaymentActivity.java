@@ -31,7 +31,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
-import ua.com.atcorp.mobilecashdesk.repositories.BaseRepository;
 import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
@@ -44,6 +43,10 @@ import ua.pbank.dio.minipos.interfaces.MiniPosTransactionListener;
 import ua.pbank.dio.minipos.models.Transaction;
 
 import android.util.*;
+
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
