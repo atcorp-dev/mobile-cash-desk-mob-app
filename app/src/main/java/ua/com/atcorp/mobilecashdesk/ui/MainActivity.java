@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.reactiveandroid.query.Delete;
 
 import ua.com.atcorp.mobilecashdesk.R;
@@ -58,6 +59,18 @@ public class MainActivity extends AppCompatActivity
         openMainFragment();
 
         pingSession();
+
+        refreshFmcToken();
+    }
+
+    private void refreshFmcToken() {
+        SharedPreferences sp = getSharedPreferences("fcm", MODE_PRIVATE);
+        String token = sp.getString("token", null);
+        if (token == null)
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
+                String newToken = instanceIdResult.getToken();
+                sp.edit().putString("token", newToken).commit();
+            });
     }
 
     @Override

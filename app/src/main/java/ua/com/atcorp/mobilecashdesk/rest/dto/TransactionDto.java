@@ -29,6 +29,10 @@ public class TransactionDto {
         }
     }
 
+    public class TransactionExtras {
+        public String recipientId;
+    }
+
     public String id;
     public String cartId;
     public String companyId;
@@ -39,8 +43,11 @@ public class TransactionDto {
     public ArrayList<TransactionItemDto> itemList;
     public double totalPrice;
     public String orderNum;
+    public TransactionExtras extras;
 
-    public TransactionDto() {}
+    public TransactionDto() {
+        extras = new TransactionExtras();
+    }
 
     public TransactionDto(Cart cart) {
         if (cart == null) {
@@ -55,6 +62,7 @@ public class TransactionDto {
             itemList.add(dto);
         }
         totalPrice = cart.getTotalPrice();
+        extras = new TransactionExtras();
     }
 
     public String getOrderNumPrint() {

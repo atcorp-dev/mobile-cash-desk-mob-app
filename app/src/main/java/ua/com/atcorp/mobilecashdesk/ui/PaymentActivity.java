@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -117,7 +118,10 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     private void initTransaction() {
+        SharedPreferences sp = getSharedPreferences("fcm", MODE_PRIVATE);
+        String token = sp.getString("token", null);
         TransactionDto transactionDto = new TransactionDto(mCart);
+        transactionDto.extras.recipientId = token;
         showProgress();
         View view = findViewById(R.id.payment_layout);
         mTransactionRepository.create(transactionDto, (transaction, err) -> {
