@@ -6,6 +6,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import ua.com.atcorp.mobilecashdesk.ui.PaymentActivity;
+
 public class AppFirebaseMessagingService extends FirebaseMessagingService {
 
     private final static String TAG = "FCM";
@@ -32,11 +34,14 @@ public class AppFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+
         }
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
+
+        PaymentActivity.notifyTransactionUpdated();
     }
 }

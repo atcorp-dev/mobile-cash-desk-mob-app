@@ -83,11 +83,19 @@ public class PaymentActivity extends AppCompatActivity
     TextView tvError;
     @BindView(R.id.viewError)
     View viewError;
+    @BindView(R.id.payment_preview_list)
+    ListView paymentPreviewListView;
+    ArrayList<String> paymentPreviewList;
+    ArrayAdapter paymentPreviewListAdapter;
+    @BindView(R.id.printPreview)
+    ImageView imgView;
     private int mErrorCode;
+    private static PaymentActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         setContentView(R.layout.activity_payment);
         ButterKnife.bind(this);
         Intent intent = getIntent();
@@ -111,6 +119,46 @@ public class PaymentActivity extends AppCompatActivity
         //onReceipt();
         mTransactionRepository = new TransactionRepository(this);
         initTransaction();
+        initPaymentPreviewList();
+        imgView.setVisibility(View.GONE);
+
+    }
+
+    public static void notifyTransactionUpdated() {
+        instance.mTransactionRepository.getById(instance.mTransaction.id, (transaction, err) -> {
+            if (err != null) {
+                View view = instance.findViewById(R.id.payment_layout);
+                Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
+                err.printStackTrace();
+            } else {
+                instance.updateTransaction(transaction);
+            }
+        });
+    }
+
+    private void updateTransaction(TransactionDto transaction) {
+        ArrayList<CartItem> cartItems = mCart.getmItems();
+        paymentPreviewListAdapter.clear();
+        for(CartItem cartItem : cartItems) {
+            for(TransactionDto.TransactionItemDto transactionItem : transaction.itemList) {
+                if (cartItem.getItemRecordId().equals(transactionItem.itemId)) {
+                    cartItem.setItemPrice(transactionItem.price);
+                    break;
+                }
+            }
+            paymentPreviewList.add(String.format(
+                    "%s\tx%s\t%s грн.", cartItem.getItemName(), cartItem.getQty(), cartItem.getPrice()));
+            cartItem.save();
+        }
+    }
+
+    private void initPaymentPreviewList() {
+        paymentPreviewList = new ArrayList<>();
+        for (CartItem cartItem : mCart.getmItems())
+            paymentPreviewList.add(String.format(
+                    "%s\tx%s\t%s грн.", cartItem.getItemName(), cartItem.getQty(), cartItem.getPrice()));
+        paymentPreviewListAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, paymentPreviewList);
+        paymentPreviewListView.setAdapter(paymentPreviewListAdapter);
     }
 
     private void initTransaction() {
@@ -330,12 +378,13 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     public void onPrint(View view) {
-        ImageView imgView = findViewById(R.id.printPreview);
         final Bitmap bitmap = getBitmapFromWebView(webView);
         mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
         Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
         bitmap.recycle();
         imgView.setImageBitmap(previewBitmap);
+        imgView.setVisibility(View.VISIBLE);
+        paymentPreviewListView.setVisibility(View.GONE);
         if (mCart.getType() == 0)
             MiniPosManager.getInstance().initPrinter(printerConnectionListener);
     }

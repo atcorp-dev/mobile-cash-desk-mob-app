@@ -97,6 +97,10 @@ public class CartItem extends Model implements Serializable {
         return this.itemPrice * this.qty;
     }
 
+    public void setItemPrice(double price) {
+        this.itemPrice = price;
+    }
+
     public String getItemRecordId() {
         return itemRecordId;
     }
