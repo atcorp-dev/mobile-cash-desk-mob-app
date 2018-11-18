@@ -53,12 +53,6 @@
         android:orientation="vertical"
         android:layout_weight="0">
         <TextView
-            android:text="@string/payment_target_lbl"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="12dp"
-            android:textSize="22sp" />
-        <TextView
             android:id="@+id/purpose"
             android:text=""
             android:layout_width="match_parent"

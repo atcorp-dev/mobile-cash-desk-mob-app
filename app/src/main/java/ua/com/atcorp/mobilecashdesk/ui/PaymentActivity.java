@@ -71,8 +71,6 @@ public class PaymentActivity extends AppCompatActivity
 
     @BindView(R.id.payment_status_message)
     TextView tvMessage;
-    @BindView(R.id.purpose)
-    TextView tvPurpose;
     @BindView(R.id.btn_pay)
     Button btnPay;
     @BindView(R.id.btn_print)
@@ -98,9 +96,10 @@ public class PaymentActivity extends AppCompatActivity
         instance = this;
         setContentView(R.layout.activity_payment);
         ButterKnife.bind(this);
-        Intent intent = getIntent();
 
-        double amount = intent.getDoubleExtra("amount", 0);
+        mCart = new CartService(this).restoreState().getCurrentCart();
+
+        double amount = mCart.getTotalPrice();
         int intValue = (int)amount;
         int rest = (int) ((amount - intValue) * 100);
         String amountStr = String.format("%s.%s", intValue, rest);
@@ -109,13 +108,11 @@ public class PaymentActivity extends AppCompatActivity
         mStrAmount = amountStr;
         setEditTextValue(R.id.payment_amount, price);
 
-        mCart = new CartService(this).restoreState().getCurrentCart();
         btnPay = findViewById(R.id.btn_pay);
         if (mCart.getType() == 1)
             btnPay.setText("Сплатити на касі");
         initWebView();
         mPurpose = "Покупка в магазині";
-        tvPurpose.setText(mPurpose);
         //onReceipt();
         mTransactionRepository = new TransactionRepository(this);
         initTransaction();
@@ -150,6 +147,9 @@ public class PaymentActivity extends AppCompatActivity
                     "%s\tx%s\t%s грн.", cartItem.getItemName(), cartItem.getQty(), cartItem.getPrice()));
             cartItem.save();
         }
+        double amount = mCart.getTotalPrice();
+        String price = formatPrice(amount);
+        setEditTextValue(R.id.payment_amount, price);
     }
 
     private void initPaymentPreviewList() {
