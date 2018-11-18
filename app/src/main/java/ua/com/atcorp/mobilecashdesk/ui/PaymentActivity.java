@@ -45,10 +45,6 @@ import ua.pbank.dio.minipos.models.Transaction;
 
 import android.util.*;
 
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.google.firebase.messaging.FirebaseMessaging;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 

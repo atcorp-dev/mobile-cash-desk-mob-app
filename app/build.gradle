@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 
 repositories {
     mavenCentral()
@@ -14,14 +15,13 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [onesignal_app_id               : 'APP_ID',
+                                onesignal_google_project_number: 'REMOTE']
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        customDebugType {
-            debuggable true
         }
     }
     compileOptions {
@@ -69,5 +69,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
 
+    implementation 'com.onesignal:OneSignal:3.9.1'
+
 }
 apply plugin: 'com.google.gms.google-services'
+// Work around for onesignal-gradle-plugin compatibility
+com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true

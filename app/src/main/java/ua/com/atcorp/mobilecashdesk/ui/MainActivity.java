@@ -1,6 +1,5 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,14 +18,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.reactiveandroid.query.Delete;
 
 import ua.com.atcorp.mobilecashdesk.R;
-import ua.com.atcorp.mobilecashdesk.models.CartItem;
-import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
-import ua.com.atcorp.mobilecashdesk.repositories.CompanyRepository;
-import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
 
