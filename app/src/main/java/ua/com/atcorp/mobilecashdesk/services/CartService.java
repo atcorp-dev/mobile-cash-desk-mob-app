@@ -9,8 +9,11 @@ import android.widget.Toast;
 import com.reactiveandroid.query.Delete;
 import com.reactiveandroid.query.Select;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +30,8 @@ public class CartService extends BaseRepository {
     private CartItemsAdapter mAdapter;
     private DataSetObserver mDataSetObserver;
 
+    // region Constructors
+
     public CartService(Context context) {
         super(context);
     }
@@ -35,6 +40,10 @@ public class CartService extends BaseRepository {
         super(context);
         mDataSetObserver = dataSetObserver;
     }
+
+    // endregion
+
+    // region Methods: Public
 
     public void bindAdapterToListView(ListView listView) {
         listView.setAdapter(mAdapter);
@@ -58,6 +67,7 @@ public class CartService extends BaseRepository {
         if(mAdapter != null)
             mAdapter.clear();
         SharedPreferences sharedPref = getSharedPreferences();
+        sharedPref.edit().remove("modifiedOn").apply();
         sharedPref.edit().remove("cartId").commit();
         Delete.from(Cart.class).execute();
         Delete.from((CartItem.class)).execute();
@@ -70,6 +80,7 @@ public class CartService extends BaseRepository {
         SharedPreferences sharedPref = getSharedPreferences();
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("cartId" , mCart.getRecordId().toString());
+        editor.putString("modifiedOn" , getDateTimeNow());
         Exception error = mAdapter.saveState();
         if (error == null)
             editor.commit();
@@ -90,7 +101,7 @@ public class CartService extends BaseRepository {
                 .fetch();
         Collections.sort(cartItems, (c1, c2) -> c2.getDatetime().compareTo(c1.getDatetime()));
         if (cartItems != null & cartItems.size() > 0)
-            mCart.setmItems(new ArrayList<>(cartItems));
+            mCart.setItems(new ArrayList<>(cartItems));
         mAdapter = new CartItemsAdapter(getContext(), mCart.getRecordId(), mCart.getmItems());
         mAdapter.registerDataSetObserver(getDataSetObserver());
         return this;
@@ -104,6 +115,24 @@ public class CartService extends BaseRepository {
                 return  true;
         return false;
     }
+
+    public boolean isChanged(String timestamp) {
+        String cartModifiedOn = getCartModifiedOn();
+        if (timestamp == null || cartModifiedOn == null)
+            return true;
+        int compare = timestamp.compareTo(cartModifiedOn);
+        return compare < 0;
+    }
+
+    public String getCartModifiedOn() {
+        SharedPreferences sp = getSharedPreferences();
+        String res = sp.getString("modifiedOn", null);
+        return res;
+    }
+
+    // endregion
+
+    // region Methods: Private
 
     private Cart getCartByRecordId(UUID recordId) {
         return getCartByRecordId(recordId, false);
@@ -138,7 +167,7 @@ public class CartService extends BaseRepository {
             @Override
             public void onChanged() {
                 super.onChanged();
-                mCart.setmItems(mAdapter.getItems());
+                mCart.setItems(mAdapter.getItems());
                 if (mDataSetObserver != null)
                     mDataSetObserver.onChanged();
                 saveState();
@@ -151,4 +180,13 @@ public class CartService extends BaseRepository {
                 .getSharedPreferences(mPreferencesFileName, Context.MODE_PRIVATE);
         return  sharedPref;
     }
+
+    private String getDateTimeNow() {
+        Date now = new Date();
+        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmmss");
+        String res = formater.format(now);
+        return res;
+    }
+
+    // endregion
 }

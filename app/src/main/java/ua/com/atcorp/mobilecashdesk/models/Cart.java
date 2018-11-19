@@ -24,7 +24,7 @@ public class Cart extends Model implements Serializable {
         return mType;
     }
 
-    public void setmType(int mType) {
+    public void setType(int mType) {
         this.mType = mType;
     }
 
@@ -55,7 +55,7 @@ public class Cart extends Model implements Serializable {
         return mItems;
     }
 
-    public void setmItems(ArrayList<CartItem> mItems) {
+    public void setItems(ArrayList<CartItem> mItems) {
         this.mItems = mItems;
     }
 

@@ -32,7 +32,6 @@ public class CartFragment extends Fragment {
     ListView mListView;
     EditText mItemCodeView;
     ProgressBar mProgressBar;
-    CheckBox mCbCashPayment;
     CartService mCartService;
     Cart mCart;
     ItemRepository mRepository;
@@ -45,9 +44,6 @@ public class CartFragment extends Fragment {
         mCartService.restoreState();
         mCart = mCartService.getCurrentCart();
         mListView = view.findViewById(R.id.list_view);
-        mCbCashPayment = view.findViewById(R.id.chb_cash_payment);
-        mCbCashPayment.setChecked(mCart.getType() == 1);
-        mCbCashPayment.setOnCheckedChangeListener((v, checked) -> onCashPaymentChanged(v, checked));
         double price = mCartService.getTotalPrice();
         setTotalPrice(view, price);
         mCartService.bindAdapterToListView(mListView);
@@ -149,17 +145,9 @@ public class CartFragment extends Fragment {
         view.setVisibility(View.GONE);
     }
 
-    private void onCashPaymentChanged(View view, boolean checked) {
-        Cart cart = mCartService.getCurrentCart();
-        if (cart != null) {
-            cart.setmType(checked ? 1 : 0);
-            cart.save();
-        }
-    }
-
     private void clearCart() {
-        mCbCashPayment.setChecked(false);
         mCartService.clearCart();
+        mCart = mCartService.getCurrentCart();
     }
 
     private void addItem(Item item) {

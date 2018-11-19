@@ -46,7 +46,9 @@ import ua.pbank.dio.minipos.models.Transaction;
 import android.util.*;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.BaseDialogFragment;
@@ -59,22 +61,37 @@ public class PaymentActivity extends AppCompatActivity
     private final int MAKE_PAYMENT_CODE = 2;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private static final int REQUEST_ENABLE_BT = 2;
+
+    private static PaymentActivity instance;
+
+    // region Fields: Private
+
     private BaseDialogFragment mDialog;
     private Double mAmount;
     private String mStrAmount;
-    private String mPurpose;
+    private String mPurpose = "Покупка в магазині";
     private String mReceipt;
     private Cart mCart;
     private Bitmap mReceiptBitmap;
     private TransactionRepository mTransactionRepository;
     private TransactionDto mTransaction;
+    private CartService mCartService;
+    private int mErrorCode;
 
+    // endregion
+
+    // region Fields: View
+
+    @BindView(R.id.payment_status_message_wrap)
+    View tvMessageWrap;
     @BindView(R.id.payment_status_message)
     TextView tvMessage;
     @BindView(R.id.btn_pay)
     Button btnPay;
     @BindView(R.id.btn_print)
     Button btnPrint;
+    @BindView(R.id.btn_cancel)
+    Button btnCancel;
     // @BindView(R.id.webView)
     WebView webView;
     @BindView(R.id.tvError)
@@ -87,8 +104,12 @@ public class PaymentActivity extends AppCompatActivity
     ArrayAdapter paymentPreviewListAdapter;
     @BindView(R.id.printPreview)
     ImageView imgView;
-    private int mErrorCode;
-    private static PaymentActivity instance;
+
+    Snackbar mSnackBar;
+
+    // endregion
+
+    // region Methods: Override
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +117,9 @@ public class PaymentActivity extends AppCompatActivity
         instance = this;
         setContentView(R.layout.activity_payment);
         ButterKnife.bind(this);
-
-        mCart = new CartService(this).restoreState().getCurrentCart();
+        btnCancel.setOnClickListener(v -> onCancelButtonClick(v));
+        mCartService = new CartService(this);
+        mCart = mCartService.restoreState().getCurrentCart();
 
         double amount = mCart.getTotalPrice();
         int intValue = (int)amount;
@@ -109,10 +131,7 @@ public class PaymentActivity extends AppCompatActivity
         setEditTextValue(R.id.payment_amount, price);
 
         btnPay = findViewById(R.id.btn_pay);
-        if (mCart.getType() == 1)
-            btnPay.setText("Сплатити на касі");
         initWebView();
-        mPurpose = "Покупка в магазині";
         //onReceipt();
         mTransactionRepository = new TransactionRepository(this);
         initTransaction();
@@ -120,6 +139,106 @@ public class PaymentActivity extends AppCompatActivity
         imgView.setVisibility(View.GONE);
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        try {
+            MiniPosManager.getInstance().pinpadSubscribe();
+        } catch (Exception error) {
+            Log.e("PAYMENT ACTIVITY ERR", error.getMessage());
+            Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MiniPosManager.getInstance().pinpadUnsubscribe();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        hideProgress();
+        if (data == null) {return;}
+        if (requestCode == MAKE_PAYMENT_CODE) {
+            String transaction_response_code = data.getStringExtra("transaction_response_code");
+            Intent intent = new Intent();
+            // transaction_response_code = "000";
+            boolean payed = transaction_response_code == "000" && resultCode == RESULT_OK;
+            intent.putExtra("payed",  payed);
+            if (resultCode == RESULT_OK) {
+                String message = null;
+                switch(transaction_response_code) {
+                    case "000":
+                        createTransaction(data);
+                        openOkDialog("Оплата прошла успешно", (dialog, id) -> finish());
+                        break;
+                    case "-941":
+                        message = "Ошибка валидации входящих параметров";
+                        break;
+                    case "-999":
+                        message ="Отменено пользователем";
+                        break;
+                    default:
+                        message = "Не известная ошибка";
+                        break;
+                }
+                setResult(resultCode, intent);
+                if (message != null)
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                // finish();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        try {
+            switch (requestCode) {
+                case PERMISSION_REQUEST_COARSE_LOCATION: {
+
+                    final Boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
+                    if (grantResults.length == 0) return;
+
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG, "coarse location permission granted");
+                    } else {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle(getString(R.string.functionality_limited));
+                        builder.setMessage(showRationale ?
+                                getString(R.string.functionality_message) + "\n" + getString(R.string.grant_permission) :
+                                getString(R.string.functionality_message) + "\n" + getString(R.string.go_settings));
+                        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            try {
+                                if (showRationale) {
+                                    ActivityCompat.requestPermissions((Activity) PaymentActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                            PERMISSION_REQUEST_COARSE_LOCATION);
+                                } else {
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivityForResult(intent, 0);
+                                }
+                            } catch (Exception err) {
+                                Toast.makeText(getApplicationContext(), "onRequestPermissionsResult" + err.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        builder.setNegativeButton(getString(R.string.btnCancelText), null);
+                        builder.show();
+                    }
+                    return;
+                }
+            }
+        } catch (Exception err) {
+            Toast.makeText(this, "onRequestPermissionsResult.bottom" + err.getMessage(), Toast.LENGTH_LONG).show();
+            findViewById(R.id.btn_pay).setEnabled(true);
+        }
+    }
+
+    // endregion
+
+    // region Methods: Public Static
 
     public static void notifyTransactionUpdated() {
         instance.mTransactionRepository.getById(instance.mTransaction.id, (transaction, err) -> {
@@ -131,6 +250,60 @@ public class PaymentActivity extends AppCompatActivity
                 instance.updateTransaction(transaction);
             }
         });
+    }
+
+    // endregion
+
+    // region Methods: Public View
+
+    public  void onPayment(View view) {
+        // view.setEnabled(false);
+        try {
+            if (mCart.getType() == 1) {
+                sendToCashDesk();
+                return;
+            }
+            // makePayment(mStrAmount);
+            makePaymentPrivate(mAmount);
+        } catch (Exception err) {
+            Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
+            String m = "";
+            for(StackTraceElement line : err.getStackTrace())
+                m += line.getClassName() + "." + line.getMethodName() + "." + line.getLineNumber();
+            Toast.makeText(this, m, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void onPrint(View view) {
+        final Bitmap bitmap = getBitmapFromWebView(webView);
+        mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
+        Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
+        bitmap.recycle();
+        imgView.setImageBitmap(previewBitmap);
+        imgView.setVisibility(View.VISIBLE);
+        paymentPreviewListView.setVisibility(View.GONE);
+        if (mCart.getType() == 0)
+            MiniPosManager.getInstance().initPrinter(printerConnectionListener);
+    }
+
+    // endregion
+
+    // region Methods: Private
+
+    private void setStatusMessage(String message) {
+        tvMessageWrap.setVisibility(message == null || message == "" ? View.GONE : View.VISIBLE);
+        tvMessage.setText(message);
+    }
+
+    private String formatPrice(double price) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        String strPrice = df.format(price) + " грн.";
+        return strPrice;
+    }
+
+    private void showPrintButton() {
+        btnPrint.setVisibility(View.VISIBLE);
+        btnPay.setVisibility(View.GONE);
     }
 
     private void updateTransaction(TransactionDto transaction) {
@@ -150,6 +323,12 @@ public class PaymentActivity extends AppCompatActivity
         double amount = mCart.getTotalPrice();
         String price = formatPrice(amount);
         setEditTextValue(R.id.payment_amount, price);
+        btnPay.setEnabled(true);
+        if (mSnackBar != null && mSnackBar.isShown()) {
+            mSnackBar.dismiss();
+        }
+        View view = findViewById(R.id.payment_layout);
+        Snackbar.make(view, R.string.payment_transaction_updated, Snackbar.LENGTH_LONG).show();
     }
 
     private void initPaymentPreviewList() {
@@ -161,20 +340,45 @@ public class PaymentActivity extends AppCompatActivity
         paymentPreviewListView.setAdapter(paymentPreviewListAdapter);
     }
 
-    private void initTransaction() {
+    private String getFcmToken() {
         SharedPreferences sp = getSharedPreferences("fcm", MODE_PRIVATE);
         String token = sp.getString("token", null);
+        return token;
+    }
+
+    private String getCartModifiedOn() {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        String res = sp.getString("cartModifiedOn", null);
+        return res;
+    }
+
+    private void setCartModifiedOn(String timestamp) {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        sp.edit().putString("cartModifiedOn", timestamp).commit();
+    }
+
+    private void initTransaction() {
+        String cartModifiedOn = getCartModifiedOn();
+        if (!mCartService.isChanged(cartModifiedOn)) {
+            btnPay.setEnabled(true);
+            return;
+        }
+        String token = getFcmToken();
         TransactionDto transactionDto = new TransactionDto(mCart);
         transactionDto.extras.recipientId = token;
-        showProgress();
         View view = findViewById(R.id.payment_layout);
+        showProgress();
+        setCartModifiedOn(mCartService.getCartModifiedOn());
+        btnPay.setEnabled(false);
+        mSnackBar = Snackbar.make(view, R.string.payment_updating_transaction, Snackbar.LENGTH_INDEFINITE);
+        mSnackBar.show();
         mTransactionRepository.create(transactionDto, (transaction, err) -> {
             if (err != null) {
                 err.printStackTrace();
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
             }
             mTransaction = transaction;
-            if (transaction.type == 1) {
+            if (mCart.getType() == 1) {
                 loadReceipt(transaction.getOrderNumPrint());
             }
             hideProgress();
@@ -191,6 +395,7 @@ public class PaymentActivity extends AppCompatActivity
             }
             mTransaction = transaction;
         });
+        mCartService.clearCart();
     }
 
     private void markTransactionAsReject() {
@@ -274,7 +479,7 @@ public class PaymentActivity extends AppCompatActivity
         tvError.setText(getString(R.string.error_on_client));
     }
 
-    public static boolean isTablet(Context context) {
+    private boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
@@ -294,7 +499,7 @@ public class PaymentActivity extends AppCompatActivity
         return bitmap;
     }
 
-    public Bitmap getProportionalBitmap(Bitmap bitmap, int newDimensionXorY, String XorY) {
+    private Bitmap getProportionalBitmap(Bitmap bitmap, int newDimensionXorY, String XorY) {
         if (bitmap == null) {
             return null;
         }
@@ -319,33 +524,16 @@ public class PaymentActivity extends AppCompatActivity
         return bitmap;
     }
 
-    public  void onCancelButtonClick(View view) {
+    private  void onCancelButtonClick(View view) {
         this.onBackPressed();
     }
 
-    public  void onPayment(View view) {
-        // view.setEnabled(false);
-        try {
-            if (mCart.getType() == 1) {
-                sentToCashDesk();
-                return;
-            }
-        // makePayment(mStrAmount);
-            makePaymentPrivate(mAmount);
-        } catch (Exception err) {
-            Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
-            String m = "";
-            for(StackTraceElement line : err.getStackTrace())
-                m += line.getClassName() + "." + line.getMethodName() + "." + line.getLineNumber();
-            Toast.makeText(this, m, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public void sentToCashDesk() {
+    private void sendToCashDesk() {
         markTransactionAsPayed();
+        loadReceipt(mTransaction.getOrderNumPrint());
     }
 
-    public void onReceipt() {
+    private void onReceipt() {
         ArrayList<String> htmlBuilder = new ArrayList<>();
         htmlBuilder.add("<html>");
         htmlBuilder.add("<body>");
@@ -372,21 +560,9 @@ public class PaymentActivity extends AppCompatActivity
         loadReceipt(receipt);
     }
 
-    void loadReceipt(String receipt) {
+    private void loadReceipt(String receipt) {
         mReceipt = receipt;
         webView.loadData(mReceipt,"text/html; charset=utf-8","UTF-8");
-    }
-
-    public void onPrint(View view) {
-        final Bitmap bitmap = getBitmapFromWebView(webView);
-        mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
-        Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
-        bitmap.recycle();
-        imgView.setImageBitmap(previewBitmap);
-        imgView.setVisibility(View.VISIBLE);
-        paymentPreviewListView.setVisibility(View.GONE);
-        if (mCart.getType() == 0)
-            MiniPosManager.getInstance().initPrinter(printerConnectionListener);
     }
 
     private void showPrinterDialog() {
@@ -394,21 +570,21 @@ public class PaymentActivity extends AppCompatActivity
         mDialog.show(this);
     }
 
-    public void showProgress() {
+    private void showProgress() {
         ProgressBar progressView = findViewById(R.id.progress);
         if (progressView != null) {
             progressView.setVisibility(View.VISIBLE);
         }
     }
 
-    public void hideProgress() {
+    private void hideProgress() {
         ProgressBar progressView = findViewById(R.id.progress);
         if (progressView != null) {
             progressView.setVisibility(View.GONE);
         }
     }
 
-    void makePayment(String amount) {
+    private void makePayment(String amount) {
 		Intent i = new Intent("com.sccp.gpb.emv.MAKE_PAYMENT");
 		i.putExtra("amount", amount);
 		i.putExtra("source", getApplication().getPackageName());
@@ -422,14 +598,14 @@ public class PaymentActivity extends AppCompatActivity
         findViewById(R.id.btn_pay).setEnabled(true);
     }
 
-    String getEditTextValue(int id) {
+    private String getEditTextValue(int id) {
         TextView view = (TextView) findViewById(id);
         if (view != null)
             return view.getText().toString();
         return "";
     }
 
-    void setEditTextValue(int id, String text) {
+    private void setEditTextValue(int id, String text) {
         TextView view = (TextView) findViewById(id);
         if (view != null)
             view.setText(text);
@@ -442,41 +618,6 @@ public class PaymentActivity extends AppCompatActivity
                 .setPositiveButton(R.string.ok, listener)
                 .create()
                 .show();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        hideProgress();
-        if (data == null) {return;}
-        if (requestCode == MAKE_PAYMENT_CODE) {
-            String transaction_response_code = data.getStringExtra("transaction_response_code");
-            Intent intent = new Intent();
-            // transaction_response_code = "000";
-            boolean payed = transaction_response_code == "000" && resultCode == RESULT_OK;
-            intent.putExtra("payed",  payed);
-            if (resultCode == RESULT_OK) {
-                String message = null;
-                switch(transaction_response_code) {
-                    case "000":
-                        createTransaction(data);
-                        openOkDialog("Оплата прошла успешно", (dialog, id) -> finish());
-                        break;
-                    case "-941":
-                        message = "Ошибка валидации входящих параметров";
-                        break;
-                    case "-999":
-                        message ="Отменено пользователем";
-                        break;
-                    default:
-                        message = "Не известная ошибка";
-                        break;
-                }
-                setResult(resultCode, intent);
-                if (message != null)
-                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-                // finish();
-            }
-        }
     }
 
     private void createTransaction(Intent data) {
@@ -564,67 +705,6 @@ public class PaymentActivity extends AppCompatActivity
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        try {
-            switch (requestCode) {
-                case PERMISSION_REQUEST_COARSE_LOCATION: {
-
-                    final Boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
-                    if (grantResults.length == 0) return;
-
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Log.d(TAG, "coarse location permission granted");
-                    } else {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle(getString(R.string.functionality_limited));
-                        builder.setMessage(showRationale ?
-                                getString(R.string.functionality_message) + "\n" + getString(R.string.grant_permission) :
-                                getString(R.string.functionality_message) + "\n" + getString(R.string.go_settings));
-                        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            try {
-                                if (showRationale) {
-                                    ActivityCompat.requestPermissions((Activity) PaymentActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                            PERMISSION_REQUEST_COARSE_LOCATION);
-                                } else {
-                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
-                                    intent.setData(uri);
-                                    startActivityForResult(intent, 0);
-                                }
-                            } catch (Exception err) {
-                                Toast.makeText(getApplicationContext(), "onRequestPermissionsResult" + err.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        });
-                        builder.setNegativeButton(getString(R.string.btnCancelText), null);
-                        builder.show();
-                    }
-                    return;
-                }
-            }
-        } catch (Exception err) {
-            Toast.makeText(this, "onRequestPermissionsResult.bottom" + err.getMessage(), Toast.LENGTH_LONG).show();
-            findViewById(R.id.btn_pay).setEnabled(true);
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        try {
-            MiniPosManager.getInstance().pinpadSubscribe();
-        } catch (Exception error) {
-            Log.e("PAYMENT ACTIVITY ERR", error.getMessage());
-            Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        MiniPosManager.getInstance().pinpadUnsubscribe();
-    }
-
     private void makePaymentPrivate(Double amount) {
         mAmount = amount;
         mReceipt = "";
@@ -643,6 +723,9 @@ public class PaymentActivity extends AppCompatActivity
         }
     }
 
+    // endregion
+
+    // region Listeners
     /**
      * PinPad ConnectionListener
      */
@@ -669,7 +752,7 @@ public class PaymentActivity extends AppCompatActivity
             hideProgress();
             String msg = getString(R.string.pinpad_released);
             Log.d(TAG, msg);
-            tvMessage.setText(msg);
+            setStatusMessage(msg);
         }
 
         @Override
@@ -692,7 +775,7 @@ public class PaymentActivity extends AppCompatActivity
 
         @Override
         public void onUpdateUserInterface(String message) {
-            tvMessage.setText(message);
+            setStatusMessage(message);
         }
 
 
@@ -703,6 +786,7 @@ public class PaymentActivity extends AppCompatActivity
             String receipt = transaction.getTransactionData().getReceipt(); //получаем чек
             markTransactionAsPayed();
             loadReceipt(receipt);
+            showPrintButton();
         }
     };
 
@@ -713,14 +797,14 @@ public class PaymentActivity extends AppCompatActivity
         @Override
         public void onError(String message) {
             Log.d(TAG, "ERROR:" + message);
-            tvMessage.setText(message);
+            setStatusMessage(message);
             hideProgress();
         }
 
         @Override
         public void onUnauthorized() {
             Log.d(TAG, "ERROR: необходима авторизация");
-            tvMessage.setText("Необходима авторизация");
+            tvMessage.setText(R.string.authorisation_required);
             hideProgress();
         }
     };
@@ -780,9 +864,5 @@ public class PaymentActivity extends AppCompatActivity
         }
     };
 
-    private String formatPrice(double price) {
-        DecimalFormat df = new DecimalFormat("0.00");
-        String strPrice = df.format(price) + " грн.";
-        return strPrice;
-    }
+    // endregion
 }
