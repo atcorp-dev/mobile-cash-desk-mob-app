@@ -2,6 +2,7 @@ package ua.com.atcorp.mobilecashdesk.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.EditText;
 
 import butterknife.BindView;
@@ -32,5 +33,15 @@ public class UserProfilerActivity extends AppCompatActivity {
         tvUserEmail.setText(user.getEmail());
         tvCompany.setText(user.getCompany().getName());
         // getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+        return (super.onOptionsItemSelected(menuItem));
     }
 }

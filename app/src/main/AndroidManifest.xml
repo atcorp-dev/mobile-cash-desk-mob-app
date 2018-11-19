@@ -48,9 +48,10 @@
             android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ui.PaymentActivity"
-            android:label="@string/title_activity_main"
+            android:label="@string/title_activity_payment"
             android:screenOrientation="portrait"
-            android:parentActivityName=".ui.MainActivity"/>
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/ActivityTheme.ActionBar"/>
         <activity
             android:name=".ui.BarcodeCaptureActivity"
             android:screenOrientation="portrait" />
