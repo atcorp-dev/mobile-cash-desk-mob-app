@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,7 +119,23 @@ public class CartFragment extends Fragment {
 
     private void onButtonPayClick(View view) {
         MainActivity ma = (MainActivity) getContext();
-        ma.makePayment(mCart.getRecordId().toString(), mCartService.getTotalPrice());
+        if (mCart.getClientInfo() == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Номер телефону клієнта");
+            final EditText input = new EditText(getContext());
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_PHONE);
+            builder.setView(input);
+            builder.setPositiveButton("Так", (dialog, which) -> {
+                String clientPhone = input.getText().toString();
+                mCart.setClientInfo(clientPhone);
+                mCart.save();
+                ma.makePayment(mCart.getRecordId().toString(), mCartService.getTotalPrice());
+            });
+            builder.setNegativeButton("Ні", (dialog, which) -> dialog.cancel());
+            builder.show();
+        } else {
+            ma.makePayment(mCart.getRecordId().toString(), mCartService.getTotalPrice());
+        }
     }
 
     private void onButtonExpandTopLayoutClick(View view) {
