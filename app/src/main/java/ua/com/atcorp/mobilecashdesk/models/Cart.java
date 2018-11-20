@@ -88,4 +88,11 @@ public class Cart extends Model implements Serializable {
             res += item.getPrice();
         return  res;
     }
+
+    public double getDiscount() {
+        double res = 0;
+        for (CartItem item : mItems)
+            res += item.getDiscount();
+        return  res;
+    }
 }

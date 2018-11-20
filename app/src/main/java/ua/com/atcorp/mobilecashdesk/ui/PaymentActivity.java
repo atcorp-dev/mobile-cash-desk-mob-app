@@ -119,16 +119,9 @@ public class PaymentActivity extends AppCompatActivity
         ButterKnife.bind(this);
         btnCancel.setOnClickListener(v -> onCancelButtonClick(v));
         mCartService = new CartService(this);
-        mCart = mCartService.restoreState().getCurrentCart();
+        mCart = mCartService.getCurrentCart();
 
-        double amount = mCart.getTotalPrice();
-        int intValue = (int)amount;
-        int rest = (int) ((amount - intValue) * 100);
-        String amountStr = String.format("%s.%s", intValue, rest);
-        String price = formatPrice(amount);
-        mAmount = amount;
-        mStrAmount = amountStr;
-        setEditTextValue(R.id.payment_amount, price);
+        setPaymentInfo();
 
         btnPay = findViewById(R.id.btn_pay);
         initWebView();
@@ -300,6 +293,20 @@ public class PaymentActivity extends AppCompatActivity
 
     // region Methods: Private
 
+    private void setPaymentInfo() {
+        double price = mCart.getTotalPrice();
+        double discount = mCart.getDiscount();
+        int intValue = (int)price;
+        int rest = (int) ((price - intValue) * 100);
+        String amountStr = String.format("%s.%s", intValue, rest);
+        String priceStr = formatPrice(price);
+        String discountStr = formatPrice(discount);
+        mAmount = price;
+        mStrAmount = amountStr;
+        setEditTextValue(R.id.payment_amount, priceStr);
+        setEditTextValue(R.id.payment_discount, discountStr);
+    }
+
     private void setStatusMessage(String message) {
         tvMessageWrap.setVisibility(message == null || message == "" ? View.GONE : View.VISIBLE);
         tvMessage.setText(message);
@@ -322,16 +329,15 @@ public class PaymentActivity extends AppCompatActivity
         for(CartItem cartItem : cartItems) {
             for(TransactionDto.TransactionItemDto transactionItem : transaction.itemList) {
                 if (cartItem.getItemRecordId().equals(transactionItem.itemId)) {
-                    cartItem.setItemPrice(transactionItem.price);
+                    double discount = cartItem.getItemPrice() - transactionItem.price;
+                    cartItem.setItemDiscount(discount);
                     break;
                 }
             }
             paymentPreviewList.add(cartItem);
             cartItem.save();
         }
-        double amount = mCart.getTotalPrice();
-        String price = formatPrice(amount);
-        setEditTextValue(R.id.payment_amount, price);
+        setPaymentInfo();
         btnPay.setEnabled(true);
         if (mSnackBar != null && mSnackBar.isShown()) {
             mSnackBar.dismiss();
