@@ -31,6 +31,7 @@ public class TransactionDto {
 
     public class TransactionExtras {
         public String recipientId;
+        public boolean isChangedItems;
     }
 
     public String id;

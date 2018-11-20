@@ -393,6 +393,8 @@ public class PaymentActivity extends AppCompatActivity
                 loadReceipt(transaction.getOrderNumPrint());
             }
             hideProgress();
+            if (transaction.extras == null || !transaction.extras.isChangedItems)
+                updateTransaction(transaction);
         });
     }
 
