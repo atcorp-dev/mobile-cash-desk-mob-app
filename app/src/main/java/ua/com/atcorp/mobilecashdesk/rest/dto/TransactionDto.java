@@ -32,6 +32,7 @@ public class TransactionDto {
     public class TransactionExtras {
         public String recipientId;
         public boolean isChangedItems;
+        public String clientInfo;
     }
 
     public String id;
@@ -64,6 +65,7 @@ public class TransactionDto {
         }
         totalPrice = cart.getTotalPrice();
         extras = new TransactionExtras();
+        extras.clientInfo = cart.getClientInfo();
     }
 
     public String getOrderNumPrint() {
