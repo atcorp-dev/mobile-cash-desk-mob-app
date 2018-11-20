@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:padding="6dp"
+        android:padding="3dp"
         android:text="Name"
         android:textSize="16sp" />
 
@@ -19,7 +19,7 @@
         android:layout_width="64dp"
         android:layout_height="match_parent"
         android:layout_weight="0"
-        android:padding="6dp"
+        android:padding="3dp"
         android:text="Qty"
         android:textSize="16sp" />
 
@@ -27,8 +27,8 @@
         android:id="@+id/cart_item_price"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1.5"
-        android:padding="6dp"
+        android:layout_weight="1.25"
+        android:padding="3dp"
         android:text="Price"
         android:textSize="16sp" />
 
