@@ -33,7 +33,7 @@ public class TransactionDto {
         public String recipientId;
         public boolean isChangedItems;
         public String clientInfo;
-        public double bonusesAvailable;
+        public int bonusesAvailable;
     }
 
     public String id;

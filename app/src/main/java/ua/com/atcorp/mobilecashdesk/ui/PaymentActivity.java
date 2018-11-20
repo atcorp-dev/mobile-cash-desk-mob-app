@@ -380,10 +380,29 @@ public class PaymentActivity extends AppCompatActivity
         sp.edit().putString("cartModifiedOn", timestamp).commit();
     }
 
+    private void saveTransactionId(String transactionId) {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        sp.edit().putString("transactionId", transactionId).commit();
+    }
+
+    private String getTransactionId() {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        String transactionId = sp.getString("transactionId", null);
+        return transactionId;
+    }
     private void initTransaction() {
         String cartModifiedOn = getCartModifiedOn();
         if (!mCartService.isChanged(cartModifiedOn)) {
             btnPay.setEnabled(true);
+            // TODO: change to get form local DB
+            String saveTransactionId = getTransactionId();
+            if (saveTransactionId != null)
+                mTransactionRepository.getById(saveTransactionId, (transaction, err) -> {
+                    if (err == null) {
+                        mTransaction = transaction;
+                        setPaymentInfo();
+                    }
+                });
             return;
         }
         String token = getFcmToken();
@@ -401,6 +420,7 @@ public class PaymentActivity extends AppCompatActivity
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
             }
             mTransaction = transaction;
+            saveTransactionId(transaction.id);
             if (mCart.getType() == 1) {
                 loadReceipt(transaction.getOrderNumPrint());
             }
