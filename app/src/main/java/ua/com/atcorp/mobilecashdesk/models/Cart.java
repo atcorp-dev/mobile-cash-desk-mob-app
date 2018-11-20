@@ -20,16 +20,11 @@ public class Cart extends Model implements Serializable {
     @Column(name = "RecordId")
     private UUID mRecordId;
 
-    public int getType() {
-        return mType;
-    }
-
-    public void setType(int mType) {
-        this.mType = mType;
-    }
-
     @Column(name = "Type")
     private int mType;
+
+    @Column(name = "ClientInfo")
+    private String mClientInfo;
 
     private ArrayList<CartItem> mItems;
 
@@ -51,12 +46,28 @@ public class Cart extends Model implements Serializable {
         mRecordId = recordId;
     }
 
+    public int getType() {
+        return mType;
+    }
+
+    public void setType(int mType) {
+        this.mType = mType;
+    }
+
     public ArrayList<CartItem> getItems() {
         return mItems;
     }
 
     public void setItems(ArrayList<CartItem> mItems) {
         this.mItems = mItems;
+    }
+
+    public String getClientInfo() {
+        return this.mClientInfo;
+    }
+
+    public void setClientInfo(String cleintInfo) {
+        this.mClientInfo = cleintInfo;
     }
 
     public Cart addItem(CartItem item) {
