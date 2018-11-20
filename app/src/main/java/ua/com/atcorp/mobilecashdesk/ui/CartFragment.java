@@ -129,6 +129,7 @@ public class CartFragment extends Fragment {
                 String clientPhone = input.getText().toString();
                 mCart.setClientInfo(clientPhone);
                 mCart.save();
+                mCartService.saveState();
                 ma.makePayment(mCart.getRecordId().toString(), mCartService.getTotalPrice());
             });
             builder.setNegativeButton("Ні", (dialog, which) -> dialog.cancel());
