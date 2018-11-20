@@ -14,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Picture;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
@@ -250,7 +251,9 @@ public class PaymentActivity extends AppCompatActivity
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
                 err.printStackTrace();
             } else {
+                instance.mTransaction = transaction;
                 instance.updateTransaction(transaction);
+                instance.setPaymentInfo();
             }
         });
     }
@@ -390,19 +393,24 @@ public class PaymentActivity extends AppCompatActivity
         String transactionId = sp.getString("transactionId", null);
         return transactionId;
     }
+
+    private AsyncTask getTransactionById(String transactionId) {
+        return mTransactionRepository.getById(transactionId, (transaction, err) -> {
+            if (err == null) {
+                mTransaction = transaction;
+                setPaymentInfo();
+            }
+        });
+    }
+
     private void initTransaction() {
         String cartModifiedOn = getCartModifiedOn();
         if (!mCartService.isChanged(cartModifiedOn)) {
             btnPay.setEnabled(true);
             // TODO: change to get form local DB
-            String saveTransactionId = getTransactionId();
-            if (saveTransactionId != null)
-                mTransactionRepository.getById(saveTransactionId, (transaction, err) -> {
-                    if (err == null) {
-                        mTransaction = transaction;
-                        setPaymentInfo();
-                    }
-                });
+            String transactionId = getTransactionId();
+            if (transactionId != null)
+                getTransactionById(transactionId);
             return;
         }
         String token = getFcmToken();
