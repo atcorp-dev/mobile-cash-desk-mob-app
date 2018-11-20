@@ -32,6 +32,7 @@
     <string name="payment_target_lbl">Призначення платежу</string>
     <string name="payment_amount_lbl">Всього до сплати</string>
     <string name="payment_discount_lbl">Знижка</string>
+    <string name="payment_bonuses_lbl">Бонуси</string>
     <string name="payment_updating_transaction">Оновлення кошику</string>
     <string name="payment_transaction_updated">Кошик оновлено</string>
 

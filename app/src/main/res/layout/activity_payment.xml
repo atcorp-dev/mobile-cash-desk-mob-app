@@ -132,6 +132,29 @@
                         android:textSize="24sp" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/payment_bonuses_wrap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:text="@string/payment_bonuses_lbl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginRight="12dp"
+                        android:textSize="22sp" />
+                    <TextView
+                        android:id="@+id/payment_bonuses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.5"
+                        android:textSize="24sp" />
+                </LinearLayout>
+
             </LinearLayout>
 
         </android.support.v7.widget.CardView>

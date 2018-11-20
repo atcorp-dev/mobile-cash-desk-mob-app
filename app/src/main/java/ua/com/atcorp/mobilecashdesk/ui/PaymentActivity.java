@@ -305,6 +305,15 @@ public class PaymentActivity extends AppCompatActivity
         mStrAmount = amountStr;
         setEditTextValue(R.id.payment_amount, priceStr);
         setEditTextValue(R.id.payment_discount, discountStr);
+        // bonuses
+        if (mTransaction != null
+                && mTransaction.extras != null
+                && mTransaction.extras.bonusesAvailable > 0) {
+            setEditTextValue(R.id.payment_bonuses, "" + mTransaction.extras.bonusesAvailable);
+            findViewById(R.id.payment_bonuses_wrap).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.payment_bonuses_wrap).setVisibility(View.GONE);
+        }
     }
 
     private void setStatusMessage(String message) {
