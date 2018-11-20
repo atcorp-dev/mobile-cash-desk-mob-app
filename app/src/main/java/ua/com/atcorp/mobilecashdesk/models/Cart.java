@@ -51,7 +51,7 @@ public class Cart extends Model implements Serializable {
         mRecordId = recordId;
     }
 
-    public ArrayList<CartItem> getmItems() {
+    public ArrayList<CartItem> getItems() {
         return mItems;
     }
 

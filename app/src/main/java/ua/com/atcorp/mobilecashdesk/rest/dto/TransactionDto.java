@@ -58,7 +58,7 @@ public class TransactionDto {
         type = cart.getType();
         dateTime = new Date();
         itemList = new ArrayList<>();
-        for (CartItem cartItem: cart.getmItems()) {
+        for (CartItem cartItem: cart.getItems()) {
             TransactionItemDto dto = new TransactionItemDto(cartItem);
             itemList.add(dto);
         }

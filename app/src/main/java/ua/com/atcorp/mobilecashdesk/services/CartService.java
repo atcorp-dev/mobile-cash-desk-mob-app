@@ -9,7 +9,6 @@ import android.widget.Toast;
 import com.reactiveandroid.query.Delete;
 import com.reactiveandroid.query.Select;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,15 +101,15 @@ public class CartService extends BaseRepository {
         Collections.sort(cartItems, (c1, c2) -> c2.getDatetime().compareTo(c1.getDatetime()));
         if (cartItems != null & cartItems.size() > 0)
             mCart.setItems(new ArrayList<>(cartItems));
-        mAdapter = new CartItemsAdapter(getContext(), mCart.getRecordId(), mCart.getmItems());
+        mAdapter = new CartItemsAdapter(getContext(), mCart.getRecordId(), mCart.getItems());
         mAdapter.registerDataSetObserver(getDataSetObserver());
         return this;
     }
 
     public boolean hasItem(Item item) {
-        if (item == null || mCart == null || mCart.getmItems() == null)
+        if (item == null || mCart == null || mCart.getItems() == null)
             return false;
-        for (CartItem cartItem : mCart.getmItems())
+        for (CartItem cartItem : mCart.getItems())
             if (cartItem.getItemRecordId().equals(item.getRecordId()))
                 return  true;
         return false;

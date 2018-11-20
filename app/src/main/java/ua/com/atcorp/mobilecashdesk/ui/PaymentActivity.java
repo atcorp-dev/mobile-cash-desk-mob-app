@@ -317,7 +317,7 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     private void updateTransaction(TransactionDto transaction) {
-        ArrayList<CartItem> cartItems = mCart.getmItems();
+        ArrayList<CartItem> cartItems = mCart.getItems();
         paymentPreviewListAdapter.clear();
         for(CartItem cartItem : cartItems) {
             for(TransactionDto.TransactionItemDto transactionItem : transaction.itemList) {
@@ -342,7 +342,7 @@ public class PaymentActivity extends AppCompatActivity
 
     private void initPaymentPreviewList() {
         paymentPreviewList = new ArrayList<>();
-        for (CartItem cartItem : mCart.getmItems())
+        for (CartItem cartItem : mCart.getItems())
             paymentPreviewList.add(cartItem);
         paymentPreviewListAdapter = new PaymentCartItemAdapter(this, paymentPreviewList);
         paymentPreviewListView.setAdapter(paymentPreviewListAdapter);
@@ -551,7 +551,7 @@ public class PaymentActivity extends AppCompatActivity
         htmlBuilder.add("<h1>Фіскальний чек</h1>");
         htmlBuilder.add("</div>");
         htmlBuilder.add("<table width=100%>");
-        for(CartItem item : mCart.getmItems())
+        for(CartItem item : mCart.getItems())
             htmlBuilder.add(String.format(
                     "<tr><td>%s</td><td>x%s</td><td><div style='margin-left: 6px'>%s грн.</div></td></tr>",
                     item.getItemName(), item.getQty(),item.getPrice()));
