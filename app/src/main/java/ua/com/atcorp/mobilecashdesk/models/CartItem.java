@@ -53,6 +53,9 @@ public class CartItem extends Model implements Serializable {
     @Column(name = "ItemPrice")
     private double itemPrice;
 
+    @Column(name = "Discount")
+    private double discount;
+
     @Column(name = "ItemCategory")
     private Category itemCategory;
 
@@ -62,7 +65,7 @@ public class CartItem extends Model implements Serializable {
     @Column(name = "ItemImage")
     private String itemImage;
 
-    public  CartItem() {
+    public CartItem() {
         super();
     }
 
@@ -94,11 +97,15 @@ public class CartItem extends Model implements Serializable {
     }
 
     public double getPrice() {
-        return this.itemPrice * this.qty;
+        return this.qty * (this.itemPrice  - this.discount);
     }
 
     public void setItemPrice(double price) {
         this.itemPrice = price;
+    }
+
+    public void setItemDiscount(double discount) {
+        this.discount = discount;
     }
 
     public String getItemRecordId() {
@@ -119,6 +126,14 @@ public class CartItem extends Model implements Serializable {
 
     public double getItemPrice() {
         return itemPrice;
+    }
+
+    public double getItemDiscount() {
+        return this.discount;
+    }
+
+    public double getDiscount() {
+        return this.qty * discount;
     }
 
     public Category getItemCategory() {

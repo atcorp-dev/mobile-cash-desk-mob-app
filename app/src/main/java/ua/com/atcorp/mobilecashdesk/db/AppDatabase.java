@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.reactiveandroid.annotation.Database;
 import com.reactiveandroid.internal.database.migration.Migration;
 
-@Database(name = "AppDatabase", version = 5)
+@Database(name = "AppDatabase", version = 6)
 public class AppDatabase {
 
     public static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -61,7 +61,18 @@ public class AppDatabase {
         @Override
         public void migrate(SQLiteDatabase database) {
             try {
-                database.execSQL("ALTER TABLE Carts ADD COLUMN ClientInfo TEXT");
+                database.execSQL("ALTER TABLE Carts ADD COLUMN `ClientInfo` TEXT");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    public static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(SQLiteDatabase database) {
+            try {
+                database.execSQL("ALTER TABLE CartItems ADD COLUMN `Discount` REAL");
             } catch (Exception e) {
                 e.printStackTrace();
             }
