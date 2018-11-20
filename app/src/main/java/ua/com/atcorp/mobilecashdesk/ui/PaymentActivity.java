@@ -31,6 +31,7 @@ import android.webkit.WebViewClient;
 import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ua.com.atcorp.mobilecashdesk.adapters.PaymentCartItemAdapter;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
@@ -47,9 +48,7 @@ import ua.pbank.dio.minipos.models.Transaction;
 import android.util.*;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.BaseDialogFragment;
@@ -101,7 +100,7 @@ public class PaymentActivity extends AppCompatActivity
     View viewError;
     @BindView(R.id.payment_preview_list)
     ListView paymentPreviewListView;
-    ArrayList<String> paymentPreviewList;
+    ArrayList<CartItem> paymentPreviewList;
     ArrayAdapter paymentPreviewListAdapter;
     @BindView(R.id.printPreview)
     ImageView imgView;
@@ -327,8 +326,7 @@ public class PaymentActivity extends AppCompatActivity
                     break;
                 }
             }
-            paymentPreviewList.add(String.format(
-                    "%s\tx%s\t%s грн.", cartItem.getItemName(), cartItem.getQty(), cartItem.getPrice()));
+            paymentPreviewList.add(cartItem);
             cartItem.save();
         }
         double amount = mCart.getTotalPrice();
@@ -345,9 +343,8 @@ public class PaymentActivity extends AppCompatActivity
     private void initPaymentPreviewList() {
         paymentPreviewList = new ArrayList<>();
         for (CartItem cartItem : mCart.getmItems())
-            paymentPreviewList.add(String.format(
-                    "%s\tx%s\t%s грн.", cartItem.getItemName(), cartItem.getQty(), cartItem.getPrice()));
-        paymentPreviewListAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, paymentPreviewList);
+            paymentPreviewList.add(cartItem);
+        paymentPreviewListAdapter = new PaymentCartItemAdapter(this, paymentPreviewList);
         paymentPreviewListView.setAdapter(paymentPreviewListAdapter);
     }
 
