@@ -300,7 +300,12 @@ public class PaymentActivity extends AppCompatActivity
     // region Methods: Private
 
     private boolean isNeedRecalculateCart() {
-        return false;
+        String companyCode = mAuthService
+                .getCurrentCompany()
+                .getCode()
+                .toUpperCase();
+        boolean res = companyCode.startsWith("UAMADE");
+        return res;
     }
 
     private void setPaymentInfo() {
