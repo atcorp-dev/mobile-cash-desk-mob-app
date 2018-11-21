@@ -348,9 +348,9 @@ public class PaymentActivity extends AppCompatActivity
         btnPay.setEnabled(true);
         if (mSnackBar != null && mSnackBar.isShown()) {
             mSnackBar.dismiss();
+            View view = findViewById(R.id.payment_layout);
+            Snackbar.make(view, R.string.payment_transaction_updated, Snackbar.LENGTH_LONG).show();
         }
-        View view = findViewById(R.id.payment_layout);
-        Snackbar.make(view, R.string.payment_transaction_updated, Snackbar.LENGTH_LONG).show();
     }
 
     private void initPaymentPreviewList() {
@@ -392,7 +392,6 @@ public class PaymentActivity extends AppCompatActivity
         setCartModifiedOn(mCartService.getCartModifiedOn());
         btnPay.setEnabled(false);
         mSnackBar = Snackbar.make(view, R.string.payment_updating_transaction, Snackbar.LENGTH_INDEFINITE);
-        mSnackBar.show();
         mTransactionRepository.create(transactionDto, (transaction, err) -> {
             if (err != null) {
                 err.printStackTrace();
@@ -405,6 +404,8 @@ public class PaymentActivity extends AppCompatActivity
             hideProgress();
             if (!isNeedRecalculateCart() || transaction.extras == null || !transaction.extras.isChangedItems)
                 updateTransaction(transaction);
+            else
+                mSnackBar.show();
         });
     }
 
