@@ -36,6 +36,7 @@ import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
+import ua.com.atcorp.mobilecashdesk.services.AuthService;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePrinterDialog;
 import ua.pbank.dio.minipos.MiniPosManager;
@@ -76,6 +77,7 @@ public class PaymentActivity extends AppCompatActivity
     private TransactionRepository mTransactionRepository;
     private TransactionDto mTransaction;
     private CartService mCartService;
+    private AuthService mAuthService;
     private int mErrorCode;
 
     // endregion
@@ -120,6 +122,7 @@ public class PaymentActivity extends AppCompatActivity
         btnCancel.setOnClickListener(v -> onCancelButtonClick(v));
         mCartService = new CartService(this);
         mCart = mCartService.getCurrentCart();
+        mAuthService = new AuthService(this);
 
         setPaymentInfo();
 
@@ -293,6 +296,10 @@ public class PaymentActivity extends AppCompatActivity
 
     // region Methods: Private
 
+    private boolean isNeedRecalculateCart() {
+        return false;
+    }
+
     private void setPaymentInfo() {
         double price = mCart.getTotalPrice();
         double discount = mCart.getDiscount();
@@ -396,7 +403,7 @@ public class PaymentActivity extends AppCompatActivity
                 loadReceipt(transaction.getOrderNumPrint());
             }
             hideProgress();
-            if (transaction.extras == null || !transaction.extras.isChangedItems)
+            if (!isNeedRecalculateCart() || transaction.extras == null || !transaction.extras.isChangedItems)
                 updateTransaction(transaction);
         });
     }
