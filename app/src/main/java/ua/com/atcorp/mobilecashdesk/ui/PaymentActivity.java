@@ -417,7 +417,8 @@ public class PaymentActivity extends AppCompatActivity
 
     private void initTransaction() {
         String cartModifiedOn = getCartModifiedOn();
-        if (!mCartService.isChanged(cartModifiedOn)) {
+        boolean isChanged = mCartService.isChanged(cartModifiedOn);
+        if (!isChanged) {
             btnPay.setEnabled(true);
             // TODO: change to get form local DB
             String transactionId = getTransactionId();
@@ -444,7 +445,7 @@ public class PaymentActivity extends AppCompatActivity
                 loadReceipt(transaction.getOrderNumPrint());
             }
             hideProgress();
-            if (!isNeedRecalculateCart() || transaction.extras == null || !transaction.extras.isChangedItems)
+            if (!isNeedRecalculateCart() || !isChanged)
                 updateTransaction(transaction);
             else
                 mSnackBar.show();
