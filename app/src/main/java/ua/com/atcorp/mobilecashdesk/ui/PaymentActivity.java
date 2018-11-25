@@ -383,6 +383,10 @@ public class PaymentActivity extends AppCompatActivity
         boolean isChanged = mCartService.isChanged(cartModifiedOn);
         if (!isChanged) {
             btnPay.setEnabled(true);
+            // TODO: change to get form local DB
+            String transactionId = getTransactionId();
+            if (transactionId != null)
+                getTransactionById(transactionId);
             return;
         }
         String token = getFcmToken();
