@@ -36,6 +36,7 @@ public class CartFragment extends Fragment {
     CartService mCartService;
     Cart mCart;
     ItemRepository mRepository;
+    boolean cartInitialized;
 
     @Nullable
     @Override
@@ -49,6 +50,8 @@ public class CartFragment extends Fragment {
         setTotalPrice(view, price);
         mCartService.bindAdapterToListView(mListView);
         mItemCodeView = view.findViewById(R.id.et_item_code);
+        initCart(view);
+        cartInitialized = true;
         Button searchButton = view.findViewById(R.id.item_btn_search);
         searchButton.setOnClickListener(v -> onButtonSearchClick(v));
         Button scanButton = view.findViewById(R.id.item_btn_scan);
@@ -70,6 +73,15 @@ public class CartFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!cartInitialized)
+            initCart(getView());
+        else
+            cartInitialized = false;
+    }
+
     public void addItemByBarCode(String barCode) {
         showProgress();
         Company company = new AuthService(getContext()).getCurrentCompany();
@@ -83,6 +95,17 @@ public class CartFragment extends Fragment {
                 Toast.makeText(getContext(), "Товар не знайдено", Toast.LENGTH_SHORT).show();
             mItemCodeView.setText("");
         });
+    }
+
+    private void initCart(View view) {
+        mCartService = new CartService(getContext(), getDataSetObserver(view));
+        mCartService.restoreState();
+        mCart = mCartService.getCurrentCart();
+        mListView = view.findViewById(R.id.list_view);
+        double price = mCartService.getTotalPrice();
+        setTotalPrice(view, price);
+        mCartService.bindAdapterToListView(mListView);
+        mItemCodeView = view.findViewById(R.id.et_item_code);
     }
 
     private void onButtonSearchClick(View v) {

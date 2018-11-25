@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Response;
+import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 import ua.com.atcorp.mobilecashdesk.rest.api.ItemApi;
@@ -44,6 +45,13 @@ public class ItemRepository extends BaseRepository {
     public AsyncTask getItemsByName(String companyId, String name, Predicate<List<Item>, Exception> predicate) {
         ItemApi api = createService(ItemApi.class);
         Call<List<ItemDto>> call = api.getItemsByName(companyId, name);
+        ItemListTask task = new ItemListTask(predicate, call);
+        return task.execute();
+    }
+
+    public AsyncTask getAvailable(String companyId, String code, Predicate<List<Item>, Exception> predicate) {
+        ItemApi api = createService(ItemApi.class);
+        Call<List<ItemDto>> call = api.getAvailable(companyId, code);
         ItemListTask task = new ItemListTask(predicate, call);
         return task.execute();
     }
@@ -143,6 +151,16 @@ public class ItemRepository extends BaseRepository {
         private Item dtoToItem(ItemDto dto) {
             if (dto == null)
                 return null;
+            Company company = null;
+            if (dto.company != null)
+                company = new Company(
+                        dto.company.id,
+                        dto.company.code,
+                        dto.company.name,
+                        dto.company.phone,
+                        dto.company.email,
+                        dto.company.address
+                );
             Item item = new Item(
                     dto.id,
                     dto.code,
@@ -151,7 +169,7 @@ public class ItemRepository extends BaseRepository {
                     dto.description,
                     dto.price,
                     null, //dto.categoryId,
-                    null, //dto.companyId,
+                    company,
                     dto.available
             );
             item.setImage(dto.image);

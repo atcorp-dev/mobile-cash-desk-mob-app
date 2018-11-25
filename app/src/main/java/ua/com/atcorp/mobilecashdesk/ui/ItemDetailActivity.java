@@ -62,11 +62,15 @@ public class ItemDetailActivity extends AppCompatActivity {
         mViewPager = findViewById(R.id.viewPager);
         mTabLayout = findViewById(R.id.tabLayout);
         mAdapter = new ItemDetailTabAdapter(getSupportFragmentManager());
+
         ItemFeatureListFragment itemFeatureListFragment = ItemFeatureListFragment
                 .newInstance(1, item);
 
         mAdapter.addFragment(itemFeatureListFragment, "Характеристики");
-        mAdapter.addFragment(new ItemAvailabilityListFragment(), "Наявність");
+
+        ItemAvailabilityListFragment itemAvailabilityListFragment = ItemAvailabilityListFragment
+                .newInstance(1, item);
+        mAdapter.addFragment(itemAvailabilityListFragment, "Наявність");
         mViewPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 

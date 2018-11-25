@@ -597,7 +597,8 @@ public class PaymentActivity extends AppCompatActivity
 
     private void sendToCashDesk() {
         markTransactionAsPayed();
-        loadReceipt(mTransaction.getOrderNumPrint());
+        if (mTransaction != null)
+            loadReceipt(mTransaction.getOrderNumPrint());
     }
 
     private void onReceipt() {

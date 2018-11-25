@@ -28,9 +28,11 @@ public class ItemAvailabilityListRecyclerViewAdapter extends RecyclerView.Adapte
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        DummyItem item = mValues.get(position);
+        holder.mItem = item;
+        holder.mIdView.setText(item.id);
+        holder.mContentView.setText(item.content);
+        holder.mDetailsView.setText(item.details);
 
         holder.mView.setOnClickListener(v -> {});
     }
@@ -44,6 +46,7 @@ public class ItemAvailabilityListRecyclerViewAdapter extends RecyclerView.Adapte
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
+        public final TextView mDetailsView;
         public DummyItem mItem;
 
         public ViewHolder(View view) {
@@ -51,6 +54,7 @@ public class ItemAvailabilityListRecyclerViewAdapter extends RecyclerView.Adapte
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.item_number);
             mContentView = (TextView) view.findViewById(R.id.content);
+            mDetailsView = (TextView) view.findViewById(R.id.details);
         }
 
         @Override

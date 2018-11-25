@@ -26,4 +26,9 @@ public interface ItemApi {
     Call<List<ItemDto>> getItemsByName(
             @Path("companyId") String companyId,
             @Path("name") String name);
+
+    @GET("items/available/{companyId}/{code}")
+    Call<List<ItemDto>> getAvailable(
+            @Path("companyId") String companyId,
+            @Path("code") String code);
 }
