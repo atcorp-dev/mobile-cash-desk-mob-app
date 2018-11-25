@@ -35,10 +35,12 @@ import butterknife.ButterKnife;
 import ua.com.atcorp.mobilecashdesk.adapters.PaymentCartItemAdapter;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.models.User;
 import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
+import ua.com.atcorp.mobilecashdesk.services.UserService;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePrinterDialog;
 import ua.pbank.dio.minipos.MiniPosManager;
 import ua.pbank.dio.minipos.interfaces.MiniPosConnectionListener;
@@ -79,6 +81,7 @@ public class PaymentActivity extends AppCompatActivity
     private TransactionDto mTransaction;
     private CartService mCartService;
     private AuthService mAuthService;
+    private UserService mUserService;
     private int mErrorCode;
 
     // endregion
@@ -134,6 +137,8 @@ public class PaymentActivity extends AppCompatActivity
         initTransaction();
         initPaymentPreviewList();
         imgView.setVisibility(View.GONE);
+
+        mUserService = new UserService(this);
 
     }
 
@@ -270,8 +275,14 @@ public class PaymentActivity extends AppCompatActivity
                 sendToCashDesk();
                 return;
             }
-            // makePayment(mStrAmount);
-            makePaymentPrivate(mAmount);
+            String method = getPaymentMethod();
+            switch (method) {
+                case "atcorp":
+                    makePayment(mStrAmount);
+                    break;
+                default:
+                    makePaymentPrivate(mAmount);
+            }
         } catch (Exception err) {
             Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
             String m = "";
@@ -296,6 +307,16 @@ public class PaymentActivity extends AppCompatActivity
     // endregion
 
     // region Methods: Private
+
+    private String getPaymentMethod() {
+        User user = mUserService.getCurrentUserInfo();
+        String login = user.getLogin();
+        if (login == null || !login.equals("admin"))
+            return "private";
+        SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
+        String method = sp.getString("payment_method", "private");
+        return method;
+    }
 
     private boolean isNeedRecalculateCart() {
         return false;
@@ -423,6 +444,8 @@ public class PaymentActivity extends AppCompatActivity
                 err.printStackTrace();
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
             }
+            if (transaction == null)
+                return;
             mTransaction = transaction;
             saveTransactionId(transaction.id);
             if (mCart.getType() == 1) {
