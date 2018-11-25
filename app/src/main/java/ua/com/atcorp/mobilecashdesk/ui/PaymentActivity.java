@@ -271,6 +271,8 @@ public class PaymentActivity extends AppCompatActivity
                 return;
             }
             // makePayment(mStrAmount);
+            EditText etAmount = findViewById(R.id.payment_amount);
+            mAmount = Double.parseDouble(etAmount.getText().toString());
             makePaymentPrivate(mAmount);
         } catch (Exception err) {
             Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
@@ -311,7 +313,8 @@ public class PaymentActivity extends AppCompatActivity
         String discountStr = formatPrice(discount);
         mAmount = price;
         mStrAmount = amountStr;
-        setEditTextValue(R.id.payment_amount, priceStr);
+        EditText etAmount = findViewById(R.id.payment_amount);
+        etAmount.setText(price + "");
         setEditTextValue(R.id.payment_discount, discountStr);
     }
 
