@@ -70,9 +70,7 @@ public class CartService extends BaseRepository {
         sharedPref.edit().remove("cartId").commit();
         Delete.from(Cart.class).execute();
         Delete.from((CartItem.class)).execute();
-        UUID cartId = getActiveCartId();
-        mCart = getCartByRecordId(cartId);
-        mCart.save();
+        restoreState();
     }
 
     public void saveState() {
