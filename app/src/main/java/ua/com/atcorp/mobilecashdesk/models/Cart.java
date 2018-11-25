@@ -47,7 +47,7 @@ public class Cart extends Model implements Serializable {
     }
 
     public int getType() {
-        return 1;//mType;
+        return mType;
     }
 
     public void setType(int mType) {
