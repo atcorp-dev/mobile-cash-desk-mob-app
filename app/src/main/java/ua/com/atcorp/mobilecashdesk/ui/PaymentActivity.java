@@ -383,12 +383,35 @@ public class PaymentActivity extends AppCompatActivity
         String token = sp.getString("token", null);
         return token;
     }
+    private void saveTransactionId(String transactionId) {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        sp.edit().putString("transactionId", transactionId).commit();
+    }
+
+    private String getTransactionId() {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        String transactionId = sp.getString("transactionId", null);
+        return transactionId;
+    }
+
+    private AsyncTask getTransactionById(String transactionId) {
+        return mTransactionRepository.getById(transactionId, (transaction, err) -> {
+            if (err == null) {
+                mTransaction = transaction;
+                setPaymentInfo();
+            }
+        });
+    }
 
     private void initTransaction() {
         String cartModifiedOn = getCartModifiedOn();
         boolean isChanged = mCartService.isChanged(cartModifiedOn);
         if (!isChanged) {
             btnPay.setEnabled(true);
+            // TODO: change to get form local DB
+            String transactionId = getTransactionId();
+            if (transactionId != null)
+                getTransactionById(transactionId);
             return;
         }
         String token = getFcmToken();
