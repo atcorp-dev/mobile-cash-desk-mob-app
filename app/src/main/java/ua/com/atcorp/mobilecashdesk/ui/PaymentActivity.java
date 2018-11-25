@@ -384,37 +384,6 @@ public class PaymentActivity extends AppCompatActivity
         return token;
     }
 
-    private String getCartModifiedOn() {
-        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
-        String res = sp.getString("cartModifiedOn", null);
-        return res;
-    }
-
-    private void setCartModifiedOn(String timestamp) {
-        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
-        sp.edit().putString("cartModifiedOn", timestamp).commit();
-    }
-
-    private void saveTransactionId(String transactionId) {
-        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
-        sp.edit().putString("transactionId", transactionId).commit();
-    }
-
-    private String getTransactionId() {
-        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
-        String transactionId = sp.getString("transactionId", null);
-        return transactionId;
-    }
-
-    private AsyncTask getTransactionById(String transactionId) {
-        return mTransactionRepository.getById(transactionId, (transaction, err) -> {
-            if (err == null) {
-                mTransaction = transaction;
-                setPaymentInfo();
-            }
-        });
-    }
-
     private void initTransaction() {
         String cartModifiedOn = getCartModifiedOn();
         boolean isChanged = mCartService.isChanged(cartModifiedOn);
