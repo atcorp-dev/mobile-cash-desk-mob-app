@@ -403,10 +403,6 @@ public class PaymentActivity extends AppCompatActivity
         boolean isChanged = mCartService.isChanged(cartModifiedOn);
         if (!isChanged) {
             btnPay.setEnabled(true);
-            // TODO: change to get form local DB
-            String transactionId = getTransactionId();
-            if (transactionId != null)
-                getTransactionById(transactionId);
             return;
         }
         String token = getFcmToken();
@@ -423,6 +419,7 @@ public class PaymentActivity extends AppCompatActivity
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
             }
             mTransaction = transaction;
+            saveTransactionId(transaction.id);
             if (mCart.getType() == 1) {
                 loadReceipt(transaction.getOrderNumPrint());
             }
