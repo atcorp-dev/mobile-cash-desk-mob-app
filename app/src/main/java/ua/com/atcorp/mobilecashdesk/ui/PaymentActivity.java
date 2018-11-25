@@ -383,6 +383,22 @@ public class PaymentActivity extends AppCompatActivity
         String token = sp.getString("token", null);
         return token;
     }
+
+    private AsyncTask getTransactionById(String transactionId) {
+        return mTransactionRepository.getById(transactionId, (transaction, err) -> {
+            if (err == null) {
+                mTransaction = transaction;
+                setPaymentInfo();
+            }
+        });
+    }
+
+    private String getCartModifiedOn() {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        String res = sp.getString("cartModifiedOn", null);
+        return res;
+    }
+    
     private void saveTransactionId(String transactionId) {
         SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
         sp.edit().putString("transactionId", transactionId).commit();
@@ -394,13 +410,9 @@ public class PaymentActivity extends AppCompatActivity
         return transactionId;
     }
 
-    private AsyncTask getTransactionById(String transactionId) {
-        return mTransactionRepository.getById(transactionId, (transaction, err) -> {
-            if (err == null) {
-                mTransaction = transaction;
-                setPaymentInfo();
-            }
-        });
+    private void setCartModifiedOn(String timestamp) {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        sp.edit().putString("cartModifiedOn", timestamp).commit();
     }
 
     private void initTransaction() {
