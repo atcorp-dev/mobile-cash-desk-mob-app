@@ -60,6 +60,7 @@ public class UserProfilerActivity extends AppCompatActivity {
 
     private void initPaymentMethodSpinner() {
         ArrayList<String[]> data = new ArrayList<>();
+        data.add(new String[] {"default", "Default"});
         data.add(new String[] {"private", "Private Bank"});
         data.add(new String[] {"atcorp", "AT CORP"});
         ArrayList<String> list = new ArrayList<>();
