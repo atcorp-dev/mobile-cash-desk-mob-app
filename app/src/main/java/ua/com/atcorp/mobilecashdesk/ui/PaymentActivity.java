@@ -282,6 +282,9 @@ public class PaymentActivity extends AppCompatActivity
                 case "atcorp":
                     makePayment(mStrAmount);
                     break;
+                case "default":
+                    markTransactionAsPayed();
+                    break;
                 default:
                     makePaymentPrivate(mAmount);
             }
@@ -316,7 +319,7 @@ public class PaymentActivity extends AppCompatActivity
         if (login == null || !login.equals("admin"))
             return "private";
         SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
-        String method = sp.getString("payment_method", "private");
+        String method = sp.getString("payment_method", "default");
         return method;
     }
 
@@ -484,6 +487,8 @@ public class PaymentActivity extends AppCompatActivity
                 tvError.setText(err.getMessage());
             }
             mTransaction = transaction;
+            View view = findViewById(R.id.payment_layout);
+            Snackbar.make(view, "Оплата пройшла успішно", Snackbar.LENGTH_LONG).show();
         });
         mCartService.clearCart();
     }
