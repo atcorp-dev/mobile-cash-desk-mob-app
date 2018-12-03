@@ -327,7 +327,7 @@ public class PaymentActivity extends AppCompatActivity
     private boolean isNeedRecalculateCart() {
         String companyCode = mAuthService
                 .getCurrentCompany()
-                .getCode()
+                .getName()
                 .toUpperCase();
         boolean res = companyCode.startsWith("UAMADE");
         return res;
