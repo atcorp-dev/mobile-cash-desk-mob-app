@@ -1,22 +1,28 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import ua.com.atcorp.mobilecashdesk.R;
-import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.models.User;
+import ua.com.atcorp.mobilecashdesk.services.AuthService;
+import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.services.UserService;
 
 public class UserProfilerActivity extends AppCompatActivity {
@@ -29,7 +35,16 @@ public class UserProfilerActivity extends AppCompatActivity {
     EditText tvCompany;
     @BindView(R.id.spinner_payment_method)
     Spinner mPaymentMethodView;
+    @BindView(R.id.changePasswordWrap)
+    View mChangePasswordWrap;
+    @BindView(R.id.tvOldPassword)
+    EditText tvOldPassword;
+    @BindView(R.id.tvNewPassword)
+    EditText tvNewPassword;
+    @BindView(R.id.tvNewPasswordConfirm)
+    EditText tvNewPasswordConfirm;
 
+    User mUser;
     UserService mUserService;
 
     @Override
@@ -39,6 +54,7 @@ public class UserProfilerActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         mUserService = new UserService(this);
         User user = mUserService.getCurrentUserInfo();
+        mUser = user;
         tvUserLogin.setText(user.getLogin());
         tvUserEmail.setText(user.getEmail());
         tvCompany.setText(user.getCompany().getName());
@@ -104,5 +120,69 @@ public class UserProfilerActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
         String method = sp.getString("payment_method", "private");
         return method;
+    }
+
+    private boolean validateRequired(EditText edit) {
+        String value = edit.getText().toString();
+        if (value == null || value.length() == 0) {
+            edit.setError("Поле обо'зкове для заповненя");
+            return  false;
+        }
+        return  true;
+    }
+
+    private boolean validateEqual(EditText edit1, EditText edit2) {
+        String value1 = edit1.getText().toString();
+        String value2 = edit2.getText().toString();
+        if (value1 == null || value2 == null) {
+            return  false;
+        }
+        return  value1.equals(value2);
+    }
+
+    private void openLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.btnChangePassword)
+    public void onButtonChangePasswordClick(View view) {
+        mChangePasswordWrap.setVisibility(View.VISIBLE);
+        view.setVisibility(View.GONE);
+    }
+
+    @OnClick(R.id.btnSaveChangedPassword)
+    public void onButtonSaveChangedPasswordClick(View view) {
+        String oldPassword = tvOldPassword.getText().toString();
+        String newPassword = tvNewPassword.getText().toString();
+        if (!validateRequired(tvOldPassword)
+                || !validateRequired(tvNewPassword)
+                || !validateRequired(tvNewPasswordConfirm)) {
+            return;
+        }
+        if (!validateEqual(tvNewPassword, tvNewPasswordConfirm)) {
+            tvNewPasswordConfirm.setError("Паролі не співпадають");
+            return;
+        }
+        mUserService.changePasword(mUser.getRecordId(), oldPassword, newPassword, (user, err) -> {
+            if (err != null) {
+                Toast.makeText(this, err.getMessage(), Toast.LENGTH_LONG).show();
+                err.printStackTrace();
+                return;
+            }
+            Toast.makeText(this, "Паролль змінено", Toast.LENGTH_SHORT).show();
+            AuthService authService = new AuthService(this);
+            authService.logout((Void, ex) -> {
+                if (ex != null) {
+                    Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+                    String msg = ex.getMessage() + "\n" + ex.getStackTrace().toString();
+                    Log.e("LOG_OUT_ERROR", msg);
+                }
+            });
+            authService.setCurrentUser(null);
+            new CartService(this).clearCart();
+            finish();
+            openLoginActivity();
+        });
     }
 }
