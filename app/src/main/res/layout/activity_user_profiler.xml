@@ -101,7 +101,11 @@
             android:hint="Спосіб оплати"/>
     </android.support.design.widget.TextInputLayout>
 
-    <LinearLayout
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -113,7 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="6dp"
             app:hintTextAppearance="@style/TextLabel"
             android:minHeight="30dp">
 
@@ -133,7 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="6dp"
             app:hintTextAppearance="@style/TextLabel"
             android:minHeight="30dp">
 
@@ -153,7 +157,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="6dp"
             app:hintTextAppearance="@style/TextLabel"
             android:minHeight="30dp">
 
@@ -179,6 +183,8 @@
             android:text="Зберегти"/>
 
     </LinearLayout>
+
+    </ScrollView>
 
     <Button
         android:id="@+id/btnChangePassword"
