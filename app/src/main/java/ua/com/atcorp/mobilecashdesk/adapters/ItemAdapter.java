@@ -3,6 +3,7 @@ package ua.com.atcorp.mobilecashdesk.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.ui.CartFragment;
 import ua.com.atcorp.mobilecashdesk.ui.MainActivity;
@@ -57,6 +59,15 @@ public class ItemAdapter extends ArrayAdapter {
         setTextToView(view, R.id.item_name, item.getName());
         setTextToView(view, R.id.item_code, item.getCode());
         setTextToView(view, R.id.item_price, formatPrice(item.getPrice()));
+        String size = "";
+        for(ItemDto.AdditionalField f : item.getAdditionalFields()) {
+            if (f.name.equals("Розмір")) {
+                size = "Розмір: " + f.value;
+                break;
+            }
+        }
+        setTextToView(view, R.id.item_size, size);
+        setTextToView(view, R.id.item_available, String.format("На складі - %s", item.getAvailable() ? "Так" : "Ні"));
 
         View btn = view.findViewById(R.id.btnToCart);
         if (mCartService.hasItem(item)) {

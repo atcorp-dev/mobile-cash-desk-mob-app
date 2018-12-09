@@ -321,7 +321,7 @@ public class PaymentActivity extends AppCompatActivity
         SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
         String method = sp.getString("payment_method", "default");
         return method;*/
-        return "default";
+        return "private";
     }
 
     private boolean isNeedRecalculateCart() {
