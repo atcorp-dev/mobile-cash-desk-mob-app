@@ -67,7 +67,7 @@ public class MobileCashDeskApp extends Application {
     }
 
     private void initMiniPosManager() {
-        String token = "a213b10b4706ab98ffee857e0c8182dd"; //указать токен (выдается дополнительно)
+        String token = "6585ee9a7d7d4b1d7a885598af46809a"; //указать токен (выдается дополнительно)
         MiniPosManager.builder(this,token)
                 .setEnableLogging(true)
                 .build();
