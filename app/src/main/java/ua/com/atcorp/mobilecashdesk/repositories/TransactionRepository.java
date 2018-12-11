@@ -25,21 +25,21 @@ public class TransactionRepository extends BaseRepository {
     }
 
     public AsyncTask getAll(Predicate<List<TransactionDto>, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         Call<List<TransactionDto>> call = api.getAll();
         TransactionListTask task = new TransactionListTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask getById(String id, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         Call<TransactionDto> call = api.getById(id);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask create(TransactionDto transaction, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         String companyId = mAuthService.getCurrentCompany().recordId;
         Call<TransactionDto> call = api.create(companyId, transaction);
         TransactionTask task = new TransactionTask(predicate, call);
@@ -47,14 +47,14 @@ public class TransactionRepository extends BaseRepository {
     }
 
     public AsyncTask markAsPayed(String id, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         Call<TransactionDto> call = api.markAsPayed(id);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask markAsRejected(String id, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         Call<TransactionDto> call = api.markAsRejected(id);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();

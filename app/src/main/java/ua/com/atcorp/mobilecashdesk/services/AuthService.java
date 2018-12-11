@@ -32,7 +32,7 @@ public class AuthService extends BaseRepository {
     public AsyncTask login(String username, String password, Predicate<User, Exception> predicate) {
         mUsername = username;
         mPassword = password;
-        AuthApi api = createService(AuthApi.class);
+        AuthApi api = createService(AuthApi.class, getContext());
         Map<String,String> params = new HashMap<>();
         params.put("username", mUsername);
         params.put("password", mPassword);
@@ -42,7 +42,7 @@ public class AuthService extends BaseRepository {
     }
 
     public AsyncTask ping(Predicate<User, Exception> predicate) {
-        AuthApi api = createService(AuthApi.class);
+        AuthApi api = createService(AuthApi.class, getContext());
         Call<UserDto> call = api.ping();
         LoginTask task = new LoginTask(predicate, call);
         return task.execute();
@@ -51,7 +51,7 @@ public class AuthService extends BaseRepository {
     public AsyncTask logout(Predicate<Void, Exception> predicate) {
         mUsername = null;
         mPassword = null;
-        AuthApi api = createService(AuthApi.class);
+        AuthApi api = createService(AuthApi.class, getContext());
         Call<Void> call = api.logout();
         LogoutTask task = new LogoutTask(predicate, call);
         return task.execute();

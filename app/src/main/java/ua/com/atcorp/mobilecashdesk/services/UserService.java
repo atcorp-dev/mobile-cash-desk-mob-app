@@ -37,7 +37,7 @@ public class UserService extends BaseRepository {
     }
 
     public void changePasword(String id, String password, String newPassword, Predicate<User, Exception> predicate) {
-        UserApi api = createService(UserApi.class);
+        UserApi api = createService(UserApi.class, getContext());
         Map<String,String> params = new HashMap<>();
         params.put("password", password);
         params.put("newPassword", newPassword);
