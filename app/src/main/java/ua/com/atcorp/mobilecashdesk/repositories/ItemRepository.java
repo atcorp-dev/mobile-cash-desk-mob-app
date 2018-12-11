@@ -22,35 +22,35 @@ public class ItemRepository extends BaseRepository {
     }
 
     public AsyncTask getItemById(String id, Predicate<Item, Exception> predicate) {
-        ItemApi api = createService(ItemApi.class);
+        ItemApi api = createService(ItemApi.class, getContext());
         Call<ItemDto> call = api.getItemById(id);
         ItemTask task = new ItemTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask getItemByCode(String companyId, String code, Predicate<Item, Exception> predicate) {
-        ItemApi api = createService(ItemApi.class);
+        ItemApi api = createService(ItemApi.class, getContext());
         Call<ItemDto> call = api.getItemByCode(companyId, code);
         ItemTask task = new ItemTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask getItemByBarCode(String companyId, String barCode, Predicate<Item, Exception> predicate) {
-        ItemApi api = createService(ItemApi.class);
+        ItemApi api = createService(ItemApi.class, getContext());
         Call<ItemDto> call = api.getItemByBarCode(companyId, barCode);
         ItemTask task = new ItemTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask getItemsByName(String companyId, String name, Predicate<List<Item>, Exception> predicate) {
-        ItemApi api = createService(ItemApi.class);
+        ItemApi api = createService(ItemApi.class, getContext());
         Call<List<ItemDto>> call = api.getItemsByName(companyId, name);
         ItemListTask task = new ItemListTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask getAvailable(String companyId, String code, Predicate<List<Item>, Exception> predicate) {
-        ItemApi api = createService(ItemApi.class);
+        ItemApi api = createService(ItemApi.class, getContext());
         Call<List<ItemDto>> call = api.getAvailable(companyId, code);
         ItemListTask task = new ItemListTask(predicate, call);
         return task.execute();
@@ -75,6 +75,8 @@ public class ItemRepository extends BaseRepository {
             try {
                 Response response = call.execute();
                 ItemDto itemDto = (ItemDto)response.body();
+                if (itemDto == null)
+                    return null;
                 Item item = dtoToItem(itemDto);
                 return item;
             } catch (Exception e) {
@@ -129,6 +131,8 @@ public class ItemRepository extends BaseRepository {
             try {
                 Response response = call.execute();
                 List<ItemDto> itemDtoList = (List<ItemDto>)response.body();
+                if (itemDtoList == null)
+                    itemDtoList = new ArrayList<>();
                 List<Item> item = new ArrayList<>();
                 for (ItemDto itemDto : itemDtoList) {
                     Item dtoToItem = dtoToItem(itemDto);

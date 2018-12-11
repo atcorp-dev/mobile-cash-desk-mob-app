@@ -189,7 +189,7 @@
                 android:id="@+id/btn_pay"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:text="Сплатити"
+                android:text="Продовжити"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:theme="@style/GreenButton"/>
             <LinearLayout
