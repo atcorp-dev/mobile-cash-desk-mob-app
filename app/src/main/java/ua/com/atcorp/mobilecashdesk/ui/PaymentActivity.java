@@ -253,6 +253,9 @@ public class PaymentActivity extends AppCompatActivity
     // region Methods: Public Static
 
     public static void notifyTransactionUpdated() {
+        if (instance == null || instance.mTransaction == null || instance.mTransaction.id == null) {
+            return;
+        }
         instance.mTransactionRepository.getById(instance.mTransaction.id, (transaction, err) -> {
             if (err != null) {
                 View view = instance.findViewById(R.id.payment_layout);
