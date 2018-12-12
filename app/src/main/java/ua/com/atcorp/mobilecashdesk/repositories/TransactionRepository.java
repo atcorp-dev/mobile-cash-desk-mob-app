@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -46,9 +47,11 @@ public class TransactionRepository extends BaseRepository {
         return task.execute();
     }
 
-    public AsyncTask markAsPayed(String id, Predicate<TransactionDto, Exception> predicate) {
+    public AsyncTask markAsPayed(String id, String receipt, Predicate<TransactionDto, Exception> predicate) {
         TransactionApi api = createService(TransactionApi.class, getContext());
-        Call<TransactionDto> call = api.markAsPayed(id);
+        HashMap<String, String> payload = new HashMap<>();
+        payload.put("receipt", receipt);
+        Call<TransactionDto> call = api.markAsPayed(id, payload);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();
     }

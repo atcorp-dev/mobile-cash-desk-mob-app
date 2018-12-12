@@ -1,5 +1,6 @@
 package ua.com.atcorp.mobilecashdesk.rest.api;
 
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -24,7 +25,7 @@ public interface TransactionApi {
             @Path("companyId") String companyId, @Body() TransactionDto transaction);
 
     @PATCH("transactions/{id}/markAsPayed")
-    Call<TransactionDto> markAsPayed(@Path("id") String id);
+    Call<TransactionDto> markAsPayed(@Path("id") String id, @Body() HashMap<String, String> payload);
 
     @PATCH("transactions/{id}/markAsRejected")
     Call<TransactionDto> markAsRejected(@Path("id") String id);

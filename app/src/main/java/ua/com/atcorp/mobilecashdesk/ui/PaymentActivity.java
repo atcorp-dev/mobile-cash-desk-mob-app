@@ -281,7 +281,7 @@ public class PaymentActivity extends AppCompatActivity
                     makePayment(mStrAmount);
                     break;
                 case "default":
-                    markTransactionAsPayed();
+                    markTransactionAsPayed(null);
                     break;
                 default:
                     makePaymentPrivate(mAmount);
@@ -462,10 +462,10 @@ public class PaymentActivity extends AppCompatActivity
         });
     }
 
-    private void markTransactionAsPayed() {
+    private void markTransactionAsPayed(String receipt) {
         if (mTransaction == null)
             return;
-        mTransactionRepository.markAsPayed(mTransaction.id, (transaction, err) -> {
+        mTransactionRepository.markAsPayed(mTransaction.id, receipt, (transaction, err) -> {
             if (err != null) {
                 err.printStackTrace();
                 tvError.setText(err.getMessage());
@@ -608,7 +608,7 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     private void sendToCashDesk() {
-        markTransactionAsPayed();
+        markTransactionAsPayed(null);
         if (mTransaction != null)
             loadReceipt(mTransaction.getOrderNumPrint());
     }
@@ -864,7 +864,7 @@ public class PaymentActivity extends AppCompatActivity
             Log.d(TAG, "onTransactionFinish");
             hideProgress();
             String receipt = transaction.getTransactionData().getReceipt(); //получаем чек
-            markTransactionAsPayed();
+            markTransactionAsPayed(receipt);
             loadReceipt(receipt);
             showPrintButton();
         }
