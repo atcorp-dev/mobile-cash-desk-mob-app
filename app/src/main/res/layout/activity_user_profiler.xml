@@ -45,7 +45,7 @@
         android:minHeight="30dp">
 
         <EditText
-            android:id="@+id/tvUserEmail"
+            android:id="@+id/tvUserName"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:enabled="false"
@@ -53,7 +53,7 @@
             android:textColorHint="@color/black"
             android:focusable="false"
             android:textSize="24sp"
-            android:hint="E-Mail"
+            android:hint="ПІБ"
             android:inputType="text"
             android:maxLines="1"
             android:singleLine="true"/>
@@ -78,7 +78,7 @@
         android:textColorHint="@color/black"
         android:focusable="false"
         android:textSize="24sp"
-        android:hint="Команія/Філіал"
+        android:hint="Магазин"
         android:inputType="text"/>
 
     </android.support.design.widget.TextInputLayout>

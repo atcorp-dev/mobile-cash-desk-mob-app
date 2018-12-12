@@ -5,6 +5,7 @@ public class UserDto {
     public String id;
     public String login;
     public String email;
+    public String name;
     public int role;
     public String companyId;
 }

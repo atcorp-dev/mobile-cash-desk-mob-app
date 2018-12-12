@@ -29,8 +29,8 @@ public class UserProfilerActivity extends AppCompatActivity {
 
     @BindView(R.id.tvUserLogin)
     EditText tvUserLogin;
-    @BindView(R.id.tvUserEmail)
-    EditText tvUserEmail;
+    @BindView(R.id.tvUserName)
+    EditText tvUserName;
     @BindView(R.id.tvCompany)
     EditText tvCompany;
     @BindView(R.id.spinner_payment_method)
@@ -56,7 +56,7 @@ public class UserProfilerActivity extends AppCompatActivity {
         User user = mUserService.getCurrentUserInfo();
         mUser = user;
         tvUserLogin.setText(user.getLogin());
-        tvUserEmail.setText(user.getEmail());
+        tvUserName.setText(user.getName());
         tvCompany.setText(user.getCompany().getName());
         initPaymentMethodSpinner();
         String userLogin = user.getLogin();
