@@ -157,6 +157,7 @@ public class AuthService extends BaseRepository {
 
         user.setEmail(dto.email);
         user.setLogin(dto.login);
+        user.setName(dto.name);
 
         user.save();
 
