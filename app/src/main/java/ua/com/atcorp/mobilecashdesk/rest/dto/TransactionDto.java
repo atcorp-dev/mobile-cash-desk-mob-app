@@ -31,11 +31,13 @@ public class TransactionDto {
 
     public class TransactionExtras {
         public String recipientId;
+        public String receipt;
         public boolean isChangedItems;
         public String clientInfo;
     }
 
     public String id;
+    public String documentNumber;
     public String cartId;
     public String companyId;
     public int type;

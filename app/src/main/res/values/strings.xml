@@ -91,4 +91,6 @@
 
     <!-- User Profile -->
     <string name="user_profile">Профіль користувача</string>
+    <!-- Print Receipt -->
+    <string name="print_receipt_title">Друк чеку</string>
 </resources>

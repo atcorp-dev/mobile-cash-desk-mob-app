@@ -9,6 +9,7 @@ import retrofit2.http.GET;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import ua.com.atcorp.mobilecashdesk.rest.dto.ItemDto;
 import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
 
@@ -16,6 +17,16 @@ public interface TransactionApi {
 
     @GET("transactions")
     Call<List<TransactionDto>> getAll();
+
+    @GET("transactions/{companyId}/payed")
+    Call<List<TransactionDto>> getPayed(
+            @Path("companyId") String companyId,
+            @Query("dateFrom") String dateFrom,
+            @Query("dateTo") String dateTo,
+            @Query("sort") String sort,
+            @Query("direction") String direction,
+            @Query("showReceipt") boolean showReceipt
+    );
 
     @GET("transactions/{id}")
     Call<TransactionDto> getById(@Path("id") String id);
