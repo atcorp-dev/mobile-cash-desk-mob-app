@@ -26,6 +26,7 @@ import ua.com.atcorp.mobilecashdesk.services.CartService;
 
 public class MainActivity extends AppCompatActivity
         implements MainFragment.MainFragmentEventListener,
+        TransactionListFragment.OnListFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     private int mSelectedMenuId;
@@ -113,6 +114,8 @@ public class MainActivity extends AppCompatActivity
             openCartFragment();
         } else if (id == R.id.nav_catalogue) {
             openCatalogueFragment();
+        } else if (id == R.id.nav_transactions) {
+            openTransactionsFragment();
         } else if (id == R.id.nav_profile) {
             openProfileActivity();
         } else if (id == R.id.nav_logout) {
@@ -182,8 +185,16 @@ public class MainActivity extends AppCompatActivity
         setTitle("Каталог");
     }
 
-    public CartFragment getCartFragment() {
-        return mCartFragment;
+    private void openTransactionsFragment() {
+        mSelectedMenuId = R.id.nav_cart;
+        TransactionListFragment transactionListFragment = TransactionListFragment
+                .newInstance(1);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, transactionListFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_transactions);
+        setTitle("Архів");
     }
 
     public void makePayment(String cartId, double price) {
@@ -259,6 +270,13 @@ public class MainActivity extends AppCompatActivity
 
     private void openLoginActivity() {
         Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onPrintReceipt(String receipt) {
+        Intent intent = new Intent(this, PrintReceiptActivity.class);
+        intent.putExtra("receipt", receipt);
         startActivity(intent);
     }
 }

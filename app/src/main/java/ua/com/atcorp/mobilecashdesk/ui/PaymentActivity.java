@@ -286,7 +286,10 @@ public class PaymentActivity extends AppCompatActivity
                     makePayment(mStrAmount);
                     break;
                 case "default":
-                    markTransactionAsPayed(null);
+                    String receipt = "<html><body>"
+                            +"<div style=\"display: flex;justify-items: center;align-items:center\">Test</div>"
+                            +"</body><html>";
+                    markTransactionAsPayed(receipt);
                     break;
                 default:
                     makePaymentPrivate(mAmount);
