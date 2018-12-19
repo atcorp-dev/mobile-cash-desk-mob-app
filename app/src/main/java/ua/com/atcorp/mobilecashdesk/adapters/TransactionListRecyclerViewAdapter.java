@@ -39,7 +39,7 @@ public class TransactionListRecyclerViewAdapter extends RecyclerView.Adapter<Tra
         String content = String.format("Дата: %s", item.content);
         holder.mContentView.setText(content);
 
-        View btnPrint = holder.mView.findViewById(R.id.btnPrint);
+        View btnPrint = holder.mView.findViewById(R.id.btnDetails);
         if (TextUtils.isEmpty(item.details))
             btnPrint.setVisibility(View.GONE);
 
