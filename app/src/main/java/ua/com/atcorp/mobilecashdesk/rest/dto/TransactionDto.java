@@ -8,6 +8,11 @@ import ua.com.atcorp.mobilecashdesk.models.CartItem;
 
 public class TransactionDto {
 
+    public static int TRANSACTION_STATUS_PENDING = 0;
+    public static int TRANSACTION_STATUS_PAYED = 1;
+    public static int TRANSACTION_STATUS_REJECTED = 2;
+    public static int TRANSACTION_STATUS_RECALCULATED = 3;
+
     public class TransactionItemDto {
 
         public String itemId;
