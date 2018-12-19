@@ -878,13 +878,19 @@ public class PaymentActivity extends AppCompatActivity
             if (data.getResult().toLowerCase().equals("ok")) {
 
                 HashMap<String, String> payload = new HashMap<>();
+                payload.put("id", data.getId());
                 payload.put("receipt", receipt);
+                payload.put("receiptId", data.getReceipt_id().toString());
                 payload.put("result", result);
                 payload.put("approvalCode", data.getApproval_code());
                 payload.put("merchant", data.getMerchant());
                 payload.put("date", data.getDate());
                 payload.put("maskedPan", data.getMasked_pan());
                 payload.put("userMessage", userMessage);
+                payload.put("code", data.getCode());
+                payload.put("rrn", data.getRnn());
+                payload.put("responseCode", data.getResponse_code());
+                payload.put("batchId", data.getBatch_id() + "");
 
                 markTransactionAsPayed(payload);
 
