@@ -71,10 +71,8 @@ public class TransactionRepository extends BaseRepository {
         return task.execute();
     }
 
-    public AsyncTask markAsPayed(String id, String receipt, Predicate<TransactionDto, Exception> predicate) {
+    public AsyncTask markAsPayed(String id, HashMap<String, String> payload, Predicate<TransactionDto, Exception> predicate) {
         TransactionApi api = createService(TransactionApi.class, getContext());
-        HashMap<String, String> payload = new HashMap<>();
-        payload.put("receipt", receipt);
         Call<TransactionDto> call = api.markAsPayed(id, payload);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();

@@ -53,10 +53,12 @@ import android.util.*;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.BaseDialogFragment;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePinpadDialog;
+import ua.pbank.dio.minipos.models.TransactionData;
 
 
 public class PaymentActivity extends AppCompatActivity
@@ -284,7 +286,9 @@ public class PaymentActivity extends AppCompatActivity
                     String receipt = "<html><body>"
                             +"<div style=\"display: flex;justify-items: center;align-items:center\">Test</div>"
                             +"</body><html>";
-                    markTransactionAsPayed(receipt);
+                    HashMap<String, String> payLoad = new HashMap<>();
+                    payLoad.put("receipt", receipt);
+                    markTransactionAsPayed(payLoad);
                     break;
                 default:
                     makePaymentPrivate(mAmount);
@@ -465,10 +469,10 @@ public class PaymentActivity extends AppCompatActivity
         });
     }
 
-    private void markTransactionAsPayed(String receipt) {
+    private void markTransactionAsPayed(HashMap<String, String> payload) {
         if (mTransaction == null)
             return;
-        mTransactionRepository.markAsPayed(mTransaction.id, receipt, (transaction, err) -> {
+        mTransactionRepository.markAsPayed(mTransaction.id, payload, (transaction, err) -> {
             if (err != null) {
                 err.printStackTrace();
                 tvError.setText(err.getMessage());
@@ -864,12 +868,31 @@ public class PaymentActivity extends AppCompatActivity
 
         @Override
         public void onTransactionFinish(Transaction transaction) {
-            Log.d(TAG, "onTransactionFinish");
             hideProgress();
-            String receipt = transaction.getTransactionData().getReceipt(); //получаем чек
-            markTransactionAsPayed(receipt);
+            Log.d(TAG, "onTransactionFinish");
+            TransactionData data = transaction.getTransactionData();
+            String receipt = data.getReceipt();
+            String result = data.getResult();
+            String userMessage = data.getUser_message();
             loadReceipt(receipt);
-            showPrintButton();
+            if (data.getResult().toLowerCase().equals("ok")) {
+
+                HashMap<String, String> payload = new HashMap<>();
+                payload.put("receipt", receipt);
+                payload.put("result", result);
+                payload.put("approvalCode", data.getApproval_code());
+                payload.put("merchant", data.getMerchant());
+                payload.put("date", data.getDate());
+                payload.put("maskedPan", data.getMasked_pan());
+                payload.put("userMessage", userMessage);
+
+                markTransactionAsPayed(payload);
+
+                showPrintButton();
+            } else {
+                View view = findViewById(R.id.payment_layout);
+                Snackbar.make(view, userMessage, Snackbar.LENGTH_LONG).show();
+            }
         }
     };
 
