@@ -320,13 +320,15 @@ public class PaymentActivity extends AppCompatActivity
     // region Methods: Private
 
     private String getPaymentMethod() {
-        /*User user = mUserService.getCurrentUserInfo();
+        User user = mUserService.getCurrentUserInfo();
         String login = user.getLogin();
-        if (login == null || !login.equals("admin"))
-            return "private";
-        SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
-        String method = sp.getString("payment_method", "default");
-        return method;*/
+        if (login.equals("admin")) {
+            /*if (login == null || !login.equals("admin"))
+                return "private";*/
+            SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
+            String method = sp.getString("payment_method", "default");
+            return method;
+        }
         return "private";
     }
 
