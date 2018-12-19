@@ -27,7 +27,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_reset">Reset</string>
 
-    <string name="payment_activity_btn_pay">Платіж</string>
+    <string name="payment_activity_btn_pay">Сплатити</string>
     <string name="payment_activity_btn_print">Друк</string>
     <string name="payment_target_lbl">Призначення платежу</string>
     <string name="payment_amount_lbl">Всього до сплати</string>
@@ -91,4 +91,6 @@
 
     <!-- User Profile -->
     <string name="user_profile">Профіль користувача</string>
+    <!-- Print Receipt -->
+    <string name="print_receipt_title">Друк чеку</string>
 </resources>

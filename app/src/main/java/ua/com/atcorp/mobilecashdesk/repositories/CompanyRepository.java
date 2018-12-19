@@ -26,7 +26,7 @@ public class CompanyRepository extends BaseRepository {
     }
 
     public AsyncTask getCompanies(Predicate<List<Company>, Exception> predicate) {
-        CompanyApi api = createService(CompanyApi.class);
+        CompanyApi api = createService(CompanyApi.class, getContext());
         Call<List<CompanyDto>> call = api.getCompanies();
         CompaniesTask task = new CompaniesTask(predicate, call);
         return task.execute();
@@ -57,6 +57,8 @@ public class CompanyRepository extends BaseRepository {
                 if (response.code() == 401)
                     throw new Exception(response.message());
                 List<CompanyDto> companies = (List<CompanyDto>)response.body();
+                if (companies == null)
+                    companies = new ArrayList<>();
 
                 List<Company> companyList = saveToCache(companies);
 

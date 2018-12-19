@@ -35,10 +35,12 @@ import butterknife.ButterKnife;
 import ua.com.atcorp.mobilecashdesk.adapters.PaymentCartItemAdapter;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.models.User;
 import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
+import ua.com.atcorp.mobilecashdesk.services.UserService;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePrinterDialog;
 import ua.pbank.dio.minipos.MiniPosManager;
 import ua.pbank.dio.minipos.interfaces.MiniPosConnectionListener;
@@ -51,10 +53,12 @@ import android.util.*;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.BaseDialogFragment;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePinpadDialog;
+import ua.pbank.dio.minipos.models.TransactionData;
 
 
 public class PaymentActivity extends AppCompatActivity
@@ -79,6 +83,7 @@ public class PaymentActivity extends AppCompatActivity
     private TransactionDto mTransaction;
     private CartService mCartService;
     private AuthService mAuthService;
+    private UserService mUserService;
     private int mErrorCode;
 
     // endregion
@@ -134,6 +139,8 @@ public class PaymentActivity extends AppCompatActivity
         initTransaction();
         initPaymentPreviewList();
         imgView.setVisibility(View.GONE);
+
+        mUserService = new UserService(this);
 
     }
 
@@ -299,6 +306,16 @@ public class PaymentActivity extends AppCompatActivity
 
     // region Methods: Private
 
+    private String getPaymentMethod() {
+        User user = mUserService.getCurrentUserInfo();
+        String login = user.getLogin();
+        if (login == null || !login.equals("admin"))
+            return "private";
+        SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
+        String method = sp.getString("payment_method", "default");
+        return method;
+    }
+
     private boolean isNeedRecalculateCart() {
         return false;
     }
@@ -370,16 +387,6 @@ public class PaymentActivity extends AppCompatActivity
         String token = sp.getString("token", null);
         return token;
     }
-    private void saveTransactionId(String transactionId) {
-        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
-        sp.edit().putString("transactionId", transactionId).commit();
-    }
-
-    private String getTransactionId() {
-        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
-        String transactionId = sp.getString("transactionId", null);
-        return transactionId;
-    }
 
     private AsyncTask getTransactionById(String transactionId) {
         return mTransactionRepository.getById(transactionId, (transaction, err) -> {
@@ -394,6 +401,17 @@ public class PaymentActivity extends AppCompatActivity
         SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
         String res = sp.getString("cartModifiedOn", null);
         return res;
+    }
+    
+    private void saveTransactionId(String transactionId) {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        sp.edit().putString("transactionId", transactionId).commit();
+    }
+
+    private String getTransactionId() {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        String transactionId = sp.getString("transactionId", null);
+        return transactionId;
     }
 
     private void setCartModifiedOn(String timestamp) {
@@ -425,6 +443,8 @@ public class PaymentActivity extends AppCompatActivity
                 err.printStackTrace();
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
             }
+            if (transaction == null)
+                return;
             mTransaction = transaction;
             saveTransactionId(transaction.id);
             if (mCart.getType() == 1) {
@@ -438,15 +458,17 @@ public class PaymentActivity extends AppCompatActivity
         });
     }
 
-    private void markTransactionAsPayed() {
+    private void markTransactionAsPayed(HashMap<String, String> payload) {
         if (mTransaction == null)
             return;
-        mTransactionRepository.markAsPayed(mTransaction.id, (transaction, err) -> {
+        mTransactionRepository.markAsPayed(mTransaction.id, payload, (transaction, err) -> {
             if (err != null) {
                 err.printStackTrace();
                 tvError.setText(err.getMessage());
             }
             mTransaction = transaction;
+            View view = findViewById(R.id.payment_layout);
+            Snackbar.make(view, "Оплата пройшла успішно", Snackbar.LENGTH_LONG).show();
         });
         mCartService.clearCart();
     }
@@ -582,7 +604,7 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     private void sendToCashDesk() {
-        markTransactionAsPayed();
+        markTransactionAsPayed(null);
         if (mTransaction != null)
             loadReceipt(mTransaction.getOrderNumPrint());
     }
@@ -835,12 +857,31 @@ public class PaymentActivity extends AppCompatActivity
 
         @Override
         public void onTransactionFinish(Transaction transaction) {
-            Log.d(TAG, "onTransactionFinish");
             hideProgress();
-            String receipt = transaction.getTransactionData().getReceipt(); //получаем чек
-            markTransactionAsPayed();
+            Log.d(TAG, "onTransactionFinish");
+            TransactionData data = transaction.getTransactionData();
+            String receipt = data.getReceipt();
+            String result = data.getResult();
+            String userMessage = data.getUser_message();
             loadReceipt(receipt);
-            showPrintButton();
+            if (data.getResult().toLowerCase().equals("ok")) {
+
+                HashMap<String, String> payload = new HashMap<>();
+                payload.put("receipt", receipt);
+                payload.put("result", result);
+                payload.put("approvalCode", data.getApproval_code());
+                payload.put("merchant", data.getMerchant());
+                payload.put("date", data.getDate());
+                payload.put("maskedPan", data.getMasked_pan());
+                payload.put("userMessage", userMessage);
+
+                markTransactionAsPayed(payload);
+
+                showPrintButton();
+            } else {
+                View view = findViewById(R.id.payment_layout);
+                Snackbar.make(view, userMessage, Snackbar.LENGTH_LONG).show();
+            }
         }
     };
 

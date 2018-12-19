@@ -4,8 +4,15 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -25,36 +32,54 @@ public class TransactionRepository extends BaseRepository {
     }
 
     public AsyncTask getAll(Predicate<List<TransactionDto>, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         Call<List<TransactionDto>> call = api.getAll();
         TransactionListTask task = new TransactionListTask(predicate, call);
         return task.execute();
     }
 
+    public AsyncTask getPayed(String companyId, Date date, Predicate<List<TransactionDto>, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class, getContext());
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        df.setTimeZone(tz);
+        String dateFrom = df.format(date);
+        Call<List<TransactionDto>> call = api.getPayed(
+                companyId,
+                dateFrom,
+                null,
+                "dateTime",
+                "DESC",
+                true
+        );
+        TransactionListTask task = new TransactionListTask(predicate, call);
+        return task.execute();
+    }
+
     public AsyncTask getById(String id, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         Call<TransactionDto> call = api.getById(id);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask create(TransactionDto transaction, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         String companyId = mAuthService.getCurrentCompany().recordId;
         Call<TransactionDto> call = api.create(companyId, transaction);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();
     }
 
-    public AsyncTask markAsPayed(String id, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
-        Call<TransactionDto> call = api.markAsPayed(id);
+    public AsyncTask markAsPayed(String id, HashMap<String, String> payload, Predicate<TransactionDto, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class, getContext());
+        Call<TransactionDto> call = api.markAsPayed(id, payload);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();
     }
 
     public AsyncTask markAsRejected(String id, Predicate<TransactionDto, Exception> predicate) {
-        TransactionApi api = createService(TransactionApi.class);
+        TransactionApi api = createService(TransactionApi.class, getContext());
         Call<TransactionDto> call = api.markAsRejected(id);
         TransactionTask task = new TransactionTask(predicate, call);
         return task.execute();

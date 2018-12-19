@@ -10,6 +10,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import ua.com.atcorp.mobilecashdesk.interceptors.ConnectivityInterceptor;
 import ua.com.atcorp.mobilecashdesk.rest.converters.NullOnEmptyConverterFactory;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseRepository<T> {
+
     public interface Predicate<T, E> {
         void response(T response, E error);
     }
@@ -71,29 +73,12 @@ public abstract class BaseRepository<T> {
         };
     }
 
-    protected static  boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivity =(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if (connectivity == null) {
-            return false;
-        } else {
-            NetworkInfo[] info = connectivity.getAllNetworkInfo();
-            if (info != null) {
-                for (int i = 0; i < info.length; i++) {
-                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    protected static <T> T createService(Class<T> serviceClass) {
+    protected static <T> T createService(Class<T> serviceClass, Context ctx) {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         OkHttpClient client = httpClientBuilder
                 .readTimeout(120, TimeUnit.SECONDS)
                 .connectTimeout(120, TimeUnit.SECONDS)
+                .addInterceptor(new ConnectivityInterceptor(ctx))
                 .addInterceptor(getAuthTokenInterceptor())
                 .addInterceptor(getAddCookiesInterceptor())
                 .addInterceptor(getReceivedCookiesInterceptor())
