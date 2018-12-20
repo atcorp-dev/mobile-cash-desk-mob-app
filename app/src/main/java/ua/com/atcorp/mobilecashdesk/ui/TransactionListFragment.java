@@ -1,5 +1,6 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,11 +10,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
+import android.widget.EditText;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import ua.com.atcorp.mobilecashdesk.R;
@@ -38,6 +43,8 @@ public class TransactionListFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    final Calendar mCalendar = Calendar.getInstance();
+    private Date mDateFrom = new Date();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -81,6 +88,8 @@ public class TransactionListFragment extends Fragment {
         View listView = view.findViewById(R.id.list);
         progressBar.setVisibility(View.VISIBLE);
 
+        initDateInput(view);
+
         // Set the adapter
         if (listView instanceof RecyclerView) {
             Context context = view.getContext();
@@ -90,25 +99,76 @@ public class TransactionListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            String companyId = getCompanyId();
-            if (companyId != null) {
-                TransactionRepository repo = new TransactionRepository(getContext());
-                repo.getPayed(companyId, new Date(), (transactions, err) -> {
-                    progressBar.setVisibility(View.GONE);
-                    ArrayList<DummyItem> items = new ArrayList<>();
-                    if (err == null || transactions != null) {
-                        int index = 0;
-                        for(TransactionDto dto : transactions) {
-                            String details = dto.extras == null ? null : dto.extras.receipt;
-                            String content = getDateString(dto.dateTime);
-                            items.add(new DummyItem(dto.documentNumber, content, details));
-                        }
-                    }
-                    recyclerView.setAdapter(new TransactionListRecyclerViewAdapter(items, mListener));
-                });
-            }
+            loadTransactions(view);
         }
         return view;
+    }
+
+    private void loadTransactions(View view) {
+
+        View progressBar =  view.findViewById(R.id.progress);
+        View listView = view.findViewById(R.id.list);
+        RecyclerView recyclerView = (RecyclerView) listView;
+        String companyId = getCompanyId();
+        if (companyId != null) {
+            TransactionRepository repo = new TransactionRepository(getContext());
+            repo.getPayed(companyId, mDateFrom, (transactions, err) -> {
+                progressBar.setVisibility(View.GONE);
+                ArrayList<DummyItem> items = new ArrayList<>();
+                if (err == null || transactions != null) {
+                    int index = 0;
+                    for(TransactionDto dto : transactions) {
+                        String details = dto.extras == null ? null : dto.extras.receipt;
+                        String content = getDateString(dto.dateTime);
+                        items.add(new DummyItem(dto.documentNumber, content, details));
+                    }
+                }
+                recyclerView.setAdapter(new TransactionListRecyclerViewAdapter(items, mListener));
+            });
+        }
+    }
+
+    private void initDateInput(View view) {
+        EditText edittext= view.findViewById(R.id.dateFrom);
+        updateLabel(edittext);
+
+        DatePickerDialog.OnDateSetListener date = (datePickerView, year, monthOfYear, dayOfMonth) -> {
+            // TODO Auto-generated method stub
+            mCalendar.set(Calendar.YEAR, year);
+            mCalendar.set(Calendar.MONTH, monthOfYear);
+            mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            updateLabel(edittext);
+            mDateFrom = getDateFromDatePicker(datePickerView);
+            loadTransactions(getView());
+        };
+
+        edittext.setOnClickListener(v -> {
+
+            new DatePickerDialog(
+                    getContext(),
+                    date,
+                    mCalendar.get(Calendar.YEAR),
+                    mCalendar.get(Calendar.MONTH),
+                    mCalendar.get(Calendar.DAY_OF_MONTH)
+            ).show();
+        });
+    }
+
+    private Date getDateFromDatePicker(DatePicker datePicker){
+        int day = datePicker.getDayOfMonth();
+        int month = datePicker.getMonth();
+        int year =  datePicker.getYear();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+
+        return calendar.getTime();
+    }
+
+    private void updateLabel(EditText edittext) {
+        String format = "dd.MM.yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        edittext.setText(sdf.format(mCalendar.getTime()));
     }
 
 

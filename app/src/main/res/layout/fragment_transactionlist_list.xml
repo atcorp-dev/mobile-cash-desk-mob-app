@@ -16,6 +16,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:visibility="gone" />
+    <EditText
+        android:id="@+id/dateFrom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:clickable="true"
+        android:hint="Дата"/>
 
     <android.support.v7.widget.RecyclerView
         xmlns:tools="http://schemas.android.com/tools"
