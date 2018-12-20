@@ -164,7 +164,13 @@ public class PrintReceiptActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         try {
             Picture picture = webView.capturePicture();
-            bitmap = Bitmap.createBitmap(picture.getWidth(),picture.getHeight(), Bitmap.Config.RGB_565);
+            int width = picture.getWidth();
+            if (width <= 0)
+                width = 380;
+            int height = picture.getHeight();
+            if (height <= 0)
+                height = 380;
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
             picture.draw(canvas);
