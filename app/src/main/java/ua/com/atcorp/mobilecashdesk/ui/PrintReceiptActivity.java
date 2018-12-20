@@ -85,6 +85,11 @@ public class PrintReceiptActivity extends AppCompatActivity {
         webView.setVisibility(View.INVISIBLE);
         imgView.setVisibility(View.VISIBLE);
         final Bitmap bitmap = getBitmapFromWebView(webView);
+        if (bitmap == null) {
+            btnPrint.setEnabled(false);
+            Toast.makeText(this, "Помилка при отримані чеку", Toast.LENGTH_LONG);
+            return;
+        }
         mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
         Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
         bitmap.recycle();
