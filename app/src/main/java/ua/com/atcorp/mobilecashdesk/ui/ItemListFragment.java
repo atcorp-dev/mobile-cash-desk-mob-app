@@ -1,14 +1,17 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -36,6 +39,7 @@ public class ItemListFragment extends Fragment implements TextWatcher {
     View mBtnSearch;
     ProgressBar mProgressBar;
     int minSearchTextLength = 3;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -52,11 +56,41 @@ public class ItemListFragment extends Fragment implements TextWatcher {
         mBtnSearch.setOnClickListener(v -> getItemsByName());
         mBtnSearch.setEnabled(false);
         mProgressBar = view.findViewById(R.id.progress);
+        mEtName.post(() -> showKeyboard(mEtName));
+        mEtName.requestFocus();
+        mEtName.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_DPAD_CENTER:
+                    case KeyEvent.KEYCODE_ENTER:
+                        getItemsByName();
+                        return true;
+                    default:
+                        break;
+                }
+            }
+            return false;
+        });
         return view;
     }
 
-    public static void ResetCache() {
-        Delete.from(Item.class).execute();
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        String name = mEtName.getText().toString();
+        boolean enabled = false;
+        if (name != null && name.length() >= minSearchTextLength)
+            enabled = true;
+        mBtnSearch.setEnabled(enabled);
     }
 
     private void getItemsByName() {
@@ -91,22 +125,10 @@ public class ItemListFragment extends Fragment implements TextWatcher {
         mProgressBar.setVisibility(View.GONE);
     }
 
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+    private void showKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
     }
 
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        String name = mEtName.getText().toString();
-        boolean enabled = false;
-        if (name != null && name.length() >= minSearchTextLength)
-            enabled = true;
-        mBtnSearch.setEnabled(enabled);
-    }
 }

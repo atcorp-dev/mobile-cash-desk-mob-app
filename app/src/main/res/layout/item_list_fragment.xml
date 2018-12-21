@@ -29,7 +29,9 @@
             android:layout_gravity="center_vertical"
             android:gravity="left"
             android:hint="Назва товару"
-            android:paddingEnd="30dp"
+            android:paddingRight="30dp"
+            android:ems="100"
+            android:inputType="text"
             android:textSize="24sp" />
 
         <ImageView
