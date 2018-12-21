@@ -224,7 +224,8 @@ public class TransactionListFragment extends Fragment {
         sb.append("</div>");
         sb.append("<div style=\"display: flex;flex-direction: column;justify-content: center\">");
         for (TransactionDto dto : mTransactions) {
-            totalAmount += dto.totalPrice;
+            if (dto.status == 1)
+                totalAmount += dto.totalPrice;
             sb.append("<div style=\"margin-top: 12px;\">");
             sb.append(String.format("<div>Платіж №%s</div>", dto.documentNumber));
             sb.append(String.format("<div>Дата %s</div>", dateTimeFormat.format(dto.dateTime)));
