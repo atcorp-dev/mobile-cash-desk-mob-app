@@ -77,9 +77,6 @@
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ActivityTheme.ActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
         </activity>
     </application>
 

@@ -8,22 +8,23 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.List;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.adapters.TransactionListRecyclerViewAdapter;
-import ua.com.atcorp.mobilecashdesk.dummy.DummyContent;
 import ua.com.atcorp.mobilecashdesk.dummy.DummyContent.DummyItem;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.repositories.TransactionRepository;
@@ -45,6 +46,7 @@ public class TransactionListFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     final Calendar mCalendar = Calendar.getInstance();
     private Date mDateFrom = new Date();
+    private List<TransactionDto> mTransactions;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -78,6 +80,7 @@ public class TransactionListFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -104,6 +107,36 @@ public class TransactionListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnListFragmentInteractionListener) {
+            mListener = (OnListFragmentInteractionListener) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_print_z_report) {
+            printReport();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void loadTransactions(View view) {
 
         View progressBar =  view.findViewById(R.id.progress);
@@ -112,11 +145,11 @@ public class TransactionListFragment extends Fragment {
         String companyId = getCompanyId();
         if (companyId != null) {
             TransactionRepository repo = new TransactionRepository(getContext());
-            repo.getPayed(companyId, mDateFrom, (transactions, err) -> {
+            repo.getFinished(companyId, mDateFrom, (transactions, err) -> {
                 progressBar.setVisibility(View.GONE);
                 ArrayList<DummyItem> items = new ArrayList<>();
                 if (err == null || transactions != null) {
-                    int index = 0;
+                    mTransactions = transactions;
                     for(TransactionDto dto : transactions) {
                         String details = dto.extras == null ? null : dto.extras.receipt;
                         String content = getDateString(dto.dateTime);
@@ -130,6 +163,7 @@ public class TransactionListFragment extends Fragment {
 
     private void initDateInput(View view) {
         EditText edittext= view.findViewById(R.id.dateFrom);
+        View datePicker = view.findViewById(R.id.date_picker);
         updateLabel(edittext);
 
         DatePickerDialog.OnDateSetListener date = (datePickerView, year, monthOfYear, dayOfMonth) -> {
@@ -142,7 +176,7 @@ public class TransactionListFragment extends Fragment {
             loadTransactions(getView());
         };
 
-        edittext.setOnClickListener(v -> {
+        datePicker.setOnClickListener(v -> {
 
             new DatePickerDialog(
                     getContext(),
@@ -171,28 +205,45 @@ public class TransactionListFragment extends Fragment {
         edittext.setText(sdf.format(mCalendar.getTime()));
     }
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnListFragmentInteractionListener {
-        void onPrintReceipt(String receipt);
-    }
-
     private String getDateString(Date date) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = df.format(date);
         return dateString;
+    }
+
+    private void printReport() {
+        double totalAmount = 0;
+        DateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        StringBuffer sb = new StringBuffer();
+        sb.append("<html>");
+        sb.append("<body>");
+        sb.append("<div style=\"display: flex;justify-content: center; margin-top:24px\">");
+        sb.append(String.format("<h4>Звіт за %s</h4>", dateFormat.format(mDateFrom)));
+        sb.append("</div>");
+        sb.append("<div style=\"display: flex;flex-direction: column;justify-content: center\">");
+        for (TransactionDto dto : mTransactions) {
+            totalAmount += dto.totalPrice;
+            sb.append("<div style=\"margin-top: 12px;\">");
+            sb.append(String.format("<div>Платіж №%s</div>", dto.documentNumber));
+            sb.append(String.format("<div>Дата %s</div>", dateTimeFormat.format(dto.dateTime)));
+            sb.append(String.format("<div>Статус: %s</div>", dto.status == 1 ? "Успішно" : "Відхилено"));
+            sb.append(String.format("<div>Сума %s грн.</div>", decimalFormat.format(dto.totalPrice)));
+            sb.append("</div>");
+        }
+        sb.append("<div style=\"margin-top: 12px;margin-bottom: 24px\">");
+        sb.append(String.format("<h4>Всього %s грн.</h4>", decimalFormat.format(totalAmount)));
+        sb.append("</div>");
+        sb.append("</div>");
+        sb.append("</body?");
+        sb.append("</html>");
+        String report = sb.toString();
+        if (mListener != null)
+            mListener.onPrintReceipt(report);
+    }
+
+    public interface OnListFragmentInteractionListener {
+        void onPrintReceipt(String receipt);
     }
 }

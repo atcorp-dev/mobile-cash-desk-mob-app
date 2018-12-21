@@ -83,8 +83,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        // getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean actionPrintZReportVisible = mSelectedMenuId == R.id.nav_transactions;
+        menu.findItem(R.id.action_print_z_report).setVisible(actionPrintZReportVisible);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -93,11 +100,6 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity
                 .commit();
         mNavigationView.setCheckedItem(R.id.nav_main);
         setTitle("Головна");
+        invalidateOptionsMenu();
     }
 
     private void openCartFragment() {
@@ -157,6 +160,32 @@ public class MainActivity extends AppCompatActivity
                 .commit();
         mNavigationView.setCheckedItem(R.id.nav_cart);
         setTitle("Кошик");
+        invalidateOptionsMenu();
+    }
+
+    private void openCatalogueFragment() {
+        mSelectedMenuId = R.id.nav_catalogue;
+        ItemListFragment catalogueFragment = new ItemListFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, catalogueFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_catalogue);
+        setTitle("Каталог");
+        invalidateOptionsMenu();
+    }
+
+    private void openTransactionsFragment() {
+        mSelectedMenuId = R.id.nav_transactions;
+        TransactionListFragment transactionListFragment = TransactionListFragment
+                .newInstance(1);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, transactionListFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_transactions);
+        setTitle("Архів");
+        invalidateOptionsMenu();
     }
 
     public void openCatalogueItemActivity(Item item) {
@@ -172,29 +201,6 @@ public class MainActivity extends AppCompatActivity
     public void openProfileActivity() {
         Intent intent = new Intent(this, UserProfilerActivity.class);
         startActivity(intent);
-    }
-
-    private void openCatalogueFragment() {
-        mSelectedMenuId = R.id.nav_cart;
-        ItemListFragment catalogueFragment = new ItemListFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, catalogueFragment)
-                .commit();
-        mNavigationView.setCheckedItem(R.id.nav_catalogue);
-        setTitle("Каталог");
-    }
-
-    private void openTransactionsFragment() {
-        mSelectedMenuId = R.id.nav_cart;
-        TransactionListFragment transactionListFragment = TransactionListFragment
-                .newInstance(1);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, transactionListFragment)
-                .commit();
-        mNavigationView.setCheckedItem(R.id.nav_transactions);
-        setTitle("Архів");
     }
 
     public void makePayment(String cartId, double price) {

@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -74,6 +75,16 @@ public class PrintReceiptActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         MiniPosManager.getInstance().pinpadUnsubscribe();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+        return (super.onOptionsItemSelected(menuItem));
     }
 
     public void onPrint(View view) {
