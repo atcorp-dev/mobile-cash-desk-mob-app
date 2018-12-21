@@ -1,5 +1,6 @@
 package ua.com.atcorp.mobilecashdesk.ui;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -7,11 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -50,6 +52,19 @@ public class CartFragment extends Fragment {
         setTotalPrice(view, price);
         mCartService.bindAdapterToListView(mListView);
         mItemCodeView = view.findViewById(R.id.et_item_code);
+        mItemCodeView.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_DPAD_CENTER:
+                    case KeyEvent.KEYCODE_ENTER:
+                        onButtonSearchClick(v);
+                        return true;
+                    default:
+                        break;
+                }
+            }
+            return false;
+        });
         initCart(view);
         cartInitialized = true;
         Button searchButton = view.findViewById(R.id.item_btn_search);
@@ -169,6 +184,14 @@ public class CartFragment extends Fragment {
         getView().findViewById(R.id.search_wrap).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.btn_collapse_top_layout).setVisibility(View.VISIBLE);
         view.setVisibility(View.GONE);
+        mItemCodeView.requestFocus();
+        showKeyboard(mItemCodeView);
+    }
+
+    private void showKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
     }
 
     private void onButtonCollapseTopLayoutClick(View view) {
