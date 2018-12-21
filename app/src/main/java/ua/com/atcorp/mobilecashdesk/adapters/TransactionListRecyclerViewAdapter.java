@@ -32,7 +32,7 @@ public class TransactionListRecyclerViewAdapter extends RecyclerView.Adapter<Tra
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        DummyItem item =mValues.get(position);
+        DummyItem item = mValues.get(position);
         holder.mItem = item;
         String numberText = String.format("№: %s", item.id);
         holder.mIdView.setText(numberText);

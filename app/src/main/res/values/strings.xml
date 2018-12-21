@@ -25,6 +25,7 @@
     <string name="nav_header_subtitle">Мобільна каса</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="action_print_z_report">Друк звіту</string>
     <string name="action_reset">Reset</string>
 
     <string name="payment_activity_btn_pay">Сплатити</string>

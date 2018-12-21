@@ -59,6 +59,26 @@ public class TransactionRepository extends BaseRepository {
         return task.execute();
     }
 
+    public AsyncTask getFinished(String companyId, Date date, Predicate<List<TransactionDto>, Exception> predicate) {
+        TransactionApi api = createService(TransactionApi.class, getContext());
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        DateFormat dt = new SimpleDateFormat("yyyy-MM-dd'T'23:59:59'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        df.setTimeZone(tz);
+        dt.setTimeZone(tz);
+        String dateFrom = df.format(date);
+        String dateTo = dt.format(date);
+        Call<List<TransactionDto>> call = api.getFinished(
+                companyId,
+                dateFrom,
+                dateTo,
+                "dateTime",
+                "DESC"
+        );
+        TransactionListTask task = new TransactionListTask(predicate, call);
+        return task.execute();
+    }
+
     public AsyncTask getById(String id, Predicate<TransactionDto, Exception> predicate) {
         TransactionApi api = createService(TransactionApi.class, getContext());
         Call<TransactionDto> call = api.getById(id);

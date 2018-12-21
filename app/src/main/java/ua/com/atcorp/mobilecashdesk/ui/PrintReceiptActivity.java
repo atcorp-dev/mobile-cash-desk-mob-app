@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -74,6 +75,16 @@ public class PrintReceiptActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         MiniPosManager.getInstance().pinpadUnsubscribe();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+        return (super.onOptionsItemSelected(menuItem));
     }
 
     public void onPrint(View view) {
@@ -164,7 +175,13 @@ public class PrintReceiptActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         try {
             Picture picture = webView.capturePicture();
-            bitmap = Bitmap.createBitmap(picture.getWidth(),picture.getHeight(), Bitmap.Config.RGB_565);
+            int width = picture.getWidth();
+            if (width <= 0)
+                width = 380;
+            int height = picture.getHeight();
+            if (height <= 0)
+                height = 380;
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
             picture.draw(canvas);
