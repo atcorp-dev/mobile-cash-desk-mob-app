@@ -175,6 +175,10 @@ public class CartFragment extends Fragment {
                 ma.makePayment(mCart.getRecordId().toString(), mCartService.getTotalPrice());
             });
             builder.show();
+            input.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus)
+                    v.post(() -> showKeyboard(v));
+            });
         } else {
             ma.makePayment(mCart.getRecordId().toString(), mCartService.getTotalPrice());
         }

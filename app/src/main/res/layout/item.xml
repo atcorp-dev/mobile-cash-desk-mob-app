@@ -81,6 +81,16 @@
                         android:text="" />
 
                     <TextView
+                        android:id="@+id/item_brand"
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:layout_weight = "0"
+                        android:textSize="18sp"
+                        android:textStyle="italic"
+                        android:paddingTop="6dp"
+                        android:text="" />
+
+                    <TextView
                         android:id="@+id/item_available"
                         android:layout_width="match_parent"
                         android:layout_height="32dp"

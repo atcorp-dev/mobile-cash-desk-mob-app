@@ -60,13 +60,21 @@ public class ItemAdapter extends ArrayAdapter {
         setTextToView(view, R.id.item_code, item.getCode());
         setTextToView(view, R.id.item_price, formatPrice(item.getPrice()));
         String size = "";
+        String brand = "";
         for(ItemDto.AdditionalField f : item.getAdditionalFields()) {
-            if (f.name.equals("Розмір")) {
-                size = "Розмір: " + f.value;
-                break;
+            if (f.value != null && f.value.length() > 0) {
+                if (f.name.equals("Розмір")) {
+                    size = "Розмір: " + f.value;
+                }
+                if (f.name.equals("Бренд")) {
+                    brand = "Постачальник: " + f.value;
+                }
             }
         }
         setTextToView(view, R.id.item_size, size);
+        setTextToView(view, R.id.item_brand, brand);
+        view.findViewById(R.id.item_size).setVisibility(size.length() > 0 ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.item_brand).setVisibility(brand.length() > 0 ? View.VISIBLE : View.GONE);
         setTextToView(view, R.id.item_available, String.format("На складі - %s", item.getAvailable() ? "Так" : "Ні"));
 
         View btn = view.findViewById(R.id.btnToCart);

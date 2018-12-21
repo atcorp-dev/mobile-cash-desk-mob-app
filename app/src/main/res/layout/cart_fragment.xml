@@ -97,7 +97,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="0"
                         android:ems="10"
-                        android:hint="Артикул"
+                        android:hint="Штрих-код"
                         android:inputType="numberSigned" />
                 </android.support.design.widget.TextInputLayout>
 
