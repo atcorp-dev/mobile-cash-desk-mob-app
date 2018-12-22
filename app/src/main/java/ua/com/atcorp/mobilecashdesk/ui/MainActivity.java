@@ -3,6 +3,7 @@ package ua.com.atcorp.mobilecashdesk.ui;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +20,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.net.URL;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.models.Item;
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
     private int SCAN_REQ_CODE = 101;
+    private String mAppDownloadUrl = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +123,8 @@ public class MainActivity extends AppCompatActivity
             openCatalogueFragment();
         } else if (id == R.id.nav_transactions) {
             openTransactionsFragment();
+        } else if (id == R.id.nav_upgrade) {
+            upgradeApp();
         } else if (id == R.id.nav_profile) {
             openProfileActivity();
         } else if (id == R.id.nav_logout) {
@@ -276,6 +283,14 @@ public class MainActivity extends AppCompatActivity
 
     private void openLoginActivity() {
         Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    private void upgradeApp() {
+        if (TextUtils.isEmpty(mAppDownloadUrl))
+            return;
+        Uri uri = Uri.parse(mAppDownloadUrl);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
 

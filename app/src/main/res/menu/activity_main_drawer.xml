@@ -20,6 +20,11 @@
         <group android:id="@+id/group_account" android:checkableBehavior="single">
 
             <item
+                android:id="@+id/nav_upgrade"
+                android:checkable="false"
+                android:title="Оновити додаток" />
+
+            <item
                 android:id="@+id/nav_profile"
                 android:checkable="false"
                 android:title="Профіль" />
