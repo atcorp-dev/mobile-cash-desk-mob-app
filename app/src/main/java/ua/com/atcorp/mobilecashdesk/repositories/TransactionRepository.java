@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.ParsePosition;
@@ -138,7 +139,11 @@ public class TransactionRepository extends BaseRepository {
         @Override
         protected void onPostExecute(TransactionDto result) {
             super.onPostExecute(result);
-            predicate.response(result, error);
+            try {
+                predicate.response(result, error);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -172,7 +177,11 @@ public class TransactionRepository extends BaseRepository {
         @Override
         protected void onPostExecute(List<TransactionDto> result) {
             super.onPostExecute(result);
-            predicate.response(result, error);
+            try {
+                predicate.response(result, error);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

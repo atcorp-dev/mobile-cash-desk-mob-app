@@ -17,11 +17,13 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -32,8 +34,15 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.android.gms.common.api.CommonStatusCodes;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.adapters.CartItemsAdapter;
+import ua.com.atcorp.mobilecashdesk.models.CartItem;
+import ua.com.atcorp.mobilecashdesk.repositories.ItemRepository;
+import ua.com.atcorp.mobilecashdesk.services.AuthService;
+import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.ui.barCode.BarcodeGraphic;
 import ua.com.atcorp.mobilecashdesk.ui.barCode.BarcodeGraphicTracker;
 import ua.com.atcorp.mobilecashdesk.ui.barCode.BarcodeTrackerFactory;
@@ -62,6 +71,11 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
     // helper objects for detecting taps and pinches.
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
+    private CartService mCartService;
+    private ItemRepository mItemRepository;
+    private AuthService mAuthService;
+    private CartItemsAdapter mCartItemsAdapter;
+    private ArrayList<CartItem> mCartItems = new ArrayList<>();
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -90,9 +104,13 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
         gestureDetector = new GestureDetector(this, new CaptureGestureListener());
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
-        Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG)
-                .show();
+        mCartService = new CartService(this);
+        mItemRepository = new ItemRepository(this);
+        mAuthService = new AuthService(this);
+        UUID cartId = mCartService.getCurrentCart().getRecordId();
+        mCartItemsAdapter = new CartItemsAdapter(this, cartId, mCartItems);
+        ListView listView = findViewById(R.id.item_list);
+        mCartService.bindAdapterToListView(listView);
     }
 
     /**
@@ -261,7 +279,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
         if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Camera permission granted - initialize the camera source");
             // we have permission, so create the camerasource
-            boolean autoFocus = getIntent().getBooleanExtra(AutoFocus,false);
+            boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, false);
             boolean useFlash = getIntent().getBooleanExtra(UseFlash, false);
             createCameraSource(autoFocus, useFlash);
             return;
@@ -417,15 +435,19 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onBarcodeDetected(Barcode barcode) {
-        // Snackbar.make(mGraphicOverlay, barcode.displayValue, Snackbar.LENGTH_LONG).show();
         if (barcode.displayValue == null)
             return;
-        Intent intent = new Intent();
-        intent.putExtra("barCode",  barcode.displayValue.toString());
-        intent.putExtra("barCodeSrc",  barcode.rawValue);
-        setResult(CommonStatusCodes.SUCCESS, intent);
-        finish();
+        String barCode = barcode.displayValue;
+        String companyId = mAuthService.getCurrentCompany().getRecordId();
+        mItemRepository.getItemByBarCode(companyId, barCode, (item, err) -> {
+            if (err == null && item != null) {
+                mCartService.addItem(item);
+                mCartService.saveState();
+                Toast.makeText(this, "Added", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

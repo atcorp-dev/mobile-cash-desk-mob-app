@@ -8,6 +8,7 @@ import com.reactiveandroid.ReActiveAndroid;
 import com.reactiveandroid.query.Delete;
 import com.reactiveandroid.query.Select;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,7 +74,11 @@ public class CompanyRepository extends BaseRepository {
         @Override
         protected void onPostExecute(List<Company> result) {
             super.onPostExecute(result);
-            predicate.response(result, error);
+            try {
+                predicate.response(result, error);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         private List<Company> getCachedCompanies() {

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseRepository<T> {
 
     public interface Predicate<T, E> {
-        void response(T response, E error);
+        void response(T response, E error) throws IOException;
     }
 
     // final static String API_URL = "https://mobile-cash-desk.herokuapp.com/api/";

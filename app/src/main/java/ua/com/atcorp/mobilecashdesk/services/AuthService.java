@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.reactiveandroid.query.Select;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,7 +199,11 @@ public class AuthService extends BaseRepository {
         @Override
         protected void onPostExecute(User result) {
             super.onPostExecute(result);
-            predicate.response(result, error);
+            try {
+                predicate.response(result, error);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -232,7 +237,11 @@ public class AuthService extends BaseRepository {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            predicate.response(result, error);
+            try {
+                predicate.response(result, error);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +90,11 @@ public class ItemRepository extends BaseRepository {
         @Override
         protected void onPostExecute(Item result) {
             super.onPostExecute(result);
-            predicate.response(result, error);
+            try {
+                predicate.response(result, error);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         private Item dtoToItem(ItemDto dto) {
@@ -149,7 +154,11 @@ public class ItemRepository extends BaseRepository {
         @Override
         protected void onPostExecute(List<Item> result) {
             super.onPostExecute(result);
-            predicate.response(result, error);
+            try {
+                predicate.response(result, error);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         private Item dtoToItem(ItemDto dto) {

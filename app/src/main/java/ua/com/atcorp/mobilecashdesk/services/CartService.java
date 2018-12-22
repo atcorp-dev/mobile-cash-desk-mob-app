@@ -3,6 +3,7 @@ package ua.com.atcorp.mobilecashdesk.services;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
+import android.support.v7.widget.RecyclerView;
 import android.widget.ListView;
 import android.widget.Toast;
 
