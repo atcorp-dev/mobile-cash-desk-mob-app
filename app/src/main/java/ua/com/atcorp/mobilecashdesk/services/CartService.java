@@ -21,6 +21,7 @@ import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
 import ua.com.atcorp.mobilecashdesk.models.Item;
 import ua.com.atcorp.mobilecashdesk.repositories.BaseRepository;
+import ua.com.atcorp.mobilecashdesk.repositories.CartRepository;
 
 public class CartService extends BaseRepository {
 
@@ -28,16 +29,19 @@ public class CartService extends BaseRepository {
     private Cart mCart;
     private CartItemsAdapter mAdapter;
     private DataSetObserver mDataSetObserver;
+    private CartRepository mCartRepository;
 
     // region Constructors
 
     public CartService(Context context) {
         super(context);
+        mCartRepository = new CartRepository(context);
     }
 
     public CartService(Context context, DataSetObserver dataSetObserver) {
         super(context);
         mDataSetObserver = dataSetObserver;
+        mCartRepository = new CartRepository(context);
     }
 
     // endregion
@@ -79,6 +83,7 @@ public class CartService extends BaseRepository {
         editor.putString("cartId" , mCart.getRecordId().toString());
         editor.putString("modifiedOn" , getDateTimeNow());
         Exception error = mAdapter.saveState();
+        mCartRepository.modify(mCart);
         if (error == null)
             editor.commit();
         else {
@@ -91,6 +96,7 @@ public class CartService extends BaseRepository {
         UUID cartId = mCart == null ? getActiveCartId() : mCart.getRecordId();
         if(mCart == null) {
             mCart = getCartByRecordId(cartId);
+            mCartRepository.create(mCart);
         }
         List<CartItem> cartItems = Select
                 .from(CartItem.class)

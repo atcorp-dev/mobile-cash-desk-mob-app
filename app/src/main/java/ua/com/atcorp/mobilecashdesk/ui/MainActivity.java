@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity
             openCatalogueFragment();
         } else if (id == R.id.nav_transactions) {
             openTransactionsFragment();
+        } else if (id == R.id.nav_cart_history) {
+            openCartHistoryFragment();
         } else if (id == R.id.nav_upgrade) {
             upgradeApp();
         } else if (id == R.id.nav_profile) {
@@ -194,6 +196,19 @@ public class MainActivity extends AppCompatActivity
         setTitle("Архів");
         invalidateOptionsMenu();
     }
+
+    private void openCartHistoryFragment() {
+        mSelectedMenuId = R.id.nav_cart_history;
+        CartHistoryFragment cartHistoryFragment = CartHistoryFragment
+                .newInstance();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, cartHistoryFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_cart_history);
+        setTitle("Історія");
+    }
+
 
     public void openCatalogueItemActivity(Item item) {
         openCatalogueItemActivity(item.getRecordId());
