@@ -50,27 +50,35 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_weight = "1">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-            <Button
-                android:id="@+id/btnDetail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Детально"
-                android:background="@android:color/transparent"
-                android:textColor="@color/colorPrimary"
-                android:visibility="gone"
-                android:layout_weight = "0"/>
-            <Button
-                android:id="@+id/btnDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Перегляд"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:theme="@style/BlueButton"
-                android:layout_weight = "0"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+                <Button
+                    android:id="@+id/btnDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Детально"
+                    android:background="@android:color/transparent"
+                    android:textColor="@color/colorPrimary"
+                    android:visibility="gone"
+                    android:layout_weight = "0"/>
+                <Button
+                    android:id="@+id/btnDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Банківський чек"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:theme="@style/BlueButton"
+                    android:layout_weight = "0"/>
+                <Button
+                    android:id="@+id/btnUAmadeDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Чек UAmade"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:theme="@style/BlueButton"
+                    android:layout_weight = "0"/>
         </LinearLayout>
 
         </LinearLayout>

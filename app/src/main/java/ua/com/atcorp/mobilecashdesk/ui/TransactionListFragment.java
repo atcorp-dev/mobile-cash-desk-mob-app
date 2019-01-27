@@ -147,13 +147,14 @@ public class TransactionListFragment extends Fragment {
             TransactionRepository repo = new TransactionRepository(getContext());
             repo.getFinished(companyId, mDateFrom, (transactions, err) -> {
                 progressBar.setVisibility(View.GONE);
-                ArrayList<DummyItem> items = new ArrayList<>();
+                ArrayList<TransactionDto> items = new ArrayList<>();
                 if (err == null || transactions != null) {
                     mTransactions = transactions;
                     for(TransactionDto dto : transactions) {
-                        String details = dto.extras == null ? null : dto.extras.receipt;
-                        String content = getDateString(dto.dateTime);
-                        items.add(new DummyItem(dto.documentNumber, content, details));
+                        // String details = dto.extras == null ? null : dto.extras.receipt;
+                        // String content = getDateString(dto.dateTime);
+                        // DummyItem dummyItem = new DummyItem(dto.documentNumber, content, details);
+                        items.add(dto);
                     }
                 }
                 recyclerView.setAdapter(new TransactionListRecyclerViewAdapter(items, mListener));

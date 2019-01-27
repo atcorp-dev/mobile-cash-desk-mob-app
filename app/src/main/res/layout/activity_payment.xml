@@ -184,7 +184,20 @@
             android:background="@color/colorPrimary"
             android:onClick="onPrint"
             android:enabled="false"
-            android:text="@string/payment_activity_btn_print"
+            android:text="Друк банківського чеку"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btn_ua_made_print"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="30dp"
+            android:background="@color/colorPrimary"
+            android:onClick="onUAmadePrint"
+            android:enabled="false"
+            android:text="Друк чеку UAmade"
             android:visibility="gone"/>
 
         <Button
@@ -207,6 +220,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:id="@+id/webView">
+    </WebView>
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:id="@+id/UAmadeWebView">
     </WebView>
 
     <ProgressBar

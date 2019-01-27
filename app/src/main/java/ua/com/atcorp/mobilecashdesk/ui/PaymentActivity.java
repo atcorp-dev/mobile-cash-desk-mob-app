@@ -42,6 +42,7 @@ import ua.com.atcorp.mobilecashdesk.services.AuthService;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
 import ua.com.atcorp.mobilecashdesk.services.UserService;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.ChoicePrinterDialog;
+import ua.com.atcorp.mobilecashdesk.utils.UaMadeReceiptFactory;
 import ua.pbank.dio.minipos.MiniPosManager;
 import ua.pbank.dio.minipos.interfaces.MiniPosConnectionListener;
 import ua.pbank.dio.minipos.interfaces.MiniPosPrinterListener;
@@ -69,6 +70,7 @@ public class PaymentActivity extends AppCompatActivity
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private static final int REQUEST_ENABLE_BT = 2;
     private static PaymentActivity instance;
+    private Context mContext;
 
     // region Fields: Private
 
@@ -77,6 +79,7 @@ public class PaymentActivity extends AppCompatActivity
     private String mStrAmount;
     private String mPurpose = "Покупка в магазині";
     private String mReceipt;
+    private String mUAmadeReceipt;
     private Cart mCart;
     private Bitmap mReceiptBitmap;
     private TransactionRepository mTransactionRepository;
@@ -100,10 +103,13 @@ public class PaymentActivity extends AppCompatActivity
     Button btnPay;
     @BindView(R.id.btn_print)
     Button btnPrint;
+    @BindView(R.id.btn_ua_made_print)
+    Button btnUAmadePrint;
     @BindView(R.id.btn_cancel)
     Button btnCancel;
     // @BindView(R.id.webView)
     WebView webView;
+    WebView UAmadeWebView;
     @BindView(R.id.tvError)
     TextView tvError;
     @BindView(R.id.viewError)
@@ -136,6 +142,7 @@ public class PaymentActivity extends AppCompatActivity
 
         btnPay = findViewById(R.id.btn_pay);
         initWebView();
+        initUAmadeWebView();
         //onReceipt();
         mTransactionRepository = new TransactionRepository(this);
         initTransaction();
@@ -143,7 +150,7 @@ public class PaymentActivity extends AppCompatActivity
         imgView.setVisibility(View.GONE);
 
         mUserService = new UserService(this);
-
+        mContext = this;
     }
 
     @Override
@@ -296,12 +303,17 @@ public class PaymentActivity extends AppCompatActivity
                     makePayment(mStrAmount);
                     break;
                 case "default":
-                    String receipt = "<html><body>"
-                            +"<div style=\"display: flex;justify-items: center;align-items:center\">Test</div>"
-                            +"</body><html>";
+                    String receipt = "<html><body><h1>Transaction Receipt</h1></body></html>";
+                    String UAmadeReceipt = new UaMadeReceiptFactory(this).getReceipt(mCart, mTransaction);
                     HashMap<String, String> payLoad = new HashMap<>();
+                    payLoad.put("UAmadeReceipt", UAmadeReceipt);
                     payLoad.put("receipt", receipt);
                     markTransactionAsPayed(payLoad);
+                    runOnUiThread(() -> {
+                        loadUAmadeReceipt(UAmadeReceipt);
+                        loadReceipt(receipt);
+                        showPrintButton();
+                    });
                     break;
                 default:
                     makePaymentPrivate(mAmount);
@@ -317,6 +329,18 @@ public class PaymentActivity extends AppCompatActivity
 
     public void onPrint(View view) {
         final Bitmap bitmap = getBitmapFromWebView(webView);
+        mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
+        Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
+        bitmap.recycle();
+        imgView.setImageBitmap(previewBitmap);
+        imgView.setVisibility(View.VISIBLE);
+        paymentPreviewListView.setVisibility(View.GONE);
+        if (mCart.getType() == 0)
+            MiniPosManager.getInstance().initPrinter(printerConnectionListener);
+    }
+
+    public void onUAmadePrint(View view) {
+        final Bitmap bitmap = getBitmapFromWebView(UAmadeWebView);
         mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
         Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
         bitmap.recycle();
@@ -383,7 +407,9 @@ public class PaymentActivity extends AppCompatActivity
     }
 
     private void showPrintButton() {
+        findViewById(R.id.payment_info_wrap).setVisibility(View.GONE);
         btnPrint.setVisibility(View.VISIBLE);
+        btnUAmadePrint.setVisibility(View.VISIBLE);
         btnPay.setVisibility(View.GONE);
     }
 
@@ -610,6 +636,68 @@ public class PaymentActivity extends AppCompatActivity
 
     }
 
+    private void initUAmadeWebView() {
+
+        UAmadeWebView = findViewById(R.id.UAmadeWebView);
+        // webView = new WebView(this);
+        webView.getSettings().setJavaScriptEnabled(true);
+
+        Log.d(TAG,"display widtht:"+getResources().getDisplayMetrics().widthPixels+ " with density:"+384 * getResources().getDisplayMetrics().density);
+        //меняем ширину webview для планшетов на 384 (max для принтера !!!)
+        if (isTablet(this)) {
+            UAmadeWebView.setLayoutParams(
+                    new LinearLayout.LayoutParams(
+                            (int) (384 * getResources().getDisplayMetrics().density), LinearLayout.LayoutParams.WRAP_CONTENT ));
+        }
+
+        UAmadeWebView.setVisibility(View.GONE);
+
+        UAmadeWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                Log.d(TAG,"onPageStarted url:"+url);
+                showProgress();
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                Log.d(TAG,"onPageFinished url:"+url);
+                if (mErrorCode == 0) {
+                    hideProgress();
+                    viewError.setVisibility(View.GONE);
+                    UAmadeWebView.setVisibility(View.INVISIBLE);
+                    btnUAmadePrint.setEnabled(true);
+
+                } else {
+                    showLoadError(mErrorCode);
+                }
+            }
+
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                super.onReceivedError(view, errorCode, description, failingUrl);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                    Log.d(TAG, "onReceivedError old error:" + errorCode);
+                    mErrorCode = errorCode;
+                }
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                Log.d(TAG,"onReceivedError error:"+error.getErrorCode());
+                mErrorCode = error.getErrorCode();
+            }
+
+        });
+
+    }
+
     private void showLoadError(int error) {
         hideProgress();
         webView.setVisibility(View.GONE);
@@ -702,6 +790,11 @@ public class PaymentActivity extends AppCompatActivity
     private void loadReceipt(String receipt) {
         mReceipt = receipt;
         webView.loadData(mReceipt,"text/html; charset=utf-8","UTF-8");
+    }
+
+    private void loadUAmadeReceipt(String receipt) {
+        mUAmadeReceipt = receipt;
+        UAmadeWebView.loadData(mUAmadeReceipt,"text/html; charset=utf-8","UTF-8");
     }
 
     private void showPrinterDialog() {
@@ -847,6 +940,7 @@ public class PaymentActivity extends AppCompatActivity
     private void makePaymentPrivate(Double amount) {
         mAmount = amount;
         mReceipt = "";
+        mUAmadeReceipt = "";
         try {
             if (BluetoothAdapter.getDefaultAdapter() == null) {
                 Toast.makeText(this, R.string.msg_bluetooth_is_not_supported, Toast.LENGTH_SHORT).show();
@@ -924,14 +1018,18 @@ public class PaymentActivity extends AppCompatActivity
             Log.d(TAG, "onTransactionFinish");
             TransactionData data = transaction.getTransactionData();
             String receipt = data.getReceipt();
+            UaMadeReceiptFactory f = new UaMadeReceiptFactory(mContext);
+            String UAmadeReceipt = f.getReceipt(mCart, mTransaction);
             String result = data.getResult();
             String userMessage = data.getUser_message();
             loadReceipt(receipt);
+            loadUAmadeReceipt(UAmadeReceipt);
             if (data.getResult().toLowerCase().equals("ok")) {
 
                 HashMap<String, String> payload = new HashMap<>();
                 payload.put("id", data.getId());
                 payload.put("receipt", receipt);
+                payload.put("UAmadeReceipt", UAmadeReceipt);
                 payload.put("receiptId", data.getReceipt_id().toString());
                 payload.put("result", result);
                 payload.put("approvalCode", data.getApproval_code());

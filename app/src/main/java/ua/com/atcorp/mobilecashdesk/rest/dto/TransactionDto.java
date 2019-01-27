@@ -37,6 +37,7 @@ public class TransactionDto {
     public class TransactionExtras {
         public String recipientId;
         public String receipt;
+        public String UAmadeReceipt;
         public boolean isChangedItems;
         public String clientInfo;
         public int bonusesAvailable;

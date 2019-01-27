@@ -8,17 +8,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import ua.com.atcorp.mobilecashdesk.R;
+import ua.com.atcorp.mobilecashdesk.rest.dto.TransactionDto;
 import ua.com.atcorp.mobilecashdesk.ui.TransactionListFragment.OnListFragmentInteractionListener;
-import ua.com.atcorp.mobilecashdesk.dummy.DummyContent.DummyItem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class TransactionListRecyclerViewAdapter extends RecyclerView.Adapter<TransactionListRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<TransactionDto> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public TransactionListRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public TransactionListRecyclerViewAdapter(List<TransactionDto> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -32,24 +35,37 @@ public class TransactionListRecyclerViewAdapter extends RecyclerView.Adapter<Tra
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        DummyItem item = mValues.get(position);
+        TransactionDto item = mValues.get(position);
         holder.mItem = item;
-        String numberText = String.format("№: %s", item.id);
+        String numberText = String.format("№: %s", item.documentNumber);
         holder.mIdView.setText(numberText);
-        String content = String.format("Дата: %s", item.content);
+        String dateTimeStr = getDateString(item.dateTime);
+        String content = String.format("Дата: %s", dateTimeStr);
         holder.mContentView.setText(content);
 
         View btnPrint = holder.mView.findViewById(R.id.btnDetails);
-        if (TextUtils.isEmpty(item.details))
+        View btnUAmadePrint = holder.mView.findViewById(R.id.btnUAmadeDetails);
+        String receipt = item.extras == null ? null : item.extras.receipt;
+        if (TextUtils.isEmpty(receipt)) {
             btnPrint.setVisibility(View.GONE);
+        } else {
+            btnPrint.setOnClickListener(v -> {
+                if (null != mListener) {
+                    mListener.onPrintReceipt(holder.mItem.extras.receipt);
+                }
+            });
+        }
 
-        btnPrint.setOnClickListener(v -> {
-            if (null != mListener) {
-                // Notify the active callbacks interface (the activity, if the
-                // fragment is attached to one) that an item has been selected.
-                mListener.onPrintReceipt(holder.mItem.details);
-            }
-        });
+        String UAmadeReceipt = item.extras == null ? null : item.extras.UAmadeReceipt;
+        if (TextUtils.isEmpty(UAmadeReceipt)) {
+            btnUAmadePrint.setVisibility(View.GONE);
+        } else {
+            btnUAmadePrint.setOnClickListener(v -> {
+                if (null != mListener) {
+                    mListener.onPrintReceipt(holder.mItem.extras.UAmadeReceipt);
+                }
+            });
+        }
     }
 
     @Override
@@ -57,11 +73,17 @@ public class TransactionListRecyclerViewAdapter extends RecyclerView.Adapter<Tra
         return mValues.size();
     }
 
+    private String getDateString(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = df.format(date);
+        return dateString;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public TransactionDto mItem;
 
         public ViewHolder(View view) {
             super(view);
