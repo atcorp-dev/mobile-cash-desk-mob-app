@@ -30,7 +30,7 @@ public class UaMadeReceiptFactory {
         hb.add("<body>");
         hb.add("<div style=\"width:380px\">");
         // region IMG
-        hb.add("<img style=\"margin-left:80px; width:300px\" src=\"data:image/png;base64,");
+        hb.add("<img style=\"margin-left:36px; width:300px\" src=\"data:image/png;base64,");
         hb.add("iVBORw0KGgoAAAANSUhEUgAAASwAAABHAQMAAACH9+gbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8");
         hb.add("YQUAAAAGUExURQAAAP///6XZn90AAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAFLaVRYdFhNTDpjb20uYWRv");
         hb.add("YmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5");
@@ -82,17 +82,17 @@ public class UaMadeReceiptFactory {
         );
         for(CartItem item : cart.getItems()) {
             hb.add("<tr>");
-            hb.add("<td>");
+            hb.add("<td colspan=\"4\">");
             hb.add(
                     String.format(
-                            "<div><font face=\"Arial\" size=\"2\">%s</font></div>",
+                            "<font face=\"Arial\" size=\"2\">%s</font>",
                             item.getItemName())
             );
             String itemPrice = df.format(item.getItemPrice() - item.getDiscount());
             String price = df.format(item.getPrice());
             hb.add(
                     String.format(
-                            "<div><font face=\"Arial\" size=\"3\">%sшт.*%s грн.      =      %s</font></div>",
+                            "<font face=\"Arial\" size=\"3\">%sшт.*%s грн.      =      %s</font>",
                             item.getQty(),
                             itemPrice,
                             price
