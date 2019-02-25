@@ -4,8 +4,12 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
@@ -21,9 +25,10 @@ public class CartRepository extends BaseRepository {
         super(context);
     }
 
-    public AsyncTask create(Cart cart) {
+    public AsyncTask create(String companyId, Cart cart) {
         CartApi api = createService(CartApi.class, getContext());
         CartDto dto = cartToDto(cart);
+        dto.companyId = companyId;
         Call<CartDto> call = api.create(dto);
         CartRepository.CartTask task = new CartRepository.CartTask(null, call);
         return task.execute();
@@ -37,9 +42,22 @@ public class CartRepository extends BaseRepository {
         return task.execute();
     }
 
-    public AsyncTask getCarts(Predicate<List<CartDto>, Exception> predicate) {
+    public AsyncTask getCarts(String companyId, Date date, Predicate<List<CartDto>, Exception> predicate) {
         CartApi api = createService(CartApi.class, getContext());
-        Call<List<CartDto>> call = api.getCarts();
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00'Z'");
+        DateFormat dt = new SimpleDateFormat("yyyy-MM-dd'T'23:59:59'Z'");
+        df.setTimeZone(tz);
+        dt.setTimeZone(tz);
+        String dateFrom = df.format(date);
+        String dateTo = dt.format(date);
+        Call<List<CartDto>> call = api.getCarts(
+                companyId,
+                dateFrom,
+                dateTo,
+                "createdOn",
+                "DESC"
+        );
         CartListTask task = new CartListTask(predicate, call);
         return task.execute();
     }
@@ -98,8 +116,8 @@ public class CartRepository extends BaseRepository {
         protected List<CartDto> doInBackground(Void... params) {
             try {
                 Response response = call.execute();
-                List<CartDto> CartDtoList = (List<CartDto>)response.body();
-                return CartDtoList;
+                List<CartDto> cartDtoList = (List<CartDto>)response.body();
+                return cartDtoList;
             } catch (Exception e) {
                 error = e;
                 Log.d("CARTS ERROR", e.getMessage());
@@ -126,6 +144,7 @@ public class CartRepository extends BaseRepository {
             for(CartItem cartItem : cart.getItems())
                 dto.items.add(cartItemToDto(cartItem));
         }
+
         return dto;
     }
 

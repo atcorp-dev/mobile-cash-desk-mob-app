@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,10 +8,52 @@
     android:gravity="center_horizontal"
     android:background="@drawable/main_activity_background">
 
+    <LinearLayout
+        android:id="@+id/date_from_wrap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/dateFrom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:enabled="false"
+            android:hint="Дата"/>
+
+        <ImageView
+            android:id="@+id/date_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_weight="6"
+            android:src="@drawable/ic_date_range_black_24dp"/>
+
+    </LinearLayout>
+
     <android.support.v7.widget.RecyclerView
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/list"
+        android:name="ua.com.atcorp.mobilecashdesk.CartHistoryFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/list"
-        android:name="ua.com.atcorp.mobilecashdesk.CartHistoryFragment" />
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_below="@id/date_from_wrap"
+        tools:context=".ui.CartHistoryFragment"
+        tools:listitem="@layout/fragment_carthistory_list_item"/>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+</RelativeLayout>

@@ -6,23 +6,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import ua.com.atcorp.mobilecashdesk.rest.dto.CartDto;
 import ua.com.atcorp.mobilecashdesk.ui.CartHistoryFragment.OnListFragmentInteractionListener;
 import ua.com.atcorp.mobilecashdesk.R;
-import ua.com.atcorp.mobilecashdesk.dummy.DummyContent.DummyItem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link CartDto} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class CartHistoryRecyclerViewAdapter extends RecyclerView.Adapter<CartHistoryRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<CartDto> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public CartHistoryRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public CartHistoryRecyclerViewAdapter(List<CartDto> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -30,15 +33,19 @@ public class CartHistoryRecyclerViewAdapter extends RecyclerView.Adapter<CartHis
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_carthistory, parent, false);
+                .inflate(R.layout.fragment_carthistory_list_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        CartDto item = mValues.get(position);
+        holder.mItem = item;
+        holder.mIdView.setText(String.format("%s", position + 1));
+        String content = getDateString(item.createdOn);
+        holder.mContentView.setText(content);
+        String userName = item.createdBy == null ? null :item.createdBy.login;
+        holder.mUserNameView.setText(userName);
 
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {
@@ -54,17 +61,25 @@ public class CartHistoryRecyclerViewAdapter extends RecyclerView.Adapter<CartHis
         return mValues.size();
     }
 
+    private String getDateString(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = df.format(date);
+        return dateString;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public final TextView mUserNameView;
+        public CartDto mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = view.findViewById(R.id.item_number);
             mContentView = view.findViewById(R.id.content);
+            mUserNameView = view.findViewById(R.id.user_name);
         }
 
         @Override

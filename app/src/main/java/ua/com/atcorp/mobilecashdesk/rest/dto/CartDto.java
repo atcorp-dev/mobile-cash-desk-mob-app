@@ -21,6 +21,9 @@ public class CartDto {
     }
 
     public String id;
+    public Date createdOn;
+    public UserDto createdBy;
+    public String companyId;
     public int type;
     public String clientInfo;
     public ArrayList<CartItemDto> items;
