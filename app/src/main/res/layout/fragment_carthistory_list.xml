@@ -38,14 +38,14 @@
     <android.support.v7.widget.RecyclerView
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/list"
-        android:name="ua.com.atcorp.mobilecashdesk.TransactionListFragment"
+        android:name="ua.com.atcorp.mobilecashdesk.CartHistoryFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_below="@id/date_from_wrap"
-        tools:context=".ui.TransactionListFragment"
-        tools:listitem="@layout/fragment_transactionlist" />
+        tools:context=".ui.CartHistoryFragment"
+        tools:listitem="@layout/fragment_carthistory_list_item"/>
 
     <ProgressBar
         android:id="@+id/progress"

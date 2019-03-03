@@ -51,6 +51,7 @@ import ua.pbank.dio.minipos.models.Transaction;
 
 import android.util.*;
 
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +68,6 @@ public class PaymentActivity extends AppCompatActivity
     private final int MAKE_PAYMENT_CODE = 2;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private static final int REQUEST_ENABLE_BT = 2;
-
     private static PaymentActivity instance;
 
     // region Fields: Private
@@ -85,6 +85,8 @@ public class PaymentActivity extends AppCompatActivity
     private AuthService mAuthService;
     private UserService mUserService;
     private int mErrorCode;
+    private Thread mUpdateCartThread;
+    private boolean mCartUpdated = true;
 
     // endregion
 
@@ -169,6 +171,8 @@ public class PaymentActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
         MiniPosManager.getInstance().pinpadUnsubscribe();
+        if (mUpdateCartThread != null && mUpdateCartThread.isAlive())
+            mUpdateCartThread.interrupt();
     }
 
     @Override
@@ -255,12 +259,16 @@ public class PaymentActivity extends AppCompatActivity
     // region Methods: Public Static
 
     public static void notifyTransactionUpdated() {
+        Thread thread = instance.mUpdateCartThread;
+        if (thread != null && thread.isAlive())
+            thread.interrupt();
         instance.mTransactionRepository.getById(instance.mTransaction.id, (transaction, err) -> {
             if (err != null) {
                 View view = instance.findViewById(R.id.payment_layout);
                 Snackbar.make(view, err.getMessage(), Snackbar.LENGTH_LONG).show();
                 err.printStackTrace();
             } else {
+                instance.setCartModifiedOn(instance.mCartService.getCartModifiedOn());
                 instance.updateTransaction(transaction);
             }
         });
@@ -402,6 +410,11 @@ public class PaymentActivity extends AppCompatActivity
         String res = sp.getString("cartModifiedOn", null);
         return res;
     }
+
+    private void setCartModifiedOn(String timestamp) {
+        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
+        sp.edit().putString("cartModifiedOn", timestamp).commit();
+    }
     
     private void saveTransactionId(String transactionId) {
         SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
@@ -412,11 +425,6 @@ public class PaymentActivity extends AppCompatActivity
         SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
         String transactionId = sp.getString("transactionId", null);
         return transactionId;
-    }
-
-    private void setCartModifiedOn(String timestamp) {
-        SharedPreferences sp = getSharedPreferences("transaction", MODE_PRIVATE);
-        sp.edit().putString("cartModifiedOn", timestamp).commit();
     }
 
     private void initTransaction() {
@@ -435,7 +443,7 @@ public class PaymentActivity extends AppCompatActivity
         transactionDto.extras.recipientId = token;
         View view = findViewById(R.id.payment_layout);
         showProgress();
-        setCartModifiedOn(mCartService.getCartModifiedOn());
+        setCartModifiedOn(null);
         btnPay.setEnabled(false);
         mSnackBar = Snackbar.make(view, R.string.payment_updating_transaction, Snackbar.LENGTH_INDEFINITE);
         mTransactionRepository.create(transactionDto, (transaction, err) -> {
@@ -453,9 +461,36 @@ public class PaymentActivity extends AppCompatActivity
             hideProgress();
             if (!isNeedRecalculateCart() || !isChanged)
                 updateTransaction(transaction);
-            else
+            else {
+                mCartUpdated = false;
+                startUpdateCartWaiter();
                 mSnackBar.show();
+            }
         });
+    }
+
+    private void startUpdateCartWaiter() {
+        if (mUpdateCartThread != null && mUpdateCartThread.isAlive())
+            mUpdateCartThread.interrupt();
+        Log.d("Payment", "startUpdateCartWaiter");
+        mUpdateCartThread = new Thread(() -> {
+            try {
+                Thread.sleep(3 * 1000);
+                if (!mCartUpdated && mTransaction != null) {
+                    mTransactionRepository.getById(mTransaction.id, (transaction, err) -> {
+                        if (err == null && transaction.status == TransactionDto.TRANSACTION_STATUS_RECALCULATED) {
+                            mTransaction = transaction;
+                            updateTransaction(transaction);
+                        } else {
+                            startUpdateCartWaiter();
+                        }
+                    });
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        mUpdateCartThread.start();
     }
 
     private void markTransactionAsPayed(HashMap<String, String> payload) {

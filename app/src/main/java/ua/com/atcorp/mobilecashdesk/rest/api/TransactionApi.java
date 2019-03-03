@@ -28,6 +28,15 @@ public interface TransactionApi {
             @Query("showReceipt") boolean showReceipt
     );
 
+    @GET("transactions/{companyId}/finished")
+    Call<List<TransactionDto>> getFinished(
+            @Path("companyId") String companyId,
+            @Query("dateFrom") String dateFrom,
+            @Query("dateTo") String dateTo,
+            @Query("sort") String sort,
+            @Query("direction") String direction
+    );
+
     @GET("transactions/{id}")
     Call<TransactionDto> getById(@Path("id") String id);
 

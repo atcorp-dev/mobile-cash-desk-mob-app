@@ -72,7 +72,7 @@ public class CartItemsAdapter extends ArrayAdapter {
 
     private void setTextToView(View view, int textViewId, Object text) {
         TextView textView = view.findViewById(textViewId);
-        if (textView != null)
+        if (textView != null && text != null)
             textView.setText(text.toString());
     }
 

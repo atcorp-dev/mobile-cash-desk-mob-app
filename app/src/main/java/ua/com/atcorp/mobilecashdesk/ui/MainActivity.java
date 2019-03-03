@@ -3,6 +3,7 @@ package ua.com.atcorp.mobilecashdesk.ui;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +20,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.net.URL;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.models.Item;
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
     private int SCAN_REQ_CODE = 101;
+    private String mAppDownloadUrl = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +88,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        // getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean actionPrintZReportVisible = mSelectedMenuId == R.id.nav_transactions;
+        menu.findItem(R.id.action_print_z_report).setVisible(actionPrintZReportVisible);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -93,11 +105,6 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -116,6 +123,10 @@ public class MainActivity extends AppCompatActivity
             openCatalogueFragment();
         } else if (id == R.id.nav_transactions) {
             openTransactionsFragment();
+        } else if (id == R.id.nav_cart_history) {
+            openCartHistoryFragment();
+        } else if (id == R.id.nav_upgrade) {
+            upgradeApp();
         } else if (id == R.id.nav_profile) {
             openProfileActivity();
         } else if (id == R.id.nav_logout) {
@@ -146,6 +157,7 @@ public class MainActivity extends AppCompatActivity
                 .commit();
         mNavigationView.setCheckedItem(R.id.nav_main);
         setTitle("Головна");
+        invalidateOptionsMenu();
     }
 
     private void openCartFragment() {
@@ -157,7 +169,46 @@ public class MainActivity extends AppCompatActivity
                 .commit();
         mNavigationView.setCheckedItem(R.id.nav_cart);
         setTitle("Кошик");
+        invalidateOptionsMenu();
     }
+
+    private void openCatalogueFragment() {
+        mSelectedMenuId = R.id.nav_catalogue;
+        ItemListFragment catalogueFragment = new ItemListFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, catalogueFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_catalogue);
+        setTitle("Каталог");
+        invalidateOptionsMenu();
+    }
+
+    private void openTransactionsFragment() {
+        mSelectedMenuId = R.id.nav_transactions;
+        TransactionListFragment transactionListFragment = TransactionListFragment
+                .newInstance(1);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, transactionListFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_transactions);
+        setTitle("Архів");
+        invalidateOptionsMenu();
+    }
+
+    private void openCartHistoryFragment() {
+        mSelectedMenuId = R.id.nav_cart_history;
+        CartHistoryFragment cartHistoryFragment = CartHistoryFragment
+                .newInstance();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, cartHistoryFragment)
+                .commit();
+        mNavigationView.setCheckedItem(R.id.nav_cart_history);
+        setTitle("Історія");
+    }
+
 
     public void openCatalogueItemActivity(Item item) {
         openCatalogueItemActivity(item.getRecordId());
@@ -172,29 +223,6 @@ public class MainActivity extends AppCompatActivity
     public void openProfileActivity() {
         Intent intent = new Intent(this, UserProfilerActivity.class);
         startActivity(intent);
-    }
-
-    private void openCatalogueFragment() {
-        mSelectedMenuId = R.id.nav_cart;
-        ItemListFragment catalogueFragment = new ItemListFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, catalogueFragment)
-                .commit();
-        mNavigationView.setCheckedItem(R.id.nav_catalogue);
-        setTitle("Каталог");
-    }
-
-    private void openTransactionsFragment() {
-        mSelectedMenuId = R.id.nav_cart;
-        TransactionListFragment transactionListFragment = TransactionListFragment
-                .newInstance(1);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, transactionListFragment)
-                .commit();
-        mNavigationView.setCheckedItem(R.id.nav_transactions);
-        setTitle("Архів");
     }
 
     public void makePayment(String cartId, double price) {
@@ -270,6 +298,14 @@ public class MainActivity extends AppCompatActivity
 
     private void openLoginActivity() {
         Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    private void upgradeApp() {
+        if (TextUtils.isEmpty(mAppDownloadUrl))
+            return;
+        Uri uri = Uri.parse(mAppDownloadUrl);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
 

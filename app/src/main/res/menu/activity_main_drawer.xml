@@ -16,8 +16,16 @@
         <item
             android:id="@+id/nav_transactions"
             android:title="Архів" />
+        <item
+            android:id="@+id/nav_cart_history"
+            android:title="Історія" />
 
         <group android:id="@+id/group_account" android:checkableBehavior="single">
+
+            <item
+                android:id="@+id/nav_upgrade"
+                android:checkable="false"
+                android:title="Оновити додаток" />
 
             <item
                 android:id="@+id/nav_profile"

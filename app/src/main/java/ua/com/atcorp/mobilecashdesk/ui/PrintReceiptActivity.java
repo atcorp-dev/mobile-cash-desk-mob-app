@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -76,6 +77,16 @@ public class PrintReceiptActivity extends AppCompatActivity {
         MiniPosManager.getInstance().pinpadUnsubscribe();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+        return (super.onOptionsItemSelected(menuItem));
+    }
+
     public void onPrint(View view) {
         previewReceipt();
         MiniPosManager.getInstance().initPrinter(printerConnectionListener);
@@ -85,6 +96,11 @@ public class PrintReceiptActivity extends AppCompatActivity {
         webView.setVisibility(View.INVISIBLE);
         imgView.setVisibility(View.VISIBLE);
         final Bitmap bitmap = getBitmapFromWebView(webView);
+        if (bitmap == null) {
+            btnPrint.setEnabled(false);
+            Toast.makeText(this, "Помилка при отримані чеку", Toast.LENGTH_LONG);
+            return;
+        }
         mReceiptBitmap  =  getProportionalBitmap(bitmap,384,"X"); //horizontal max dot 384
         Bitmap previewBitmap  =  getProportionalBitmap(bitmap,bitmap.getWidth(),"X");
         bitmap.recycle();
@@ -159,7 +175,13 @@ public class PrintReceiptActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         try {
             Picture picture = webView.capturePicture();
-            bitmap = Bitmap.createBitmap(picture.getWidth(),picture.getHeight(), Bitmap.Config.RGB_565);
+            int width = picture.getWidth();
+            if (width <= 0)
+                width = 380;
+            int height = picture.getHeight();
+            if (height <= 0)
+                height = 380;
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
             picture.draw(canvas);
