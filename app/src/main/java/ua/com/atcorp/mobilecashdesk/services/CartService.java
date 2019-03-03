@@ -29,22 +29,22 @@ public class CartService extends BaseRepository {
     private Cart mCart;
     private CartItemsAdapter mAdapter;
     private DataSetObserver mDataSetObserver;
-    private CartRepository mCartRepository;
+    // private CartRepository mCartRepository;
     private AuthService mAuthService;
-    private boolean mCartClearing;
+    // private boolean mCartClearing;
 
     // region Constructors
 
     public CartService(Context context) {
         super(context);
-        mCartRepository = new CartRepository(context);
+        // mCartRepository = new CartRepository(context);
         mAuthService = new AuthService(context);
     }
 
     public CartService(Context context, DataSetObserver dataSetObserver) {
         super(context);
         mDataSetObserver = dataSetObserver;
-        mCartRepository = new CartRepository(context);
+        // mCartRepository = new CartRepository(context);
         mAuthService = new AuthService(context);
     }
 
@@ -71,7 +71,7 @@ public class CartService extends BaseRepository {
     }
 
     public void clearCart() {
-        mCartClearing = true;
+        // mCartClearing = true;
         if(mAdapter != null)
             mAdapter.clear();
         SharedPreferences sharedPref = getSharedPreferences();
@@ -80,7 +80,7 @@ public class CartService extends BaseRepository {
         Delete.from(Cart.class).execute();
         Delete.from((CartItem.class)).execute();
         restoreState();
-        mCartClearing = false;
+        // mCartClearing = false;
     }
 
     public void saveState() {
@@ -89,7 +89,7 @@ public class CartService extends BaseRepository {
         editor.putString("cartId" , mCart.getRecordId().toString());
         editor.putString("modifiedOn" , getDateTimeNow());
         Exception error = mAdapter.saveState();
-        mCartRepository.modify(mCart);
+        // mCartRepository.modify(mCart);
         if (error == null)
             editor.commit();
         else {
@@ -103,7 +103,7 @@ public class CartService extends BaseRepository {
         String companyId = mAuthService.getCurrentCompany().getRecordId();
         if(mCart == null) {
             mCart = getCartByRecordId(cartId);
-            mCartRepository.create(companyId, mCart);
+            // mCartRepository.create(companyId, mCart);
         }
         List<CartItem> cartItems = Select
                 .from(CartItem.class)
@@ -114,8 +114,8 @@ public class CartService extends BaseRepository {
             mCart.setItems(new ArrayList<>(cartItems));
         mAdapter = new CartItemsAdapter(getContext(), mCart.getRecordId(), mCart.getItems());
         mAdapter.registerDataSetObserver(getDataSetObserver());
-        if (mCartClearing)
-            mCartRepository.create(companyId, mCart);
+        /*if (mCartClearing)
+            mCartRepository.create(companyId, mCart);*/
         return this;
     }
 

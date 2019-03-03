@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
     private int SCAN_REQ_CODE = 101;
-    private String mAppDownloadUrl = null;
+    private String mAppDownloadUrl = "https://drive.google.com/open?id=1q-qKcNmMSg6K-8Rfn21BdYMT5ht4s9gz";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

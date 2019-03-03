@@ -3,6 +3,8 @@ package ua.com.atcorp.mobilecashdesk.ui;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import ua.com.atcorp.mobilecashdesk.R;
+
 public class CartHistoryItemDetailActivity extends AppCompatActivity {
 
     @Override
