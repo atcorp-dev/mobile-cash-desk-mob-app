@@ -6,4 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".ui.CartHistoryItemDetailActivity">
 
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:id="@+id/list"/>
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/webView" />
+
 </android.support.constraint.ConstraintLayout>

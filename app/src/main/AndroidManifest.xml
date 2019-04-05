@@ -17,7 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.CartHistoryItemDetailActivity"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -63,21 +62,23 @@
             android:screenOrientation="portrait"
             android:theme="@style/ActivityTheme.ActionBar" />
         <activity
-            android:name=".ui.UserProfilerActivity"
-            android:label="@string/user_profile"
+            android:name=".ui.CartHistoryItemDetailActivity"
+            android:label="@string/cart_history"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/ActivityTheme.ActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
-        </activity>
+            android:theme="@style/ActivityTheme.ActionBar" />
         <activity
             android:name=".ui.PrintReceiptActivity"
             android:label="@string/print_receipt_title"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/ActivityTheme.ActionBar"></activity>
+            android:theme="@style/ActivityTheme.ActionBar"/>
+        <activity
+            android:name=".ui.UserProfilerActivity"
+            android:label="@string/user_profile"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityTheme.ActionBar"/>
     </application>
 
 </manifest>

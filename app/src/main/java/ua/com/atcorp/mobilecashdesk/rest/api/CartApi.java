@@ -23,7 +23,7 @@ public interface CartApi {
     );
 
     @GET("carts/{id}")
-    Call<List<CartDto>> getCartById(@Path("id") String cartId);
+    Call<CartDto> getCartById(@Path("id") String cartId);
 
     @POST("carts")
     Call<CartDto> create(@Body() CartDto cartDto);

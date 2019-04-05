@@ -12,19 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.adapters.CartHistoryRecyclerViewAdapter;
-import ua.com.atcorp.mobilecashdesk.dummy.DummyContent;
-import ua.com.atcorp.mobilecashdesk.dummy.DummyContent.DummyItem;
 import ua.com.atcorp.mobilecashdesk.models.Company;
 import ua.com.atcorp.mobilecashdesk.repositories.CartRepository;
 import ua.com.atcorp.mobilecashdesk.rest.dto.CartDto;
@@ -33,7 +29,7 @@ import ua.com.atcorp.mobilecashdesk.services.AuthService;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnCartHistoryListFragmentInteractionListener}
  * interface.
  */
 public class CartHistoryFragment extends Fragment {
@@ -41,7 +37,7 @@ public class CartHistoryFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private CartRepository mCartRepository;
-    private OnListFragmentInteractionListener mListener;
+    private OnCartHistoryListFragmentInteractionListener mListener;
     final Calendar mCalendar = Calendar.getInstance();
     private Date mDateFrom = new Date();
     private List<CartDto> mCartHistoryList;
@@ -71,12 +67,9 @@ public class CartHistoryFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } /*else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }*/
+        if (context instanceof OnCartHistoryListFragmentInteractionListener) {
+            mListener = (OnCartHistoryListFragmentInteractionListener) context;
+        }
     }
 
     @Override
@@ -196,8 +189,8 @@ public class CartHistoryFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnListFragmentInteractionListener {
+    public interface OnCartHistoryListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(CartDto item);
+        void openCartHistoryDetail(CartDto item);
     }
 }

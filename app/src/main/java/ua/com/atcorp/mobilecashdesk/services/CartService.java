@@ -100,6 +100,8 @@ public class CartService extends BaseRepository {
 
     public CartService restoreState() {
         UUID cartId = mCart == null ? getActiveCartId() : mCart.getRecordId();
+        if (mAuthService.getCurrentCompany() == null)
+            return this;
         String companyId = mAuthService.getCurrentCompany().getRecordId();
         if(mCart == null) {
             mCart = getCartByRecordId(cartId);

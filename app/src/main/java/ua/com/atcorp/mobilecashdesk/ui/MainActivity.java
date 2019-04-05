@@ -25,20 +25,22 @@ import java.net.URL;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.models.Item;
+import ua.com.atcorp.mobilecashdesk.rest.dto.CartDto;
 import ua.com.atcorp.mobilecashdesk.services.AuthService;
 import ua.com.atcorp.mobilecashdesk.services.CartService;
 
 public class MainActivity extends AppCompatActivity
         implements MainFragment.MainFragmentEventListener,
         TransactionListFragment.OnListFragmentInteractionListener,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener,
+        CartHistoryFragment.OnCartHistoryListFragmentInteractionListener {
 
     private int mSelectedMenuId;
     private NavigationView mNavigationView;
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
     private int SCAN_REQ_CODE = 101;
-    private String mAppDownloadUrl = null;
+    private String mAppDownloadUrl = "https://drive.google.com/open?id=1SIYUxHK22izhqBJHs0s9RQwJRiT2XmL1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -235,6 +237,12 @@ public class MainActivity extends AppCompatActivity
     public void scanBarCode() {
         Intent intent = new Intent(this, BarcodeCaptureActivity.class);
         startActivityForResult(intent, SCAN_REQ_CODE);
+    }
+
+    public void openCartHistoryDetail(CartDto item) {
+        Intent intent = new Intent(this, CartHistoryItemDetailActivity.class);
+        intent.putExtra("cartHistoryId", item.id);
+        startActivity(intent);
     }
 
     @Override

@@ -62,6 +62,14 @@ public class CartRepository extends BaseRepository {
         return task.execute();
     }
 
+    public AsyncTask getCartById(String id, Predicate<CartDto, Exception> predicate) {
+        CartApi api = createService(CartApi.class, getContext());
+        Call<CartDto> call = api.getCartById(id);
+        CartTask task = new CartTask(predicate, call);
+        return task.execute();
+
+    }
+
 
     public class CartTask extends AsyncTask<Void,Void,CartDto> {
 

@@ -4,29 +4,31 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import ua.com.atcorp.mobilecashdesk.rest.dto.CartDto;
-import ua.com.atcorp.mobilecashdesk.ui.CartHistoryFragment.OnListFragmentInteractionListener;
+import ua.com.atcorp.mobilecashdesk.ui.CartHistoryFragment.OnCartHistoryListFragmentInteractionListener;
 import ua.com.atcorp.mobilecashdesk.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link CartDto} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * specified {@link OnCartHistoryListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class CartHistoryRecyclerViewAdapter extends RecyclerView.Adapter<CartHistoryRecyclerViewAdapter.ViewHolder> {
 
     private final List<CartDto> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final OnCartHistoryListFragmentInteractionListener mListener;
 
-    public CartHistoryRecyclerViewAdapter(List<CartDto> items, OnListFragmentInteractionListener listener) {
-        mValues = items;
+    public CartHistoryRecyclerViewAdapter(List<CartDto> items, OnCartHistoryListFragmentInteractionListener listener) {
+        mValues = items == null ? new ArrayList<>() : items;
         mListener = listener;
     }
 
@@ -47,11 +49,12 @@ public class CartHistoryRecyclerViewAdapter extends RecyclerView.Adapter<CartHis
         String userName = item.createdBy == null ? null :item.createdBy.login;
         holder.mUserNameView.setText(userName);
 
-        holder.mView.setOnClickListener(v -> {
+
+        holder.mBtnView.setOnClickListener(v -> {
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                mListener.onListFragmentInteraction(holder.mItem);
+                mListener.openCartHistoryDetail(holder.mItem);
             }
         });
     }
@@ -72,6 +75,7 @@ public class CartHistoryRecyclerViewAdapter extends RecyclerView.Adapter<CartHis
         public final TextView mIdView;
         public final TextView mContentView;
         public final TextView mUserNameView;
+        public final Button mBtnView;
         public CartDto mItem;
 
         public ViewHolder(View view) {
@@ -80,6 +84,7 @@ public class CartHistoryRecyclerViewAdapter extends RecyclerView.Adapter<CartHis
             mIdView = view.findViewById(R.id.item_number);
             mContentView = view.findViewById(R.id.content);
             mUserNameView = view.findViewById(R.id.user_name);
+            mBtnView = view.findViewById(R.id.btnDetails);
         }
 
         @Override
