@@ -3,9 +3,11 @@ package ua.com.atcorp.mobilecashdesk.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -16,6 +18,8 @@ import android.graphics.Picture;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
@@ -32,6 +36,7 @@ import android.webkit.WebViewClient;
 import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ua.com.atcorp.mobilecashdesk.IPaymentService;
 import ua.com.atcorp.mobilecashdesk.adapters.PaymentCartItemAdapter;
 import ua.com.atcorp.mobilecashdesk.models.Cart;
 import ua.com.atcorp.mobilecashdesk.models.CartItem;
@@ -55,6 +60,7 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.ui.dialog.BaseDialogFragment;
@@ -69,6 +75,19 @@ public class PaymentActivity extends AppCompatActivity
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private static final int REQUEST_ENABLE_BT = 2;
     private static PaymentActivity instance;
+
+    private IPaymentService serviceAIDL;
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            serviceAIDL = IPaymentService.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceAIDL = null;
+        }
+    };
 
     // region Fields: Private
 
@@ -143,6 +162,11 @@ public class PaymentActivity extends AppCompatActivity
         imgView.setVisibility(View.GONE);
 
         mUserService = new UserService(this);
+
+        Intent intent = new Intent();
+        intent.setAction("com.dataphone.paylibservice.aidl.gpb.IPaymentService");
+        intent.setPackage("com.dataphone.paylibservice");
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -290,6 +314,9 @@ public class PaymentActivity extends AppCompatActivity
                 case "atcorp":
                     makePayment(mStrAmount);
                     break;
+                case "sunmi":
+                    makePaymentSunmi(mAmount);
+                    break;
                 case "default":
                     String receipt = "<html><body>"
                             +"<div style=\"display: flex;justify-items: center;align-items:center\">Test</div>"
@@ -327,10 +354,10 @@ public class PaymentActivity extends AppCompatActivity
     // region Methods: Private
 
     private String getPaymentMethod() {
-        User user = mUserService.getCurrentUserInfo();
+        /*User user = mUserService.getCurrentUserInfo();
         String login = user.getLogin();
         if (login == null || !login.equals("admin"))
-            return "private";
+            return "private";*/
         SharedPreferences sp = getSharedPreferences("settings", MODE_PRIVATE);
         String method = sp.getString("payment_method", "default");
         return method;
@@ -718,6 +745,19 @@ public class PaymentActivity extends AppCompatActivity
 			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
         findViewById(R.id.btn_pay).setEnabled(true);
+    }
+
+    private void makePaymentSunmi(double amount) {
+        try {
+            Map res = serviceAIDL.payment(amount, null, null, null, null, null, null, null, getApplication().getPackageName(), null);
+            String resultCode = res.get("RESULT_CODE").toString();
+            String errorMessage = res.get("ERROR_DESCRIPTION").toString();
+            String msg = resultCode + ": " + errorMessage;
+            View view = findViewById(R.id.payment_layout);
+            Snackbar.make(view, msg, Snackbar.LENGTH_LONG).show();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     private String getEditTextValue(int id) {

@@ -96,4 +96,5 @@
     <string name="print_receipt_title">Друк чеку</string>
     <!-- Cart history -->
     <string name="cart_history">Історія</string>
+    <string name="title_activity_sunmi_barcode_capture">SunmiBarcodeCapture</string>
 </resources>

@@ -22,6 +22,9 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import ua.com.atcorp.mobilecashdesk.R;
 import ua.com.atcorp.mobilecashdesk.models.Item;
@@ -40,6 +43,8 @@ public class MainActivity extends AppCompatActivity
     CartFragment mCartFragment;
     private int PAYMENT_REQ_CODE = 100;
     private int SCAN_REQ_CODE = 101;
+    private int SUNMI_SCAN_REQ_CODE = 102;
+    private int SUNMI_CAMERA_SCAN_REQ_CODE = 103;
     private String mAppDownloadUrl = "https://drive.google.com/open?id=1SIYUxHK22izhqBJHs0s9RQwJRiT2XmL1";
 
     @Override
@@ -59,20 +64,8 @@ public class MainActivity extends AppCompatActivity
         mNavigationView.setNavigationItemSelectedListener(this);
 
         openMainFragment();
-
         pingSession();
-
         refreshFmcToken();
-    }
-
-    private void refreshFmcToken() {
-        SharedPreferences sp = getSharedPreferences("fcm", MODE_PRIVATE);
-        String token = sp.getString("token", null);
-        if (token == null)
-            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
-                String newToken = instanceIdResult.getToken();
-                sp.edit().putString("token", newToken).commit();
-            });
     }
 
     @Override
@@ -148,6 +141,37 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onCatalogueMenuItemClick() {
         openCatalogueFragment();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {return;}
+        if (requestCode == PAYMENT_REQ_CODE) {
+            onPaymentActivity(resultCode, data);
+        } else if (requestCode == SCAN_REQ_CODE) {
+            onBarCodeDetected(resultCode, data);
+        } else if (requestCode == SUNMI_SCAN_REQ_CODE) {
+            onSunmiScanerBarCodeDetected(resultCode, data);
+        } else if (requestCode == SUNMI_CAMERA_SCAN_REQ_CODE) {
+            onBarCodeDetected(resultCode, data);
+        }
+    }
+
+    @Override
+    public void onPrintReceipt(String receipt) {
+        Intent intent = new Intent(this, PrintReceiptActivity.class);
+        intent.putExtra("receipt", receipt);
+        startActivity(intent);
+    }
+
+    private void refreshFmcToken() {
+        SharedPreferences sp = getSharedPreferences("fcm", MODE_PRIVATE);
+        String token = sp.getString("token", null);
+        if (token == null)
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
+                String newToken = instanceIdResult.getToken();
+                sp.edit().putString("token", newToken).commit();
+            });
     }
 
     private void openMainFragment() {
@@ -235,8 +259,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void scanBarCode() {
-        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
-        startActivityForResult(intent, SCAN_REQ_CODE);
+        try {
+            scanBySunmiUsingScaner();
+        } catch (Exception e0) {
+            Log.e("Scan BarCode error", e0.getMessage(), e0);
+            try {
+                scanBySunmiUsingCamera();
+            } catch (Exception e1) {
+                Log.e("Scan BarCode error", e1.getMessage(), e1);
+            }
+        }
     }
 
     public void openCartHistoryDetail(CartDto item) {
@@ -245,20 +277,35 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {return;}
-        if (requestCode == PAYMENT_REQ_CODE) {
-            onPaymentActivity(resultCode, data);
-        } else if (requestCode == SCAN_REQ_CODE) {
-            onBarCodeDetected(resultCode, data);
-        }
-    }
-
     private void onPaymentActivity(int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             new CartService(this).clearCart();
         }
+    }
+
+    private void scanByGoogleLib() {
+        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+        startActivityForResult(intent, SCAN_REQ_CODE);
+    }
+
+    private void scanBySunmiUsingCamera() {
+        Intent intent = new Intent(this, SunmiBarcodeCapture.class);
+        startActivityForResult(intent, SUNMI_CAMERA_SCAN_REQ_CODE);
+    }
+
+    private void scanBySunmiUsingScaner() {
+        Intent intent = new Intent("com.summi.scan");
+        intent.setPackage("com.sunmi.sunmiqrcodescanner");
+
+        intent.putExtra("CURRENT_PPI", 0X0003);//The current preview resolution ,PPI_1920_1080 = 0X0001;PPI_1280_720 = 0X0002;PPI_BEST = 0X0003;
+        intent.putExtra("PLAY_SOUND", true);// Prompt tone after scanning  ,default true
+        intent.putExtra("PLAY_VIBRATE", false);//vibrate after scanning,default false,only support M1 right now.
+        intent.putExtra("IDENTIFY_INVERSE_QR_CODE", true);//Whether to identify inverse code
+        intent.putExtra("IDENTIFY_MORE_CODE", false);// Whether to identify several code，default false
+        intent.putExtra("IS_SHOW_SETTING", true);// Wether display set up button  at the top-right corner，default true
+        intent.putExtra("IS_SHOW_ALBUM", true);// Wether display album，default true
+
+        startActivityForResult(intent, SUNMI_SCAN_REQ_CODE);
     }
 
     private void onBarCodeDetected(int resultCode, Intent data) {
@@ -272,6 +319,28 @@ public class MainActivity extends AppCompatActivity
         } catch (Exception err) {
             String message = "ERROR IN DETECTING BAR CODE: " + err.getMessage();
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void onSunmiScanerBarCodeDetected(int resultCode, Intent data) {
+        Bundle bundle = data.getExtras();
+        ArrayList<HashMap<String, String>> result = (ArrayList<HashMap<String, String>>) bundle
+                .getSerializable("data");
+
+        Iterator<HashMap<String, String>> it = result.iterator();
+
+        while (it.hasNext()) {
+            HashMap<String, String> hashMap = it.next();
+
+            Log.i("sunmi", hashMap.get("TYPE"));//this is the type of the code
+            Log.i("sunmi", hashMap.get("VALUE"));//this is the result of the code
+
+            String barCode = hashMap.get("VALUE");
+            if (barCode != null && mCartFragment != null) {
+                mCartFragment.addItemByBarCode(barCode);
+                break;
+            }
+
         }
     }
 
@@ -314,13 +383,6 @@ public class MainActivity extends AppCompatActivity
             return;
         Uri uri = Uri.parse(mAppDownloadUrl);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onPrintReceipt(String receipt) {
-        Intent intent = new Intent(this, PrintReceiptActivity.class);
-        intent.putExtra("receipt", receipt);
         startActivity(intent);
     }
 }

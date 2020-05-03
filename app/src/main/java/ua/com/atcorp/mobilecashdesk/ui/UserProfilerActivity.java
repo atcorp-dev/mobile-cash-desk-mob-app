@@ -79,6 +79,7 @@ public class UserProfilerActivity extends AppCompatActivity {
         data.add(new String[] {"default", "Default"});
         data.add(new String[] {"private", "Private Bank"});
         data.add(new String[] {"atcorp", "AT CORP"});
+        data.add(new String[] {"sunmi", "SUNMI"});
         ArrayList<String> list = new ArrayList<>();
         for(String[] item : data)
             list.add(item[1]);
